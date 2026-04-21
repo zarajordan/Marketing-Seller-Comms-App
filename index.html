@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IBM Marketing Comms, UKI - Export to Outlook</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=2">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-title">
+                <h1>IBM Marketing Comms</h1>
+                <div class="header-subtitle">United Kingdom & Ireland</div>
+            </div>
+            <p class="header-description">Professional Communication Builder for Outlook</p>
+        </header>
+
+        <div class="tabs">
+            <button type="button" class="tab-btn active" data-tab="create">Create Comm</button>
+            <button type="button" class="tab-btn" data-tab="templates">📚 Templates</button>
+            <button type="button" class="tab-btn" data-tab="events">🎯 Event Library</button>
+            <button type="button" class="tab-btn" data-tab="drafts">My Drafts</button>
+            <button type="button" class="tab-btn" data-tab="dashboard">📊 Dashboard</button>
+            <button type="button" class="tab-btn" data-tab="ai">🤖 AI Assistant</button>
+        </div>
+
+        <main>
+            <div id="createTab" class="tab-content active">
+            <form id="commForm">
+                <div class="form-group">
+                    <label for="bannerImage">Banner/Hero Image (Optional)</label>
+                    <div class="image-source-buttons">
+                        <button type="button" id="uploadBannerBtn" class="btn btn-secondary">📁 Upload Image</button>
+                        <button type="button" id="galleryBannerBtn" class="btn btn-secondary">🖼️ Choose from Gallery</button>
+                    </div>
+                    <input type="file" id="bannerImage" name="bannerImage" accept="image/*" style="display: none;">
+                    <div id="bannerPreview" class="image-preview hidden">
+                        <img id="bannerPreviewImg" src="" alt="Banner preview">
+                        <button type="button" class="remove-image" data-target="banner">✕ Remove</button>
+                    </div>
+                    <small class="form-hint">Large banner image that appears at the top of the email</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="monthYear">Date</label>
+                    <input type="text" id="monthYear" name="monthYear" placeholder="e.g., March 2026">
+                    <small class="form-hint">Appears at the top of the email</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="title">Main Title *</label>
+                    <input type="text" id="title" name="title" required placeholder="e.g., UKI Marketing Spotlight">
+                </div>
+
+                <div class="form-group">
+                    <label for="subtitle">Subtitle (Optional)</label>
+                    <input type="text" id="subtitle" name="subtitle" placeholder="e.g., A Summer of Sport">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fontFamily">Font Family</label>
+                        <select id="fontFamily" name="fontFamily">
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
+                            <option value="'IBM Plex Sans', sans-serif" selected>IBM Plex Sans</option>
+                            <option value="Georgia, serif">Georgia</option>
+                            <option value="'Times New Roman', serif">Times New Roman</option>
+                            <option value="'Courier New', monospace">Courier New</option>
+                            <option value="Verdana, sans-serif">Verdana</option>
+                            <option value="Tahoma, sans-serif">Tahoma</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fontSize">Body Font Size</label>
+                        <select id="fontSize" name="fontSize">
+                            <option value="12px">12px - Small</option>
+                            <option value="14px">14px - Regular</option>
+                            <option value="16px" selected>16px - Medium</option>
+                            <option value="18px">18px - Large</option>
+                            <option value="20px">20px - Extra Large</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="color-palette-section">
+                    <h3>Color Palette</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="titleColor">Title Color</label>
+                            <input type="color" id="titleColor" name="titleColor" value="#161616">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bodyColor">Body Text Color</label>
+                            <input type="color" id="bodyColor" name="bodyColor" value="#161616">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="subtitleColor">Subtitle Color</label>
+                            <input type="color" id="subtitleColor" name="subtitleColor" value="#525252">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ctaColor">CTA Button Color</label>
+                            <input type="color" id="ctaColor" name="ctaColor" value="#0f62fe">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="body">Message Body *</label>
+                    <div class="rich-text-editor">
+                        <div class="editor-toolbar">
+                            <button type="button" class="toolbar-btn" data-command="bold" title="Bold (Ctrl+B)">
+                                <strong>B</strong>
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="italic" title="Italic (Ctrl+I)">
+                                <em>I</em>
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="underline" title="Underline (Ctrl+U)">
+                                <u>U</u>
+                            </button>
+                            <span class="toolbar-divider"></span>
+                            <button type="button" class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List">
+                                ☰
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="insertOrderedList" title="Numbered List">
+                                ≡
+                            </button>
+                            <span class="toolbar-divider"></span>
+                            <button type="button" class="toolbar-btn" data-command="justifyLeft" title="Align Left">
+                                ⬅
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="justifyCenter" title="Align Center">
+                                ↔
+                            </button>
+                            <button type="button" class="toolbar-btn" data-command="justifyRight" title="Align Right">
+                                ➡
+                            </button>
+                            <span class="toolbar-divider"></span>
+                            <button type="button" class="toolbar-btn" data-command="createLink" title="Insert Link">
+                                🔗
+                            </button>
+                            <button type="button" class="toolbar-btn emoji-btn" data-target="body" title="Insert Emoji">
+                                😀
+                            </button>
+                        </div>
+                        <div id="body" class="editor-content" contenteditable="true" data-placeholder="Enter your main message content"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ctaText">Call-to-Action Button Text (Optional)</label>
+                    <input type="text" id="ctaText" name="ctaText" placeholder="e.g., UKI MCC Page">
+                </div>
+
+                <div class="form-group">
+                    <label for="ctaLink">Call-to-Action Button Link (Optional)</label>
+                    <input type="url" id="ctaLink" name="ctaLink" placeholder="https://example.com">
+                </div>
+                <div class="form-group">
+                    <label for="videoUrl">Video URL (Optional)</label>
+                    <input type="url" id="videoUrl" name="videoUrl" placeholder="YouTube or Vimeo URL (e.g., https://www.youtube.com/watch?v=...)">
+                    <small class="form-hint">Paste a YouTube or Vimeo link. A clickable thumbnail will be embedded in the email.</small>
+                </div>
+
+
+                <div id="additionalSections">
+                    <div class="section-header">
+                        <h3>Additional Sections</h3>
+                        <button type="button" id="addSection" class="btn btn-secondary">
+                            ➕ Add Section
+                        </button>
+                    </div>
+                    <div id="sectionsContainer"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="inlineImages">Inline Images (Optional - Multiple allowed)</label>
+                    <div class="image-source-buttons">
+                        <button type="button" id="uploadInlineBtn" class="btn btn-secondary">📁 Upload Images</button>
+                        <button type="button" id="galleryInlineBtn" class="btn btn-secondary">🖼️ Choose from Gallery</button>
+                    </div>
+                    <input type="file" id="inlineImages" name="inlineImages" accept="image/*" multiple style="display: none;">
+                    <div id="inlinePreview" class="image-preview-grid"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location (Optional)</label>
+                    <input type="text" id="location" name="location" placeholder="Meeting location or URL">
+                </div>
+
+                <div class="button-group">
+                    <button type="button" id="saveDraft" class="btn btn-draft">
+                        💾 Save as Draft
+                    </button>
+                    <button type="button" id="loadDraft" class="btn btn-draft">
+                        📂 Load Draft
+                    </button>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" id="previewBtn" class="btn btn-preview">
+                        👁️ Preview Email
+                    </button>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" id="exportEmail" class="btn btn-primary">
+                        ✉️ Export to Outlook (.eml)
+                    </button>
+                    <button type="button" id="exportHTML" class="btn btn-secondary">
+                        📄 Export as HTML
+                    </button>
+                    <button type="button" id="exportPDF" class="btn btn-secondary">
+                        📑 Export as PDF
+                    </button>
+                    <button type="button" id="exportText" class="btn btn-secondary">
+                        📝 Export as Plain Text
+                    </button>
+                    <button type="button" id="postToSlack" class="btn btn-secondary">
+                        💬 Post to Slack
+                    </button>
+                    <button type="reset" class="btn btn-reset">
+                        🔄 Clear Form
+                    </button>
+                </div>
+            </form>
+            </div>
+
+            <!-- Templates Tab -->
+            <div id="templatesTab" class="tab-content">
+                <div class="templates-container">
+                    <h2>📚 Template Library</h2>
+                    <p class="templates-description">Choose from pre-built templates to get started quickly. Click "Use Template" to load it into the editor.</p>
+                    
+                    <div class="templates-grid">
+                        <!-- Announcement Template -->
+                        <div class="template-card" data-template="announcement">
+                            <div class="template-icon">📢</div>
+                            <h3>Company Announcement</h3>
+                            <p class="template-description">Professional announcement for company news, updates, or important information</p>
+                            <div class="template-preview">
+                                <strong>Includes:</strong> Title, subtitle, body text, CTA button
+                            </div>
+                            <button type="button" class="btn btn-primary use-template-btn" data-template="announcement">
+                                Use Template
+                            </button>
+                        </div>
+
+                        <!-- Newsletter Template -->
+                        <div class="template-card" data-template="newsletter">
+                            <div class="template-icon">📰</div>
+                            <h3>Newsletter</h3>
+                            <p class="template-description">Monthly or weekly newsletter with multiple sections for updates and highlights</p>
+                            <div class="template-preview">
+                                <strong>Includes:</strong> Banner, title, multiple sections, inline images
+                            </div>
+                            <button type="button" class="btn btn-primary use-template-btn" data-template="newsletter">
+                                Use Template
+                            </button>
+                        </div>
+
+                        <!-- Event Invitation Template -->
+                        <div class="template-card" data-template="event">
+                            <div class="template-icon">🎉</div>
+                            <h3>Event Invitation</h3>
+                            <p class="template-description">Engaging invitation for events, webinars, conferences, or team gatherings</p>
+                            <div class="template-preview">
+                                <strong>Includes:</strong> Banner, date, location, RSVP button, event details
+                            </div>
+                            <button type="button" class="btn btn-primary use-template-btn" data-template="event">
+                                Use Template
+                            </button>
+                        </div>
+
+                        <!-- Product Launch Template -->
+                        <div class="template-card" data-template="product">
+                            <div class="template-icon">🚀</div>
+                            <h3>Product Launch</h3>
+                            <p class="template-description">Exciting announcement for new products, features, or service launches</p>
+                            <div class="template-preview">
+                                <strong>Includes:</strong> Hero image, product highlights, features, CTA
+                            </div>
+                            <button type="button" class="btn btn-primary use-template-btn" data-template="product">
+                                Use Template
+                            </button>
+                        </div>
+
+                        <!-- Team Update Template -->
+                        <div class="template-card" data-template="team-update">
+                            <div class="template-icon">👥</div>
+                            <h3>Team Update</h3>
+                            <p class="template-description">Internal communication for team achievements, milestones, or organizational changes</p>
+                            <div class="template-preview">
+                                <strong>Includes:</strong> Title, team highlights, multiple sections
+                            </div>
+                            <button type="button" class="btn btn-primary use-template-btn" data-template="team-update">
+                                Use Template
+                            </button>
+                        </div>
+
+                        <!-- Welcome Email Template -->
+                        <div class="template-card" data-template="welcome">
+                            <div class="template-icon">👋</div>
+                            <h3>Welcome Email</h3>
+                            <p class="template-description">Warm welcome message for new employees, customers, or community members</p>
+                            <div class="template-preview">
+                                <strong>Includes:</strong> Friendly greeting, getting started info, resources
+                            </div>
+                            <button type="button" class="btn btn-primary use-template-btn" data-template="welcome">
+                                Use Template
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Library Tab -->
+            <div id="eventsTab" class="tab-content">
+                <div class="event-library-container">
+                    <div class="event-library-header">
+                        <h2>🎯 Event Library</h2>
+                        <p class="event-library-description">Drag and drop events to build your personalized client communication</p>
+                    </div>
+
+                    <div class="event-library-content">
+
+                        <div class="event-selection-container">
+                            <!-- Filter Section -->
+                            <div class="event-filters-section">
+                                <h4>Filter Events</h4>
+                                <div class="event-filters">
+                                    <select class="filter-select" id="eventTypeFilter">
+                                        <option value="all">All Types</option>
+                                        <option value="webinar">Webinar</option>
+                                        <option value="conference">Conference</option>
+                                        <option value="workshop">Workshop</option>
+                                        <option value="summit">Summit</option>
+                                        <option value="training">Training</option>
+                                    </select>
+                                    <select class="filter-select" id="eventBrandFilter">
+                                        <option value="all">All Brands</option>
+                                        <option value="cloud">IBM Cloud</option>
+                                        <option value="watson">IBM Watson</option>
+                                        <option value="security">IBM Security</option>
+                                        <option value="consulting">IBM Consulting</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Events List with Checkboxes -->
+                            <div class="events-checkbox-list" id="availableEvents">
+                                <!-- Sample Events -->
+                                <div class="event-checkbox-item" data-event-id="1" data-type="summit" data-brand="cloud">
+                                    <input type="checkbox" class="event-checkbox" id="event-1" value="1">
+                                    <label for="event-1" class="event-checkbox-label">
+                                        <div class="event-badge cloud">IBM Cloud</div>
+                                        <div class="event-details">
+                                            <h5>AI & Cloud Innovation Summit 2026</h5>
+                                            <p class="event-date">📅 May 15-17, 2026 | London</p>
+                                            <p class="event-description">Join industry leaders to explore the latest in AI and cloud technologies.</p>
+                                            <div class="event-meta">
+                                                <span class="event-type">Summit</span>
+                                                <span class="event-audience">Enterprise</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div class="event-checkbox-item" data-event-id="2" data-type="webinar" data-brand="watson">
+                                    <input type="checkbox" class="event-checkbox" id="event-2" value="2">
+                                    <label for="event-2" class="event-checkbox-label">
+                                        <div class="event-badge watson">IBM Watson</div>
+                                        <div class="event-details">
+                                            <h5>Watson AI Masterclass</h5>
+                                            <p class="event-date">📅 June 8, 2026 | Virtual</p>
+                                            <p class="event-description">Deep dive into Watson AI capabilities and real-world applications.</p>
+                                            <div class="event-meta">
+                                                <span class="event-type">Webinar</span>
+                                                <span class="event-audience">Technical</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div class="event-checkbox-item" data-event-id="3" data-type="conference" data-brand="security">
+                                    <input type="checkbox" class="event-checkbox" id="event-3" value="3">
+                                    <label for="event-3" class="event-checkbox-label">
+                                        <div class="event-badge security">IBM Security</div>
+                                        <div class="event-details">
+                                            <h5>Cybersecurity Leadership Forum</h5>
+                                            <p class="event-date">📅 July 22, 2026 | Manchester</p>
+                                            <p class="event-description">Executive forum on emerging security threats and solutions.</p>
+                                            <div class="event-meta">
+                                                <span class="event-type">Conference</span>
+                                                <span class="event-audience">C-Level</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div class="event-checkbox-item" data-event-id="4" data-type="workshop" data-brand="consulting">
+                                    <input type="checkbox" class="event-checkbox" id="event-4" value="4">
+                                    <label for="event-4" class="event-checkbox-label">
+                                        <div class="event-badge consulting">IBM Consulting</div>
+                                        <div class="event-details">
+                                            <h5>Digital Transformation Workshop</h5>
+                                            <p class="event-date">📅 August 5-6, 2026 | Edinburgh</p>
+                                            <p class="event-description">Hands-on workshop for enterprise digital transformation strategies.</p>
+                                            <div class="event-meta">
+                                                <span class="event-type">Workshop</span>
+                                                <span class="event-audience">Business Leaders</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div class="event-checkbox-item" data-event-id="5" data-type="training" data-brand="cloud">
+                                    <input type="checkbox" class="event-checkbox" id="event-5" value="5">
+                                    <label for="event-5" class="event-checkbox-label">
+                                        <div class="event-badge cloud">IBM Cloud</div>
+                                        <div class="event-details">
+                                            <h5>Hybrid Cloud Architecture Training</h5>
+                                            <p class="event-date">📅 September 12-13, 2026 | Virtual</p>
+                                            <p class="event-description">Technical training on hybrid cloud architecture and best practices.</p>
+                                            <div class="event-meta">
+                                                <span class="event-type">Training</span>
+                                                <span class="event-audience">IT Professionals</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="event-actions-section">
+                                <div class="selected-count">
+                                    <span id="selectedCount">0</span> event(s) selected
+                                </div>
+                                <div class="event-action-buttons">
+                                    <button type="button" class="btn btn-secondary" id="clearSelectedEvents">
+                                        Clear Selection
+                                    </button>
+                                    <button type="button" class="btn btn-primary" id="createCommFromEvents">
+                                        ✉️ Create Communication
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Preview Section (Hidden by default) -->
+                            <div class="event-preview-section hidden" id="eventPreviewSection">
+                                <div class="preview-header">
+                                    <h3>📧 Communication Preview</h3>
+                                    <button type="button" class="btn btn-secondary btn-sm" id="backToSelection">
+                                        ← Back to Selection
+                                    </button>
+                                </div>
+                                
+                                <div class="preview-content" id="eventPreviewContent">
+                                    <!-- Preview will be generated here -->
+                                </div>
+
+                                <div class="preview-actions">
+                                    <button type="button" class="btn btn-secondary" id="previewCommBtn">
+                                        👁️ Preview in Modal
+                                    </button>
+                                    <button type="button" class="btn btn-primary" id="exportCommBtn">
+                                        📥 Export to Outlook
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Drafts Tab -->
+            <div id="draftsTab" class="tab-content">
+                <div id="draftsList"></div>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboardTab" class="tab-content">
+                <div class="dashboard-container">
+                    <div class="dashboard-header">
+                        <h2>📊 Communications Dashboard</h2>
+                        <p class="dashboard-subtitle">Track and analyze your communication campaigns</p>
+                    </div>
+
+                    <!-- Key Metrics -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon">📧</div>
+                            <div class="metric-content">
+                                <div class="metric-value">247</div>
+                                <div class="metric-label">Total Comms Sent</div>
+                                <div class="metric-change positive">+12% vs last month</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">📅</div>
+                            <div class="metric-content">
+                                <div class="metric-value">18</div>
+                                <div class="metric-label">This Month</div>
+                                <div class="metric-change positive">+3 vs last month</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">⭐</div>
+                            <div class="metric-content">
+                                <div class="metric-value">5</div>
+                                <div class="metric-label">Active Campaigns</div>
+                                <div class="metric-change neutral">Same as last month</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">🎯</div>
+                            <div class="metric-content">
+                                <div class="metric-value">89%</div>
+                                <div class="metric-label">Engagement Rate</div>
+                                <div class="metric-change positive">+5% vs last month</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="dashboard-row">
+                        <!-- Communication Types Chart -->
+                        <div class="dashboard-card">
+                            <h3>Communication Types</h3>
+                            <div class="chart-container">
+                                <div class="bar-chart">
+                                    <div class="bar-item">
+                                        <div class="bar-label">Newsletter</div>
+                                        <div class="bar-wrapper">
+                                            <div class="bar" style="width: 85%; background: #0f62fe;">
+                                                <span class="bar-value">85</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-item">
+                                        <div class="bar-label">Event Invite</div>
+                                        <div class="bar-wrapper">
+                                            <div class="bar" style="width: 65%; background: #0043ce;">
+                                                <span class="bar-value">65</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-item">
+                                        <div class="bar-label">Announcement</div>
+                                        <div class="bar-wrapper">
+                                            <div class="bar" style="width: 52%; background: #002d9c;">
+                                                <span class="bar-value">52</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-item">
+                                        <div class="bar-label">Product Launch</div>
+                                        <div class="bar-wrapper">
+                                            <div class="bar" style="width: 28%; background: #001d6c;">
+                                                <span class="bar-value">28</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-item">
+                                        <div class="bar-label">Team Update</div>
+                                        <div class="bar-wrapper">
+                                            <div class="bar" style="width: 17%; background: #001141;">
+                                                <span class="bar-value">17</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Brand Distribution Chart -->
+                        <div class="dashboard-card">
+                            <h3>Brand Distribution</h3>
+                            <div class="chart-container">
+                                <div class="donut-chart">
+                                    <svg viewBox="0 0 200 200" class="donut-svg">
+                                        <!-- IBM Cloud -->
+                                        <circle cx="100" cy="100" r="60" fill="none" stroke="#0f62fe" stroke-width="40"
+                                            stroke-dasharray="188.5 377" transform="rotate(-90 100 100)"/>
+                                        <!-- IBM Watson -->
+                                        <circle cx="100" cy="100" r="60" fill="none" stroke="#8a3ffc" stroke-width="40"
+                                            stroke-dasharray="113.1 377" stroke-dashoffset="-188.5" transform="rotate(-90 100 100)"/>
+                                        <!-- IBM Security -->
+                                        <circle cx="100" cy="100" r="60" fill="none" stroke="#da1e28" stroke-width="40"
+                                            stroke-dasharray="56.5 377" stroke-dashoffset="-301.6" transform="rotate(-90 100 100)"/>
+                                        <!-- IBM Consulting -->
+                                        <circle cx="100" cy="100" r="60" fill="none" stroke="#24a148" stroke-width="40"
+                                            stroke-dasharray="18.8 377" stroke-dashoffset="-358.1" transform="rotate(-90 100 100)"/>
+                                    </svg>
+                                    <div class="donut-legend">
+                                        <div class="legend-item">
+                                            <span class="legend-color" style="background: #0f62fe;"></span>
+                                            <span class="legend-label">IBM Cloud (50%)</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <span class="legend-color" style="background: #8a3ffc;"></span>
+                                            <span class="legend-label">IBM Watson (30%)</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <span class="legend-color" style="background: #da1e28;"></span>
+                                            <span class="legend-label">IBM Security (15%)</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <span class="legend-color" style="background: #24a148;"></span>
+                                            <span class="legend-label">IBM Consulting (5%)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Trend -->
+                    <div class="dashboard-card full-width">
+                        <h3>Monthly Communication Trend</h3>
+                        <div class="chart-container">
+                            <div class="line-chart">
+                                <div class="line-chart-grid">
+                                    <div class="grid-line"><span class="grid-label">100</span></div>
+                                    <div class="grid-line"><span class="grid-label">75</span></div>
+                                    <div class="grid-line"><span class="grid-label">50</span></div>
+                                    <div class="grid-line"><span class="grid-label">25</span></div>
+                                    <div class="grid-line"><span class="grid-label">0</span></div>
+                                </div>
+                                <svg viewBox="0 0 600 200" class="line-chart-svg">
+                                    <!-- Line path -->
+                                    <polyline points="50,150 100,120 150,140 200,100 250,80 300,90 350,60 400,70 450,50 500,65 550,45"
+                                        fill="none" stroke="#0f62fe" stroke-width="3"/>
+                                    <!-- Data points -->
+                                    <circle cx="50" cy="150" r="4" fill="#0f62fe"/>
+                                    <circle cx="100" cy="120" r="4" fill="#0f62fe"/>
+                                    <circle cx="150" cy="140" r="4" fill="#0f62fe"/>
+                                    <circle cx="200" cy="100" r="4" fill="#0f62fe"/>
+                                    <circle cx="250" cy="80" r="4" fill="#0f62fe"/>
+                                    <circle cx="300" cy="90" r="4" fill="#0f62fe"/>
+                                    <circle cx="350" cy="60" r="4" fill="#0f62fe"/>
+                                    <circle cx="400" cy="70" r="4" fill="#0f62fe"/>
+                                    <circle cx="450" cy="50" r="4" fill="#0f62fe"/>
+                                    <circle cx="500" cy="65" r="4" fill="#0f62fe"/>
+                                    <circle cx="550" cy="45" r="4" fill="#0f62fe"/>
+                                </svg>
+                                <div class="line-chart-labels">
+                                    <span>Jan</span>
+                                    <span>Feb</span>
+                                    <span>Mar</span>
+                                    <span>Apr</span>
+                                    <span>May</span>
+                                    <span>Jun</span>
+                                    <span>Jul</span>
+                                    <span>Aug</span>
+                                    <span>Sep</span>
+                                    <span>Oct</span>
+                                    <span>Nov</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity & Top Tags -->
+                    <div class="dashboard-row">
+                        <!-- Recent Activity -->
+                        <div class="dashboard-card">
+                            <h3>Recent Activity</h3>
+                            <div class="activity-list">
+                                <div class="activity-item">
+                                    <div class="activity-icon">📧</div>
+                                    <div class="activity-content">
+                                        <div class="activity-title">Q2 Product Launch Newsletter</div>
+                                        <div class="activity-meta">
+                                            <span class="activity-tag">Newsletter</span>
+                                            <span class="activity-brand" style="color: #0f62fe;">IBM Cloud</span>
+                                            <span class="activity-date">2 hours ago</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon">🎉</div>
+                                    <div class="activity-content">
+                                        <div class="activity-title">AI Summit London Invitation</div>
+                                        <div class="activity-meta">
+                                            <span class="activity-tag">Event</span>
+                                            <span class="activity-brand" style="color: #8a3ffc;">IBM Watson</span>
+                                            <span class="activity-date">5 hours ago</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon">📢</div>
+                                    <div class="activity-content">
+                                        <div class="activity-title">Security Update Announcement</div>
+                                        <div class="activity-meta">
+                                            <span class="activity-tag">Announcement</span>
+                                            <span class="activity-brand" style="color: #da1e28;">IBM Security</span>
+                                            <span class="activity-date">1 day ago</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon">🚀</div>
+                                    <div class="activity-content">
+                                        <div class="activity-title">New Feature Release</div>
+                                        <div class="activity-meta">
+                                            <span class="activity-tag">Product Launch</span>
+                                            <span class="activity-brand" style="color: #0f62fe;">IBM Cloud</span>
+                                            <span class="activity-date">2 days ago</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon">👥</div>
+                                    <div class="activity-content">
+                                        <div class="activity-title">Team Quarterly Review</div>
+                                        <div class="activity-meta">
+                                            <span class="activity-tag">Team Update</span>
+                                            <span class="activity-brand" style="color: #24a148;">IBM Consulting</span>
+                                            <span class="activity-date">3 days ago</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top Tags & Categories -->
+                        <div class="dashboard-card">
+                            <h3>Top Tags & Categories</h3>
+                            <div class="tags-cloud">
+                                <span class="tag-bubble large">Product Launch</span>
+                                <span class="tag-bubble medium">Newsletter</span>
+                                <span class="tag-bubble large">Event</span>
+                                <span class="tag-bubble small">Webinar</span>
+                                <span class="tag-bubble medium">Announcement</span>
+                                <span class="tag-bubble small">Training</span>
+                                <span class="tag-bubble medium">Update</span>
+                                <span class="tag-bubble large">Marketing</span>
+                                <span class="tag-bubble small">Internal</span>
+                                <span class="tag-bubble medium">Customer</span>
+                                <span class="tag-bubble small">Partner</span>
+                                <span class="tag-bubble medium">Sales</span>
+                            </div>
+                            <div class="category-stats">
+                                <div class="category-stat-item">
+                                    <span class="category-name">Marketing</span>
+                                    <div class="category-bar">
+                                        <div class="category-fill" style="width: 75%; background: #0f62fe;"></div>
+                                    </div>
+                                    <span class="category-count">75</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="category-name">Sales</span>
+                                    <div class="category-bar">
+                                        <div class="category-fill" style="width: 60%; background: #8a3ffc;"></div>
+                                    </div>
+                                    <span class="category-count">60</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="category-name">Internal</span>
+                                    <div class="category-bar">
+                                        <div class="category-fill" style="width: 45%; background: #24a148;"></div>
+                                    </div>
+                                    <span class="category-count">45</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="category-name">Customer</span>
+                                    <div class="category-bar">
+                                        <div class="category-fill" style="width: 38%; background: #da1e28;"></div>
+                                    </div>
+                                    <span class="category-count">38</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="category-name">Partner</span>
+                                    <div class="category-bar">
+                                        <div class="category-fill" style="width: 29%; background: #ff832b;"></div>
+                                    </div>
+                                    <span class="category-count">29</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter & Export Section -->
+                    <div class="dashboard-card full-width">
+                        <h3>Filter & Export Data</h3>
+                        <div class="dashboard-filters">
+                            <div class="filter-group">
+                                <label>Date Range</label>
+                                <select class="filter-select">
+                                    <option>Last 7 days</option>
+                                    <option>Last 30 days</option>
+                                    <option selected>Last 3 months</option>
+                                    <option>Last 6 months</option>
+                                    <option>Last year</option>
+                                    <option>All time</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>Communication Type</label>
+                                <select class="filter-select">
+                                    <option selected>All Types</option>
+                                    <option>Newsletter</option>
+                                    <option>Event Invite</option>
+                                    <option>Announcement</option>
+                                    <option>Product Launch</option>
+                                    <option>Team Update</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>Brand</label>
+                                <select class="filter-select">
+                                    <option selected>All Brands</option>
+                                    <option>IBM Cloud</option>
+                                    <option>IBM Watson</option>
+                                    <option>IBM Security</option>
+                                    <option>IBM Consulting</option>
+                                </select>
+                            </div>
+                            <div class="filter-actions">
+                                <button type="button" class="btn btn-primary">Apply Filters</button>
+                                <button type="button" class="btn btn-secondary">Reset</button>
+                                <button type="button" class="btn btn-secondary">📊 Export CSV</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Assistant Tab -->
+            <div id="aiTab" class="tab-content">
+                <div class="ai-assistant-container">
+                    <h2>🤖 AI Content Assistant</h2>
+                    <p class="ai-description">Get help generating professional content for your communications. Describe what you need, and the AI will help you craft the perfect message.</p>
+                    
+                    <div class="ai-form">
+                        <div class="form-group">
+                            <label for="aiPrompt">What would you like to write about?</label>
+                            <textarea id="aiPrompt" rows="4" placeholder="Example: Write a professional announcement about our upcoming AI Summit in London, highlighting keynote speakers and networking opportunities"></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="aiTone">Tone</label>
+                                <select id="aiTone">
+                                    <option value="professional">Professional</option>
+                                    <option value="friendly">Friendly</option>
+                                    <option value="formal">Formal</option>
+                                    <option value="casual">Casual</option>
+                                    <option value="enthusiastic">Enthusiastic</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="aiLength">Length</label>
+                                <select id="aiLength">
+                                    <option value="short">Short (2-3 sentences)</option>
+                                    <option value="medium" selected>Medium (1 paragraph)</option>
+                                    <option value="long">Long (2-3 paragraphs)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="button" id="generateContent" class="btn btn-primary">
+                                ✨ Generate Content
+                            </button>
+                            <button type="button" id="clearAI" class="btn btn-secondary">
+                                🔄 Clear
+                            </button>
+                        </div>
+
+                        <div id="aiOutput" class="ai-output hidden">
+                            <h3>Generated Content</h3>
+                            <div id="aiResult" class="ai-result"></div>
+                            <div class="button-group">
+                                <button type="button" id="useAIContent" class="btn btn-primary">
+                                    ✅ Use This Content
+                                </button>
+                                <button type="button" id="regenerateContent" class="btn btn-secondary">
+                                    🔄 Regenerate
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="ai-templates">
+                            <h3>Quick Templates</h3>
+                            <div class="template-grid">
+                                <button type="button" class="template-btn" data-template="event">
+                                    📅 Event Announcement
+                                </button>
+                                <button type="button" class="template-btn" data-template="update">
+                                    📢 Company Update
+                                </button>
+                                <button type="button" class="template-btn" data-template="invitation">
+                                    ✉️ Meeting Invitation
+                                </button>
+                                <button type="button" class="template-btn" data-template="newsletter">
+                                    📰 Newsletter Intro
+                                </button>
+                                <button type="button" class="template-btn" data-template="launch">
+                                    🚀 Product Launch
+                                </button>
+                                <button type="button" class="template-btn" data-template="reminder">
+                                    ⏰ Event Reminder
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <div id="notification" class="notification hidden"></div>
+            
+            <!-- Preview Modal -->
+            <div id="previewModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Email Preview</h2>
+                        <button type="button" id="closePreview" class="close-btn">✕</button>
+                    </div>
+                    <div class="modal-body">
+                        <iframe id="previewFrame" title="Email Preview"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emoji Picker Modal -->
+            <div id="emojiModal" class="modal hidden">
+                <div class="modal-content emoji-picker-modal">
+                    <div class="modal-header">
+                        <h2>Select Emoji</h2>
+                        <button type="button" id="closeEmoji" class="close-btn">✕</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="emojiGrid" class="emoji-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Gallery Modal -->
+            <div id="imageGalleryModal" class="modal hidden">
+                <div class="modal-content image-gallery-modal">
+                    <div class="modal-header">
+                        <h2>Image Gallery</h2>
+                        <button type="button" id="closeGallery" class="close-btn">✕</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="gallery-categories">
+                            <button type="button" class="category-btn active" data-category="business">Business</button>
+                            <button type="button" class="category-btn" data-category="technology">Technology</button>
+                            <button type="button" class="category-btn" data-category="people">People</button>
+                            <button type="button" class="category-btn" data-category="nature">Nature</button>
+                            <button type="button" class="category-btn" data-category="abstract">Abstract</button>
+                        </div>
+                        <div id="galleryGrid" class="gallery-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slack Integration Modal -->
+            <div id="slackModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>💬 Post to Slack</h2>
+                        <button type="button" id="closeSlack" class="close-btn">✕</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="slackWebhook">Slack Webhook URL *</label>
+                            <input type="url" id="slackWebhook" placeholder="https://hooks.slack.com/services/YOUR/WEBHOOK/URL" required>
+                            <small class="form-hint">Get your webhook URL from Slack's Incoming Webhooks app</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="slackChannel">Channel (Optional)</label>
+                            <input type="text" id="slackChannel" placeholder="#marketing or @username">
+                            <small class="form-hint">Override default channel (include # or @)</small>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="slackIncludeImages" checked>
+                                Include images in Slack post
+                            </label>
+                        </div>
+                        <div class="button-group">
+                            <button type="button" id="sendToSlack" class="btn btn-primary">
+                                📤 Send to Slack
+                            </button>
+                            <button type="button" id="cancelSlack" class="btn btn-secondary">
+                                Cancel
+                            </button>
+                        </div>
+                        <div id="slackStatus" class="slack-status hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Export your communications to Outlook-compatible formats</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

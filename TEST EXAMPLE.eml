@@ -1,0 +1,2765 @@
+Received: from SN7PR15MB4190.namprd15.prod.outlook.com (2603:10b6:806:10c::24)
+ by BN8PR15MB4244.namprd15.prod.outlook.com with HTTPS; Wed, 1 Apr 2026
+ 13:08:16 +0000
+Received: from SA0PR11CA0075.namprd11.prod.outlook.com (2603:10b6:806:d2::20)
+ by SN7PR15MB4190.namprd15.prod.outlook.com (2603:10b6:806:10c::24) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.17; Wed, 1 Apr
+ 2026 13:08:11 +0000
+Received: from SN1PEPF0002529E.namprd05.prod.outlook.com
+ (2603:10b6:806:d2:cafe::ba) by SA0PR11CA0075.outlook.office365.com
+ (2603:10b6:806:d2::20) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9745.29 via Frontend Transport; Wed,
+ 1 Apr 2026 13:08:04 +0000
+Authentication-Results: spf=pass (sender IP is 205.220.161.114)
+ smtp.mailfrom=bounce.internal.ibm.com; dkim=fail (body hash did not verify)
+ header.d=internal.ibm.com;dkim=fail (body hash did not verify)
+ header.d=mktdns.com;dmarc=pass action=none
+ header.from=internal.ibm.com;compauth=pass reason=100
+Received-SPF: Pass (protection.outlook.com: domain of bounce.internal.ibm.com
+ designates 205.220.161.114 as permitted sender)
+ receiver=protection.outlook.com; client-ip=205.220.161.114;
+ helo=mx0a-001b2d05.pphosted.com; pr=C
+Received: from mx0a-001b2d05.pphosted.com (205.220.161.114) by
+ SN1PEPF0002529E.mail.protection.outlook.com (10.167.242.5) with Microsoft
+ SMTP Server (version=TLS1_3, cipher=TLS_AES_256_GCM_SHA384) id 15.20.9769.17
+ via Frontend Transport; Wed, 1 Apr 2026 13:08:11 +0000
+Received: from pps.filterd (m0373556.ppops.net [127.0.0.1])
+	by mx0a-001b2d05.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 631D6IsR3108815
+	for <zara.jordan@ibm.com>; Wed, 1 Apr 2026 13:08:10 GMT
+Authentication-Results-Original: ppops.net;	spf=pass
+ smtp.mailfrom=793-VBM-915.0.0.0.0.123376.2.542131-3@bounce.internal.ibm.com;
+	dkim=pass header.d=internal.ibm.com header.s=m1;	dkim=pass
+ header.d=mktdns.com header.s=m1;	dmarc=pass header.from=internal.ibm.com
+Received: from bounce.internal.ibm.com (bounce.internal.ibm.com [192.28.152.124])
+	by mx0a-001b2d05.pphosted.com (PPS) with ESMTPS id 4d91s2mutn-146
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <zara.jordan@ibm.com>; Wed, 01 Apr 2026 13:08:09 +0000 (GMT)
+X-MSFBL: l5XnnurmZVrxcOgqlE4gpcKAmjS5OVHJTg5+lapV1GU=|eyJiIjoiZHZwLTE5Mi0
+	yOC0xNTItMTI0IiwiciI6InphcmEuam9yZGFuQGlibS5jb20iLCJnIjoiYmctYWJ
+	kLTYwOSIsInUiOiI3OTMtVkJNLTkxNTowOjA6MDowOjEyMzM3NjoyOjA6NTQyMTM
+	xLTMifQ==
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1775048877;
+	s=m1; d=internal.ibm.com; i=@internal.ibm.com;
+	h=Content-Type:MIME-Version:Subject:To:From:Date;
+	bh=t+55NX6L5BX+o6oJJpFqzXtqRixMVU7JdI4MDIjvuTQ=;
+	b=PGJmbJsMEl1owLYwLWx///bwG0fBl6II32wCYuRiGEjzxLeuOYrMTf4RZW7Qm2yA
+	TipJEpItlekygicDDjZG9+VqM1sWsJ6SyJTc+3gWw0p4PhbQo64B2sL9h0wfMcJNKs6
+	8tg7FW6tjacy8gBkT8XuO9xiPxnv1PBvEF4ZlEVM=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1775048877;
+	s=m1; d=mktdns.com; i=@mktdns.com;
+	h=Content-Type:MIME-Version:Subject:To:From:Date;
+	bh=t+55NX6L5BX+o6oJJpFqzXtqRixMVU7JdI4MDIjvuTQ=;
+	b=X8nYBm1ubWSdIUnnl2eKkXmq3J819bLktsazAehT6yFgTz4lqw8NegPMpyIvEbEl
+	SCjkhdH7SmyzV59YnFY/ndG0Y4f47arZFXlRQOy0/c3N5uJBeJV537/crqNTLPblvy/
+	luf8c02YWnt7UB+S9LdRAhjLkWt3jTnxLYbzpBNI=
+Date: Wed, 1 Apr 2026 08:07:57 -0500 (CDT)
+From: UKI Marketing Spotlight <Charlie.Smith1@internal.ibm.com>
+Reply-To: noreply@internal.ibm.com
+To: zara.jordan@ibm.com
+Message-ID: <1599867229.8095592.1775048877859@abmktmail-trigger1d.marketo.org>
+Subject: TEST (To: Zara.Jordan@ibm.com) | UKI Marketing Spotlight
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_8095591_1970984726.1775048877842"
+X-Binding: bg-abd-609
+X-MarketoID: 793-VBM-915:0:0:0:0:123376:2:0:542131-3
+X-PVIQ: mkto-793VBM915-000001-000000-000000
+X-Mailfrom: 793-VBM-915.0.0.0.0.123376.2.542131-3@bounce.internal.ibm.com
+X-MktArchive: false
+X-MSYS-API: {"options":{"open_tracking":false,"click_tracking":false}}
+X-MktMailDKIM: true
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDAxMDEyMiBTYWx0ZWRfX687pqEZxx7Ud
+ UUa7a7AJYieYGQLZGepbSGhWDJa5qGCpkz9au6YWjdqfRJlC1tuOX/YT/yyfW3nMubZvyi9Ojyg
+ EybheXdelYBXYt+nIUp1ky9rWI7jL1v4SXdAkro/UmCHJheWVKP40jdCuPVfgnqDRB+IsulOmas
+ o5E7rkoQ+ZcwNby7fua3Y7SquCor1K6Kn0OXy5NfFu1oqzc9+uErIkuedWtfRhBnzcZNZn+APld
+ jpwnMfs5Xg7e0A6KmZxwP6BKaEwea/l+otBmWCLDcLAMQJS82OczmHVqKIRLMLn8qbCRFuDq2Yw
+ NDcjd72rBNxTsLmWNzMgei5Ok0L7UnDohzp0J58w347Q2Eli+G1pMUpCn7U7HHi4L8BWDg3GXui
+ qvrzjGYGDXzH4utCnCxIvfo6WzVeV9L2Llq/SvBDzxejQgz0+xwTODBYOWK+j9h6HGBdzp02BR7
+ PC2dsfCYIN2Magf3o/f/4Quduk3EZT/jFM8HNOzIHGNbDy3eWjfA/UFQwNRHb
+X-CLX-Shades: Deliver
+X-CLX-Response: 1TFkXGxsaGREKTHoXGhEKWUQXaB58ZwETZ0B7H0YRClhYF2Z+eUl/TmReX31
+ 5EQp4ThdncxpbaU5GekNMExEKeEsXZn55SX9OZF5ffXkRCnlMF21LeHJDb1pHZwFFEQpDSBcHGR
+ sfEQpDWRcHHh4YEQpDSRcaBBoaGhEKWU0Xbk9GQ1xPWBEKX1kXGR4cEQpfTRdnZnIRCllJFxpxG
+ hAadwYbHhJxGBMQGncGGBoGGhEKWV4XbGx5EQpJRhdDSEd1GXVCRVleT04RCklHF3hPTREKQ04X
+ RmdLZHsYYmQeYWZ/el5Hehx/H0tQSBlcYmB7ZUNHGkMRClhcFx8EGgQeGBoFGxoEGxsaBBsZHgQ
+ ZGRAbHhofGhEKXlkXQmtYG3wRCk1cFx8ZExEKTFoXeG1STU0RCkVZF2hvaxEKTF8XegUFBQUFBQ
+ UFAQURCkxGF29ra2NraxEKQk8Xbn95QGJ/cGFOU2wRCkNaFxsTGAQYEgQbHxgEGxgeEQpCXhcbE
+ QpZRRcZEQpFSRcbEQpFZhcbEQpCXBcbEQpCSxdrWRhLUF9aH1htUhEKQkkXZ3MaW2lORnpDTBMR
+ CkJFF2ZGUmYSRxhoXxsbEQpCThdncxpbaU5GekNMExEKQkwXZxlia1BGZ3pTXk8RCkJsF2VwEn5
+ paWMYHH8SEQpCQBdgUx9FXmFYX3pTWBEKQlgXbltaGX9HQwVPEnwRClpYFxwRCnlDF2lsfkwBbg
+ VhUmlfEQpZSxcbHhwYGREKWksXGx4cGBkRCnBnF2JjRk9kelgeQ35kEB4SEQpwaBd6aU1sZx1JW
+ WltRhAaEQpwaBdiXh5DSXsFcFlGQhAcGhEKcGgXZFlmWxlBchh6aFsQGxoeEQpwaBdjEgVAEm1/
+ GG5obhAcGhEKcGgXb1NLQ1BeRBNNHkkQHxIRCnBoF2AFHWcYfmh+QnJMEB4cEQpwaBd6GlBySVx
+ uTmsZcBAfGBEKcGgXeh1iXmFPWhh+chgQGhEKcH0XYWlHUh1DEl4SWHAQGhEKcH0XYHh6XRsBfx
+ 5beBgQGhEKcH0XbgFebWVcbkhra1sQGhEKcH0XbgFdBWtdZ0BgQ08QGhEKcH0XenplQGhNT0JgX
+ mEQGhEKcH0XYR5lZUR/SGZ4aGIQGhEKcH0XekxSE1gaYBNzZhgQGhEKcH0Xa3oaE0caTh9bXXkQ
+ GhEKcH0XYXprG3AfQEBBSB0QGhEKcH0XbWlvGBxjWUBoElkQGhEKcH0XaEwFU2lreFNTa1oQGhE
+ KcH0XZVtnbk1yfhNlTmYQHxsRCnB9F2ZJZF1sGEkZRE9rEB8bEQpwfRduc2lyE2h/E1xlfxAcEh
+ EKcH0XZwF+UmxTbmlPSFwQGhEKcH0XZH5ER2ZQExxiTHkQExsRCnB9F2ZQc0hDeUtARmd/EBoRC
+ nB/F2tbE3NZfh5iW1hBEBMfEQpwXxdpHENQUlNlc2cfZBAcGhEKcF8XZnN6c2kSfhNaZW8QHRwR
+ CnBfF2VscBxCRhlGRGVNEBoRCnB/F21DZWQYZkhNYX8aEAcYBBgRCnBfF2VkYGhlSU1bWgFvEBg
+ RCnBfF2d8GU1mG3tYaGhJEB4TEQpwXxdieWduHG97cEVhUBAdGhEKcH8XaW5hb24BX3lNR34QHR
+ MRCnBfF21fH2EffW1wXx0ZEBISEQpwbBdhQx8SRHkFZAV/QBAaEQptfhcaEQpYTRdLESA=
+X-Proofpoint-GUID: lMaNQ2HN4KLUPtmP6U5azb3vHJQOim0i
+X-Proofpoint-ORIG-GUID: lMaNQ2HN4KLUPtmP6U5azb3vHJQOim0i
+X-Authority-Analysis: v=2.4 cv=dfCNHHXe c=1 sm=1 tr=0 ts=69cd18ba b=1 cx=c_pps
+ a=IvgV743gKOQ7/h5crj9YXQ==:117 a=IvgV743gKOQ7/h5crj9YXQ==:17 a=VnNF1IyMAAAA:8
+ a=yPXRiMiNxFgA:10 a=A5OVakUREuEA:10 a=VsRSXGnJTXAA:10 a=oNg2_Q4mfpoA:10
+ a=Kan8h273Bse8B8Jy5C1n:22 a=Tf50yhtgai_kYZK-W9C0:22 a=RuZL8RPDXuhlx4aLFwI9:22
+ a=gIu2HjMUoNciHBEzSMsA:9 a=PRpDppDLrCsA:10 a=QEXdDO2ut3YA:10 a=3g80flMcAAAA:8
+ a=YGKCli01AAAA:8 a=SSmOFEACAAAA:8 a=MOQVpUgtdW7ZndFwFawA:9
+ a=C3ikmzEIpCXVIWZG:21 a=frz4AuCg-hUA:10 a=_W_S_7VecoQA:10 a=lqcHg5cX4UMA:10
+ a=s_KHD6aHcoUgXWm27CaZ:22 a=3urWGuTZa-U-TZ_dHwj2:22 a=Ke5lWRctCD2Ugvjm6qKf:22
+ a=s0HHaxBDRTMylXfpdZN3:22 a=l7xHvZtg6l5XRCbi7SpG:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-01_04,2026-04-01_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=inbound_notspam policy=inbound score=1
+ impostorscore=0 phishscore=0 adultscore=0 bulkscore=0 suspectscore=0
+ lowpriorityscore=5 clxscore=1103 priorityscore=0 malwarescore=0 spamscore=0
+ classifier=clx:Deliver authscore=0 authtc= authcc= route=inbound adjust=0
+ reason=forced scancount=1 engine=8.22.0-2603050001
+ definitions=main-2604010122 domainage_hfrom=14623 domainage_replyto=14623
+Return-Path: 793-VBM-915.0.0.0.0.123376.2.542131-3@bounce.internal.ibm.com
+X-MS-Exchange-Organization-ExpirationStartTime: 01 Apr 2026 13:08:11.4131
+ (UTC)
+X-MS-Exchange-Organization-ExpirationStartTimeReason: OriginalSubmit
+X-MS-Exchange-Organization-ExpirationInterval: 1:00:00:00.0000000
+X-MS-Exchange-Organization-ExpirationIntervalReason: OriginalSubmit
+X-MS-Exchange-Organization-Network-Message-Id: 39f6e60c-f407-469b-7b6d-08de8fefba06
+X-EOPAttributedMessage: 0
+X-EOPTenantAttributedMessage: fcf67057-50c9-4ad4-98f3-ffca64add9e9:0
+X-MS-Exchange-Organization-MessageDirectionality: Incoming
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SN1PEPF0002529E:EE_|SN7PR15MB4190:EE_|BN8PR15MB4244:EE_
+X-MS-Exchange-Organization-AuthSource: SN1PEPF0002529E.namprd05.prod.outlook.com
+X-MS-Exchange-Organization-AuthAs: Anonymous
+X-MS-Office365-Filtering-Correlation-Id: 39f6e60c-f407-469b-7b6d-08de8fefba06
+X-MS-Exchange-Organization-SCL: -1
+X-MS-Exchange-Organization-BypassFocusedInbox: true
+X-Microsoft-Antispam: BCL:0;ARA:13230040|7149299003|82310400026|69100299015|1032899013|7049299003|3109299003|13003099007|19002099003|56012099003|16102099003|8096899003|2066899003|220923002;
+X-Forefront-Antispam-Report: CIP:205.220.161.114;CTRY:US;LANG:en;SCL:-1;SRV:;IPV:NLI;SFV:NSPM;H:mx0a-001b2d05.pphosted.com;PTR:mx0a-001b2d05.pphosted.com;CAT:NONE;SFS:(13230040)(7149299003)(82310400026)(69100299015)(1032899013)(7049299003)(3109299003)(13003099007)(19002099003)(56012099003)(16102099003)(8096899003)(2066899003)(220923002);DIR:INB;
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Apr 2026 13:08:11.2067
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 39f6e60c-f407-469b-7b6d-08de8fefba06
+X-MS-Exchange-CrossTenant-Id: fcf67057-50c9-4ad4-98f3-ffca64add9e9
+X-MS-Exchange-CrossTenant-AuthSource: SN1PEPF0002529E.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR15MB4190
+X-MS-Exchange-Transport-EndToEndLatency: 00:00:05.3226633
+X-MS-Exchange-Processed-By-BccFoldering: 15.20.9769.009
+X-Microsoft-Antispam-Mailbox-Delivery:
+	ucf:0;jmr:0;auth:0;dest:I;ENG:(910005)(944506478)(944626604)(920097)(930201)(20251009189)(140003);
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?emFyVnU4QnBzRDNIQ3dKdlNXNVpyTStXdnZWOUNMdWhIcklSNmIySzUrUllC?=
+ =?utf-8?B?b1I3cU5ONnZScTYyWTdMb0tvZ2xmKzRCNmVkMVo1SmQ4T3JuVW1TanZEMzhy?=
+ =?utf-8?B?cStFZGFQY2lYYU9sNHBzem53eTBXUG1OSldNbzJRYzl2ZWpVYU5xSnNHQU5R?=
+ =?utf-8?B?blJCWXJ1bXJPbDZDUG1ENCthc1B3M1FTTXUwMEQyNVYweEZ3WDdqTDd6YWt4?=
+ =?utf-8?B?SzZrbHdBTjVRbEJ5RGFQaW9naVhEZU1rY2cyY0U4UnZJYlg1WkNMMlNicGV0?=
+ =?utf-8?B?ZFhIczNveXU5alBvcGt1VnNsR1dEWGNjcHZVM3JXdFRXK0dLRTV5ZlRQemlv?=
+ =?utf-8?B?SUR0STJEa0UwQ0QzRTJYSDBOTGg5SktrTC9RbEVaVHFldFpNZkJxMWI4MUxO?=
+ =?utf-8?B?UEk4bWVJZUZZdHhiQ3hVUGpIM3UwZHVSVk53Y2RzQk5NK0V3S1QyTTlQd01H?=
+ =?utf-8?B?K2M4Y0hjR3RUYU41MW05M29ONElLMW8vUFZsUUd3a3krNTBEczUwZjM5cGZq?=
+ =?utf-8?B?MkIzOThqdEwzTXhSOVNMbldsaC9iS2MvT29oTHhDeEYxb2FoeWpQSHlQZFd6?=
+ =?utf-8?B?bHA5VGlDVWExNFFpN25JRnVMdVVRRjZLSnBxSzY3NEU3Y3FadGtVYktUblBW?=
+ =?utf-8?B?N091MGxlQlErbXVnaENHaXRHdlh3SWp2MTduZVRtb0RyY2hXdTRhZWJJM0x2?=
+ =?utf-8?B?UUdPbVkrODRDSE5Nd1J0NktIRUk2cEhSVnl3TmgwY1N0Mi95RWhCMmhIb0pi?=
+ =?utf-8?B?QWwvSU91M29QU21jSkFuZWNVazBIaHNaTm92SzZ4TTZDSUtWUXdvTTRKWFdp?=
+ =?utf-8?B?ZGlQMjRsc3QvTnZnUWlDUHVXbDRxUUVJL1lUd0dCMThpTEwwaFJaaHViNTFj?=
+ =?utf-8?B?WlhjWldzUTBGemdORUFldzBOVUFxZWhucjBtU2dYd1R5TTdkK2lnMDNKOUZp?=
+ =?utf-8?B?ZlZNK0drcGRGZXlFZHEzTUhJYUlwOWlVMDR6cEc3NHk4QXdZRkdTYTI5Z1JM?=
+ =?utf-8?B?aEc5OUlXWkJISDBRR2NPMlpCWVJPYXhWYzlxSjJpUzZlb3JSNTlyT0tycWEx?=
+ =?utf-8?B?RnRxNkFZVU16WGtsSE1ibUpIakxrcEs3c2NENDVyeDc1RVdGQ3VtSndGU0gr?=
+ =?utf-8?B?alFnVFdpVmtvam9jZ28rUzFxY2JySThUN050WlBjb2hOcWw0amgxakFnUXZq?=
+ =?utf-8?B?RkRmTDBGWHZHSm5sOG5XWlg4bnRONXh0WUJmQWV3UmNLNmtZcGUwak53QnpG?=
+ =?utf-8?B?VGMzdmZ1ZWg3NmtoRzNPZWQ5ZTZpcjd4dXYxMzRYV0p5akdybkpzMTJuUmJV?=
+ =?utf-8?B?aHZVZ3BTWDNjdGFZYU01VEpwTThremhFT3o2N3ZrRy9yRGg4TlEzNFlyNTdT?=
+ =?utf-8?B?VWY1NUhMZG91M2JwRW5mTm1TY3pVM1E4dkxZNEJvQVE4WGlqSTNoT3NvZXJJ?=
+ =?utf-8?B?RU83eFMzNUZ6TVJnVjBhUXJkdCtRemNFK1kyOGZQVnhEQW13cWFaeUNmZTNl?=
+ =?utf-8?B?eVowcUZYcmZRN25LVXU3V2YxcjRWMjlQV2I4bkJLT0QyTHhkK2NkaVJTTzk5?=
+ =?utf-8?B?U01tVW9VSlliNE9WWUxzQytZZVN6RlBuRXQ3NTNjM1V3d3hVVDNCYUVMWGZB?=
+ =?utf-8?B?a2xnVHo2ZUw2bWhPMFJKOUVvaERkMlMrNmRPcXBqaG1pK3pLTzk0T0xlQkJj?=
+ =?utf-8?B?TS9PbGxLSlZGMG4vSVJEcU9ROWg0Zllxa3BTTGVTc0hRdEJ1TnBnd0xNMmU5?=
+ =?utf-8?B?RW1iYXBYUWR3UE90azFZeHRlNWhza1M4SGQvOHdZR21tdDZpcmVBWENNaCtF?=
+ =?utf-8?B?YTAwWkoxOWJoN2xIbDNPVXBXb2o3cWNoYVQxb2FkU1VBd1FsS2ZCYjBJS2ZH?=
+ =?utf-8?B?b3cxUm9vbHFwY3RKT0ViVDBvRExMOHJiNWNabzdLdStpdWZ2dzM2YUVKcmMr?=
+ =?utf-8?B?WDlhZHRWNDRxNTdSZkloSWMxUzZQQTdwU0FsTHlGYnNtVVB0Y3B5WXZQc3hm?=
+ =?utf-8?B?cWxBQWdrRnZJSEJIVWVNZ2VqYU1PRnllU3lHK1ZaMU1hbXo5SkQvT0JqUTRM?=
+ =?utf-8?B?bWZlbjN0WWFmL1VSZmRoS1RrekRWT25sejBOYk00dEpGNDRncDZaVXo4SXpV?=
+ =?utf-8?B?bEttM01pM2RTZkNzV1JHNlVXRktQOFVjbU1selV6QUFIcDJsYnE1bFBlcHhB?=
+ =?utf-8?B?eWs1V3Rzd2ExekNFamQ4a0pHNTZyMVZaWU5rMmVqWG9KS3ZISWZ5dXFkVnVl?=
+ =?utf-8?B?anVQNTBMZG9tTCtCbll1eTN2UzFCOFhwc0Jxd1RPV0YzbHhUQjRnMEVuM3Ix?=
+ =?utf-8?B?THRTcGJLT2cySXNNTm50ckUvbFF3MjlOZGlia1dvdHZwNUR4dWpKOFN0dlVK?=
+ =?utf-8?B?K1FBKzArS2ttaWV0akVsUkUzeWdPMHlCKzFTdHo5RjRJUkl0TDd5TGJ6dWhi?=
+ =?utf-8?B?WnBwQjk5R0NqY0laczZOZDEwaTY2dDVUazI4YkRqNzFjcWZGb3VuZmNPbmdo?=
+ =?utf-8?B?NTVwVXV3bFdZVzVRSnk0SlhtZHRnSjJvUTZscFBHbFpkQVJFS2FCdGlTME1i?=
+ =?utf-8?B?SkNBdmIyd1FJZUFZL1BKWFlsU2EyMyttRVJZayszQUI2NFNHTEhiTE5ucmc0?=
+ =?utf-8?B?SDA0QTFkQ2wzSzhUc255VDlvOVNYQ2dhZllJei9PQW1TbnFPL0JQTmExeW5t?=
+ =?utf-8?B?dnAzVDBTdmhZaGx6Q3VaQVczWG9iWmJQZC9yVW8wTDZQcnUzV3ZGcFVDRDBs?=
+ =?utf-8?B?ZFhyYVZnZURDbUl6VEYzM0t4Q3BQc0RJc1czdGsreVJzbnRZSFZvTUFxOTdh?=
+ =?utf-8?B?eUZOeDdpRmhoWnlQSUxPaWNhZEVXR2h1aDZnYVJtOGZ5SVpkR0dMay90ZWs2?=
+ =?utf-8?B?cnZnYU9ubmdDM2NndTRWUStFWFROYXBkMlJUc2JkeU82R3JMdENWZXZVT3pY?=
+ =?utf-8?B?d2tmMjhFTEVqbjR0OGxVaENMWGs3Y2Z3RFBoeTVSVlRRM0dOU3pxR3EvVjJS?=
+ =?utf-8?B?aS9wanhEajdhd3ZaV3FxaDE5YmFWMThjZzJBOS8rRUZXSVIya2VpZ3NneWtr?=
+ =?utf-8?B?Vkd1M0hUVlBQbDFrc1VacE1TSFZwVlVOYlREVjZaaVpPVnd4M1RCUlpaTFJO?=
+ =?utf-8?B?eEZLeitkZnlsUHN0ZFgxM0pxRzRhWDJRa3RwZ05YTCszMHJwY283Z011NzJN?=
+ =?utf-8?B?V3Q0K3hoYWFlak5KRWVDWlc1OS9JOXFGdVIvS29YZi81YUd1REZIZHE0Tllh?=
+ =?utf-8?B?UUNyRS9qMFRrdkdsZ2xxc1pMNzh4bGtXL3ZiTFB4cHZxZ1pjcUxCeHYvSks5?=
+ =?utf-8?B?OTlGVEQyaSs2cTM2dGZKRlpBM3I2YUZMdTFHRkdwZjFzZlo2NVYzY2MwcW5o?=
+ =?utf-8?B?dFNOWmZjR1Q3ZVBWbFJEQ1RoaEQ0VWNOd1ltUEJhME5mWTBHVGM5Z2tteHFa?=
+ =?utf-8?B?ZHAxKzB6N1FPM1FIK0crZzVtYWJoS1Qrai9heDVEdU5xZEphYzAzSnFvc1Z2?=
+ =?utf-8?B?R3NXY2R2VDhUUEZGeGFmSExCMkZjNUxPVHFXQXBBK2cvQXJMUWxwdEo2LzZh?=
+ =?utf-8?B?TXBuVUVFQjYzRXVuSVNPUmxkZjcxcHZPVU54R2xQTFhsTy94R2l1N0RsV3Ra?=
+ =?utf-8?B?QU1zZkNUd2hPK2xlT3Q2Nk1hRWc3L3laSzRTcCtvU09zeklzb1FXc1FpQ3ZT?=
+ =?utf-8?B?Z0VJRUxMVE1zM1ptWFJjcHRGWk9TVVRvckhGYUV3S0hmRUxJZGkvV3Bkbitv?=
+ =?utf-8?B?UklFSE5nWnllVkNWYVFsUHNNbkxlbVNHMUdaWC9mNDArOEZIWHJqb0Jha3NT?=
+ =?utf-8?B?b245WVVsOTF4N2hWUVdNdUd2cjJTV3k5dmhXUUpmTXFtbUhiNlNjMzRMT3lE?=
+ =?utf-8?B?WDlnTUZUUm1aaXlBSU93SlBGRDlhbS9rWXpqUmZhN2RRL1dYVUJlVG5RYnBh?=
+ =?utf-8?B?ZVhzYlNEZ2ZnOWpoOS9RZVB0bHBNNnAwOVJYbEtCTmtNakdQQlE1b1JpTUJm?=
+ =?utf-8?B?dGxKMnpucGh1TlZ5YTNmZ1R1L05MM01wSE41MFBocEdGMEQ5TCt5bVlwY2x1?=
+ =?utf-8?B?aW13dnFPTnczRjk5L0I5QUI4TXJidDBYUVRNa1A4N3ZDSUw1alVkTDZWbjBR?=
+ =?utf-8?B?OEU4Njg3eHNuRnJ0UndCSlpSeHBUUWZsVDd0QkhMbDJlR2VIU0d4amh5ckNJ?=
+ =?utf-8?B?RTA2WEFESzd0U1UwZGNYOGw1dy9ySlJpUmRndE9BbGFtb0xlcWxBeFl1ZTdq?=
+ =?utf-8?Q?9LhfJZj3Lc7YnINkzFUfLETQrfhGXZ0?=
+MIME-Version: 1.0
+
+------=_Part_8095591_1970984726.1775048877842
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+To view this email as a web page, go to the following address: https://cons=
+ulting.ibm.com/index.php/email/emailWebview?mkt_tok=3DNzkzLVZCTS05MTUAAAGg6=
+CEW_tcc8umLpi24CNGQ_UOYTv8soDvAQxIq63A7af6aS5Svq6YpNTdiRF7Ku0afDokeq1gRdkEp=
+bV1w76zcpCFOfhXqpOzcSaa2JveN=20
+
+March 2026
+UKI Marketing Spotlight:=C2=A0
+A Summer of Sport
+Across Q2, IBM has a unique opportunity to create a standout brand moment i=
+n London - anchored by Wimbledon and amplified by London Tech Week, SXSW, F=
+1 Silverstone and more.=20
+
+To make it easy to navigate everything happening, we've brought all Marketi=
+ng, Communications and CSR activity, plus the full events calendar, togethe=
+r into one seismic page. Bookmark it now!
+UKI MCC Page <https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6CEW_l1IpH172lJ1=
+cmWA6RLaUVtFFXKWvrzpNAHBVSRduR2CI7jPaOio2Y130OKNLzzoOWk=3D >
+   <https://intemail.ibm.com/dc/7T9LOgKAx-RHYV2As_mH1pKVInVrG74C_l8EB-gPYOc=
+=3D/NzkzLVZCTS05MTUAAAGg6CEW_nVQ_QWd6e5c7XqgZ_hW7pks49WZJZAx9ZIz7qHo02ma50O=
+lIbOI9-ZNmHP5ioVtCwo=3D >
+Think London Update
+Think London will no longer be happening on 10 June. Rather than =E2=80=98T=
+hink on Tour=E2=80=99 events across markets, there will be one larger Think=
+ EMEA event and we are delighted to say that it will be in London, in Octob=
+er. Lets really take advantage of this opportunity.
+Details will follow in due course.
+Unlocking the Power of AI Agents <https://intemail.ibm.com/NzkzLVZCTS05MTUA=
+AAGg6CEW_iDRpyyRXT9eE29hn5wJ8Gs-U3fH7ydd2Mc77R_-8xncjg4_eIGIJ-YbArCm530Nsqs=
+=3D >
+Date: 2 April
+Location: Innovation Studio, London
+Audience: Business & Operational Leaders
+
+Intelligence Squared Debate Series <https://intemail.ibm.com/NzkzLVZCTS05MT=
+UAAAGg6CEW_h3_-fTRL_x8ccB9dWEJYqjifN9YhxoEMjCJ73BXavaZeME_Kh4CIM6e5fQzFQP1Y=
+8k=3D >
+Date: 16 April & 13 May
+Location: Kings Place, London
+Audience: C-Suite -1, -2 + Business, Technology & Transformation Leaders
+# of=20
+Attendees: 200
+
+Digital Sovereignty for Banking Dinner <https://intemail.ibm.com/NzkzLVZCTS=
+05MTUAAAGg6CEW_rYSSAQzIFhWCpR8p9p6inJbc8NVLKWzpy6k6b4e_j2xnnyKYzucyjUytGGL8=
+B9Y5KE=3D >
+Date: 23 April
+Location: Private Venue TBC, London
+Audience: CTO, CIO, Heads of
+
+Retail Technology Show <https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6CEW_o=
+z1F8FJzDJeLNglZTgR865TzcWeaGLqXHD6OjMQDNl_PDZZgDcD0X5BBJW0_BmCABM=3D >
+Date: 22-23 AprilLocation: ExCel, LondonAudience: C-Suite -1# of Attendees:=
+ 15,000
+IBM NED Talks 2026 <https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6CEW_k0KKR=
+bTmDdnsvTe2TCJsCb2FbK8qUSOns77mZ893rPZHKTrtZbi0oM-rdkc_6n5RFQ=3D >Date:=C2=
+=A013 May & 4 NovemberLocation:=C2=A0Innovation Studio, LondonAudience:=C2=
+=A0C-Suite -1 & Non-Executive Directors# of Attendees:=C2=A040 clients
+
+IBM Bobathon <https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6CEW_o0n-ls3Bf02=
+tHbGYHUQ6CImN7RytHmsw52YlC8MFZzM40bBCi8_1cSv6fljn5zGJjw=3D >
+Date:=C2=A013 MayLocation:=C2=A0Innovation Studio, LondonAudience:=C2=A0Bus=
+iness & Operational Leaders
+
+Gartner &=20
+Data Analytics <https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6CEW_e3aj2t_yS=
+D_BEnueB8wFluQ4CqKJtRYG5N0BQqlFjDQJHp8Xh0s-nZ8qcUtJrb2lRw=3D >
+Date:=C2=A011-13 MayLocation:=C2=A0LondonAudience:=C2=A0CDO, CAO, Heads of
+
+Summer of Sport
+Date: June - JulyLocation: London, Wimbledon, SilverstoneAudience: Senior b=
+usiness & technology leaders
+Wimbledon 2026
+This years' Championships will take place between 29th June and 12th July. =
+There are several enhancements to both our suite environment and overall ho=
+sting structure to further elevate the experience for our clients and align=
+ with IBM=E2=80=99s global hospitality programmes.
+
+
+Both UKI Technology and Consulting have an allocation of tickets on specifi=
+c dates across the Championships. If you have clients that you would like t=
+o nominate, please speak to your business leader in the first instance, who=
+ have been briefed on this years process and will be gathering nominations =
+to put through CTEBA for their ticket allocation.
+Daily view of the 2026 Ticket Allocation <https://intemail.ibm.com/NzkzLVZC=
+TS05MTUAAAGg6CEW_kJLvDGw4xqtscItPUwTfgHkbU40qH23F0VIrp_aqMDMLGeymnet6AlvCGV=
+tSvhBi1U=3D >
+We look forward to your partnership in 2026 to help drive the growth we nee=
+d in UK & Ireland.
+Charlie Smith
+CMO and Named Accounts Marketing Leader
+IBM UKI & Ireland
+Louise Kettle
+Select Territory Marketing Leader
+IBM UK & Ireland
+
+
+.
+
+------=_Part_8095591_1970984726.1775048877842
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.=
+w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns=3D"http://www.w3.=
+org/1999/xhtml" xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:sc=
+hemas-microsoft-com:office:office"><head><!--[if gte mso 9]>
+            <xml>
+                <o:OfficeDocumentSettings>
+                    <o:AllowPNG />
+                    <o:PixelsPerInch>96</o:PixelsPerInch>
+                </o:OfficeDocumentSettings>
+            </xml>
+        <![endif]-->
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8"><t=
+itle>IBM</title>=20
+=20
+<meta http-equiv=3D"X-UA-Compatible" content=3D"IE=3Dedge">=20
+<meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D1.=
+0 ">=20
+<meta name=3D"format-detection" content=3D"telephone=3Dno">=20
+<!-- new_chq_layout_9523716030070768 --> =20
+<!--<meta mktomodulescope=3D"true" class=3D"mktoColor" id=3D"bg-grayz" mkto=
+name=3D"Background Color" default=3D"#f4f4f4" /> -->=20
+<!-- BG COLOR-->=20
+<!-- <meta class=3D"mktoBoolean" id=3D"bg-black2" mktoname=3D"Header Module=
+ BG Color" default=3D"true" false_value=3D"#ffffff" true_value=3D"#f4f4f4" =
+false_value_name=3D"Light" true_value_name=3D"Dark" /> -->=20
+<!--<meta mktomodulescope=3D"true" class=3D"mktoBoolean" id=3D"bg-grey-divi=
+der" mktoname=3D"Divider Color" default=3D"true" false_value=3D"#e0e0e0" tr=
+ue_value=3D"#c6c6c6" false_value_name=3D"Light" true_value_name=3D"Dark" />=
+=20
+    <meta mktomodulescope=3D"true" class=3D"mktoBoolean" id=3D"images" mkto=
+name=3D"Images" default=3D"true" false_value=3D"light" true_value=3D"light"=
+ false_value_name=3D"Light" true_value_name=3D"Dark" /> -->=20
+<!--<meta mktoModuleScope=3D"true" class=3D"mktoImg" id=3D"banner1_img" mkt=
+oName=3D"Background Image" default=3D"https://www.sc.pages02.net/lp/29008/4=
+56920/201113_Watson_Works_Email_Leadspace_Images_600x160.png" />
+	<meta mktoModuleScope=3D"true" class=3D"mktoNumber" id=3D"bannerheight" mk=
+toname=3D"Outlook Background Image Height" default=3D"160" min=3D"0" max=3D=
+"1000" step=3D"1" />-->             =20
+<!--CTA Variable    -->  =20
+<!--<meta mktoModuleScope=3D"true" class=3D"mktoNumber" id=3D"CTA-wid" mkto=
+Name=3D"CTA 1 Width" default=3D"200" step=3D"1" min=3D"0" max=3D"400" />
+	<meta mktoModuleScope=3D"true" class=3D"mktoNumber" id=3D"CTA-wid1" mktoNa=
+me=3D"CTA 1 Width" default=3D"300" step=3D"1" min=3D"0" max=3D"400" />-->  =
+ =20
+<!--<meta mktoModuleScope=3D"true" class=3D"mktoString" id=3D"CTA-text3" mk=
+toName=3D"CTA Text" default=3D"Longer call to action prompt" />-->         =
+   =20
+<!--    spacer--> =20
+<!--Divider    -->=20
+<!--<meta mktoModuleScope=3D"true" class=3D"mktoColor" id=3D"bg-white-divid=
+er" mktoName=3D"Divider Color" default=3D"#dcdcdc" />
+    <meta mktomodulescope=3D"true" class=3D"mktoNumber" id=3D"dividerht1" m=
+ktoname=3D"Divider Height" default=3D"1" min=3D"0" max=3D"100" step=3D"1" /=
+> -->=20
+<!--Spacing Variable-->=20
+<!--<meta mktoModuleScope=3D"true" class=3D"mktoNumber" id=3D"top-space40" =
+mktoname=3D"Top Space" default=3D"80" max=3D"1000" step=3D"1" />
+	<meta mktoModuleScope=3D"true" class=3D"mktoNumber" id=3D"top-space" mkton=
+ame=3D"Top Space" default=3D"30" min=3D"0" max=3D"100" step=3D"1" />
+	<meta mktoModuleScope=3D"true" class=3D"mktoNumber" id=3D"top-space0" mkto=
+name=3D"Top Space" default=3D"0" min=3D"0" max=3D"100" step=3D"1" />-->  =20
+<!--<meta mktoModuleScope=3D"true" class=3D"mktoNumber" id=3D"top-space3" m=
+ktoname=3D"Top Space" default=3D"10" min=3D"0" max=3D"100" step=3D"1" />
+	<meta mktoModuleScope=3D"true" class=3D"mktoNumber" id=3D"top-space4" mkto=
+name=3D"Top Space" default=3D"24" min=3D"0" max=3D"100" step=3D"1" />
+	<meta mktoModuleScope=3D"true" class=3D"mktoNumber" id=3D"top-space5" mkto=
+name=3D"Top Space" default=3D"32" min=3D"0" max=3D"100" step=3D"1" />
+	<meta mktoModuleScope=3D"true" class=3D"mktoNumber" id=3D"top-space6" mkto=
+name=3D"Top Space" default=3D"64" min=3D"0" max=3D"100" step=3D"1" />--> =20
+<!--<meta mktoModuleScope=3D"true" class=3D"mktoNumber" id=3D"bottom-space1=
+00" mktoname=3D"Bottom Space" default=3D"100" min=3D"0" max=3D"1000" step=
+=3D"1" />
+	<meta mktoModuleScope=3D"true" class=3D"mktoNumber" id=3D"bottom-space" mk=
+toname=3D"Bottom Space" default=3D"30" min=3D"0" max=3D"100" step=3D"1" />
+	<meta mktoModuleScope=3D"true" class=3D"mktoNumber" id=3D"bottom-space0" m=
+ktoname=3D"Bottom Space" default=3D"0" min=3D"0" max=3D"100" step=3D"1" />-=
+->  =20
+<!--<meta mktomodulescope=3D"true" class=3D"mktoNumber" id=3D"right-space" =
+mktoname=3D"Right Space" default=3D"16" min=3D"0" max=3D"100" step=3D"1" />=
+=20
+    <meta mktomodulescope=3D"true" class=3D"mktoNumber" id=3D"left-space" m=
+ktoname=3D"Left Space" default=3D"16" min=3D"0" max=3D"100" step=3D"1" /> -=
+->=20
+<!--<meta mktoModuleScope=3D"true" class=3D"mktoNumber" id=3D"bottom-space4=
+" mktoname=3D"Bottom Space" default=3D"24" min=3D"0" max=3D"100" step=3D"1"=
+ />
+	<meta mktoModuleScope=3D"true" class=3D"mktoNumber" id=3D"bottom-space5" m=
+ktoname=3D"Bottom Space" default=3D"32" min=3D"0" max=3D"100" step=3D"1" />
+	<meta mktoModuleScope=3D"true" class=3D"mktoNumber" id=3D"bottom-space6" m=
+ktoname=3D"Bottom Space" default=3D"64" min=3D"0" max=3D"100" step=3D"1" />=
+--> =20
+<!--<meta mktomodulescope=3D"true" class=3D"mktoBoolean" id=3D"sh-module1" =
+mktoname=3D"Source Content" default=3D"false" false_value=3D"none" true_val=
+ue=3D"revert" false_value_name=3D"Hide" true_value_name=3D"Show" />
+	<meta mktomodulescope=3D"true" class=3D"mktoBoolean" id=3D"sh-module2" mkt=
+oname=3D"Source Content" default=3D"false" false_value=3D"none" true_value=
+=3D"revert" false_value_name=3D"Hide" true_value_name=3D"Show" />
+	<meta mktomodulescope=3D"true" class=3D"mktoBoolean" id=3D"sh-module3" mkt=
+oname=3D"Source Content" default=3D"false" false_value=3D"none" true_value=
+=3D"revert" false_value_name=3D"Hide" true_value_name=3D"Show" />
+	<meta mktomodulescope=3D"true" class=3D"mktoBoolean" id=3D"sh-module4" mkt=
+oname=3D"Source Content" default=3D"false" false_value=3D"none" true_value=
+=3D"revert" false_value_name=3D"Hide" true_value_name=3D"Show" />
+	<meta mktomodulescope=3D"true" class=3D"mktoBoolean" id=3D"sh-module5" mkt=
+oname=3D"Source Content" default=3D"false" false_value=3D"none" true_value=
+=3D"revert" false_value_name=3D"Hide" true_value_name=3D"Show" />
+	<meta mktomodulescope=3D"true" class=3D"mktoBoolean" id=3D"sh-module6" mkt=
+oname=3D"Source Content" default=3D"false" false_value=3D"none" true_value=
+=3D"revert" false_value_name=3D"Hide" true_value_name=3D"Show" />
+	<meta mktomodulescope=3D"true" class=3D"mktoBoolean" id=3D"sh-module7" mkt=
+oname=3D"Source Content" default=3D"false" false_value=3D"none" true_value=
+=3D"revert" false_value_name=3D"Hide" true_value_name=3D"Show" />
+	<meta mktomodulescope=3D"true" class=3D"mktoBoolean" id=3D"sh-module8" mkt=
+oname=3D"Source Content" default=3D"false" false_value=3D"none" true_value=
+=3D"revert" false_value_name=3D"Hide" true_value_name=3D"Show" />
+	<meta mktomodulescope=3D"true" class=3D"mktoBoolean" id=3D"sh-module9" mkt=
+oname=3D"Source Content" default=3D"false" false_value=3D"none" true_value=
+=3D"revert" false_value_name=3D"Hide" true_value_name=3D"Show" />
+	<meta mktomodulescope=3D"true" class=3D"mktoBoolean" id=3D"sh-module10" mk=
+toname=3D"Source Content" default=3D"false" false_value=3D"none" true_value=
+=3D"revert" false_value_name=3D"Hide" true_value_name=3D"Show" />
+	<meta mktomodulescope=3D"true" class=3D"mktoBoolean" id=3D"sh-module11" mk=
+toname=3D"Source Content" default=3D"false" false_value=3D"none" true_value=
+=3D"revert" false_value_name=3D"Hide" true_value_name=3D"Show" />
+	<meta mktomodulescope=3D"true" class=3D"mktoBoolean" id=3D"sh-module12" mk=
+toname=3D"Source Content" default=3D"false" false_value=3D"none" true_value=
+=3D"revert" false_value_name=3D"Hide" true_value_name=3D"Show" />
+	<meta mktomodulescope=3D"true" class=3D"mktoBoolean" id=3D"sh-module13" mk=
+toname=3D"Source Content" default=3D"false" false_value=3D"none" true_value=
+=3D"revert" false_value_name=3D"Hide" true_value_name=3D"Show" />
+	<meta mktomodulescope=3D"true" class=3D"mktoBoolean" id=3D"sh-module14" mk=
+toname=3D"Source Content" default=3D"false" false_value=3D"none" true_value=
+=3D"revert" false_value_name=3D"Hide" true_value_name=3D"Show" />-->=20
+<!--[if !mso]><!-->=20
+<link href=3D"https://fonts.googleapis.com/css?family=3DIBM+Plex+Sans:100,2=
+00,300,400,500,600,700&amp;display=3Dswap" rel=3D"stylesheet">=20
+<link href=3D"https://fonts.googleapis.com/css?family=3DIBM+Plex+Mono:100,2=
+00,300,400,500,600,700&amp;display=3Dswap" rel=3D"stylesheet">=20
+<!--<![endif]-->=20
+<style type=3D"text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100% !important;
+            -ms-text-size-adjust: 100% !important;
+            -webkit-font-smoothing: antialiased !important;
+        }
+       =20
+        th {
+            text-align: left;
+            font-weight: normal;
+        }
+       =20
+        img {
+            border: 0 !important;
+            outline: none !important;
+        }
+       =20
+        p {
+            margin: 0px !important;
+            padding: 0px !important;
+        }
+       =20
+        table {
+            border-collapse: collapse;
+            mso-table-lspace: 0px;
+            mso-table-rspace: 0px;
+        }
+       =20
+        td,
+        a,
+        span {
+            border-collapse: collapse;
+            mso-line-height-rule: exactly;
+        }
+       =20
+        .ExternalClass * {
+            line-height: 100%;
+        }
+       =20
+        .em_defaultlink a {
+            color: inherit !important;
+            text-decoration: none !important;
+        }
+       =20
+        .em_g_img + div {
+            display: none;
+        }
+       =20
+        a[x-apple-data-detectors],
+        u + .em_body a,
+        #MessageViewBody a {
+            color: inherit;
+            text-decoration: none;
+            font-size: inherit;
+            font-family: inherit;
+            font-weight: inherit;
+            line-height: inherit;
+        }
+       =20
+        .em_hide_desktop {
+            display: none;
+        }
+       =20
+        @media only screen and (max-width: 599px) {
+            .mobile_hide {display: none !important;}
+            .mobile_show {display: block !important; overflow: visible !imp=
+ortant; max-width: inherit !important; max-height: inherit !important;}=20
+            .W-smallcard
+            {
+                padding-left: 16px;
+                display: block;
+            }
+            .mobile-hide{
+                display: none !important;
+            }
+            .height-auto{
+                height: auto !important;
+            }
+              .sign-col {
+              width: 100% !important;
+              display: block;
+              padding-bottom: 15px;
+            }
+            .em_main_table {
+                width: 100% !important;
+                min-width: 100% !important;
+            }
+            .em_wrapper {
+                width: 100% !important;
+                min-width: 100% !important;
+            }
+            .deviceWidth {
+                width: 100% !important;
+                min-width: 100% !important;
+            }
+            .deviceWidth1 {
+                width: 93% !important;
+                min-width: 93% !important;
+            }
+            .full-width img {
+                width: 100% !important;
+            }
+            .block {
+                width: 100% !important;
+                display: block !important;
+                box-sizing: border-box;
+            }
+            .extra-space {
+                height: 30px !important;
+            }
+            .pad-top {
+                padding-top: 20px !important;
+            }
+            .pad-top1 {
+                padding-top: 30px !important;
+            }
+            .em_hide {
+                display: none !important;
+            }
+            .em_full_img img {
+                width: 100% !important;
+                height: 180px !important;
+            }
+            .em_center {
+                text-align: center !important;
+            }
+            .em_left {
+                text-align: left !important;
+            }
+            .em_side10 {
+                width: 10px !important;
+            }
+            .em_aside10 {
+                padding: 0px 10px !important;
+            }
+            .em_side15 {
+                width: 15px !important;
+            }
+            .em_aside15 {
+                padding: 0px 15px !important;
+            }
+            .em_ptop16 {
+                padding-top: 16px !important;
+            }
+            .em_pbottom16 {
+                padding: 0 0 16px 0 !important;
+            }
+            .em_padnone {
+                padding: 0px !important;
+            }
+            .em_h20 {
+                height: 20px !important;
+                font-size: 1px !important;
+                line-height: 1px !important;
+            }
+            .em_hide_desktop {
+                display: table !important;
+                float: none !important;
+                width: 100% !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+            .em_h30 {
+                height: 30px !important;
+            }
+            .em_h162 {
+                height: 162px !important;
+            }
+            .em_mob_block {
+                display: block !important;
+            }
+            .em_hauto {
+                height: auto !important;
+            }
+            .em_clear {
+                clear: both !important;
+                width: 100% !important;
+                display: block !important;
+            }
+            u + .em_body .em_full_wrap {
+                width: 100% !important;
+                width: 100vw !important;
+            }
+            .em_pside_16 {
+                padding: 0 16px !important;
+            }
+            .em_rtl {
+                padding: 16px 16px 0 16px !important;
+            }
+            .em_rbl {
+                padding: 0 16px 16px 16px !important;
+            }
+            .em_ptb {
+                padding: 16px 0 32px 0 !important;
+            }
+            .em_pb16 {
+                padding-bottom: 16px !important;
+            }
+            .em_pb32 {
+                padding-bottom: 32px !important;
+            }
+            .em_p16 {
+                padding: 16px !important;
+            }
+            .em_w200 {
+                width: 175px !important;
+            }
+            .em_w202 {
+                width: 202px !important;
+            }
+            .em_w240 {
+                width: 240px !important;
+            }
+            .em_w280 {
+                width: 100% !important;
+            }
+            .em_w144 {
+                width: 144px !important;
+            }
+            .em_w256 {
+                width: 256px !important;
+            }
+            .em_w164 {
+                width: 164px !important;
+            }
+            .em_w116 {
+                width: 116px !important;
+            }
+            .em_w144 {
+                width: 144px !important;
+            }
+            .em_w136 {
+                width: 136px !important;
+            }
+            .em_w256 {
+                width: 256px !important;
+            }
+            .em_w50 {
+                width: 50% !important;
+            }
+            .heading-03 {
+                font-size: 24px !important;
+                line-height: 30px !important;
+            }
+            .heading-04-regular {
+                font-size: 24px !important;
+                line-height: 30px !important;
+                letter-spacing: 0px;
+            }
+            .heading-04-semibold {
+                font-size: 32px !important;
+                line-height: 40px !important;
+            }
+            .display-02-sans {
+                font-size: 60px !important;
+                line-height: 70px !important;
+            }
+            .display-02-mono {
+                font-size: 60px !important;
+                line-height: 70px !important;
+            }
+            .display-03 {
+                font-size: 70px !important;
+                line-height: 80px !important;
+            }
+            .display-04-mono {
+                font-size: 70px !important;
+                line-height: 80px !important;
+            }
+            .listmoduleimg {
+                direction: ltr !important;
+                padding: 32px 0px 0px 32px;
+            }
+        }
+       =20
+        @media only screen and (max-width: 480px) {
+            .iphone-width img {
+                width: 100% !important;
+                max-width: 320px !important;
+            }
+            .deviceWidth-2 {
+                width: 100% !important;
+            }
+            .w240 {
+                width: 240px !important;
+                min-width: 240px !important;
+            }
+            .w256 {
+                width: 256px !important;
+            }
+            .listmoduleimg {
+                direction: ltr !important;
+                padding: 32px 0px 0px 32px;
+            }
+        }
+       =20
+        @media only screen and (max-width: 320px) {
+            .w280 {
+                width: 280px !important;
+            }
+            .listmoduleimg {
+                direction: ltr !important;
+                padding: 32px 0px 0px 32px;
+            }
+        }
+        </style>=20
+<link href=3D"https://lp2.email.ibm.com/rs/298-RSE-650/images/product-nurtu=
+re-style.css" rel=3D"stylesheet">=20
+</head>=20
+<body class=3D"em_body" style=3D"-webkit-font-smoothing: antialiased !impor=
+tant; -webkit-text-size-adjust: none !important; width: 100% !important; he=
+ight: 100% !important; font-family: 'IBM Plex Sans', Arial, Helvetica; -web=
+kit-font-smoothing: antialiased; -webkit-text-size-adjust: none; width: 100=
+% !important; height: 100%; margin: 0; padding: 0;">=20
+<!-- HIDDEN PREHEADER TEXT -->=20
+<div style=3D"display:none;font-size:1px;color:#161616;line-height:1px;font=
+-family:'IBM Plex Sans', Arial, Helvetica;max-height:0px;max-width:0px;opac=
+ity:0;overflow:hidden;mso-hide:all;">=20
+<span class=3D"droppable" id=3D"Preheader"></span>=20
+</div>=20
+<!-- POST HIDDEN PREHEADER TEXT CLEAR &zwnj;&nbsp; -->=20
+<div style=3D"display: none; max-height: 0px; overflow: hidden;">
+ &nbsp;=E2=80=8C&nbsp;=E2=80=8C&nbsp;=E2=80=8C&nbsp;=E2=80=8C&nbsp;=E2=80=
+=8C&nbsp;=E2=80=8C&nbsp;=E2=80=8C&nbsp;=E2=80=8C&nbsp;=E2=80=8C&nbsp;=E2=80=
+=8C&nbsp;=E2=80=8C&nbsp;=E2=80=8C&nbsp;=E2=80=8C&nbsp;=20
+</div>=20
+<div style=3D"display: none;">
+ =20
+</div>=20
+<!-- //PREHEADER END -->=20
+<!-- =3D=3D Add Modules Here =3D=3D -->=20
+<!-- =3D=3D Header - image - 08 two line title short - Image Section =3D=3D=
+ -->=20
+<table class=3D"full-wrap" border=3D"0" cellpadding=3D"0" cellspacing=3D"0"=
+ width=3D"100%" style=3D"-webkit-text-size-adjust: 100%; -ms-text-size-adju=
+st: 100%; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-spacing: 0; =
+border-collapse: collapse; margin: 0 auto;">=20
+<tbody>=20
+<tr>=20
+<td bgcolor=3D"#e0e0e0" class=3D"outer" valign=3D"top" style=3D"-webkit-tex=
+t-size-adjust: 100%; -ms-text-size-adjust: 100%; mso-table-lspace: 0pt; mso=
+-table-rspace: 0pt; word-break: break-word; -webkit-hyphens: none; -moz-hyp=
+hens: none; hyphens: none; border-collapse: collapse;background-color: #e0e=
+0e0">=20
+<table class=3D"em_tall_header em_main_table" width=3D"600" align=3D"center=
+" id=3D"boxing" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"w=
+idth: 600px; min-width: 600px; margin: 0 auto;">=20
+<tbody>=20
+<tr>=20
+<td>=20
+<table role=3D"presentation" cellspacing=3D"0" cellpadding=3D"0" border=3D"=
+0" align=3D"center" width=3D"100%" style=3D"max-width: 600px;background: #f=
+ff;" class=3D"mktoContainer em_main_table" id=3D"container">
+<tr class=3D"mktoModule em_full_wrap" id=3D"viewonline76df3e8d-d2e8-4537-a3=
+29-467b03e50ccb">=20
+<td>=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"table-layout: fixed; border-collapse: collapse; mso-table-lspace: 0px;=
+ mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td style=3D"background-color:#e0e0e0;" bgcolor=3D"#e0e0e0">=20
+<table align=3D"center" width=3D"600" border=3D"0" cellspacing=3D"0" cellpa=
+dding=3D"0" class=3D"em_tall_header em_main_table" style=3D"width: 600px; b=
+order-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"dark-gray100" style=3D"border-=
+collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td height=3D"20">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"em_padnone" style=3D"padding: =
+0 16px; border-collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"padding: 0 16px; border-collap=
+se: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"border-collapse: collapse; mso=
+-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"border-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0p=
+x;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"border-collapse: collapse; mso=
+-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"left" style=3D"width: 100%; border-collapse: collapse; mso-table-lspac=
+e: 0px; mso-table-rspace: 0px;" class=3D"em_w280">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"body-02-long" style=3D"border-co=
+llapse: collapse; mso-line-height-rule: exactly; font-family: 'IBM Plex San=
+s', Arial, Helvetica; font-weight: normal; font-size: 12px; line-height: 16=
+px; letter-spacing: 0.5px; color: #575757; text-align: center;">=20
+<div class=3D"mktoText" id=3D"module19-textv2b24a6e57-89e0-4176-8cc1-bf28f4=
+712077">=20
+<a href=3D"https://intemail.ibm.com/v/NzkzLVZCTS05MTUAAAGg6CEW_mYrbinf21-sq=
+s7mJDXZJtpNgLJjijJ0aSJFVwtvuXXTLT9U1GhtSRBfDegSFIh7SYA=3D" target=3D"_blank=
+" style=3D"text-decoration: none; color: #575757;"> View this email within =
+a webpage </a>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td height=3D"20">&nbsp;</td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>
+<tr class=3D"mktoModule em_full_wrap" id=3D"brand-head-3c6bb2144-7fca-469a-=
+8d9a-8e692961d7c7">=20
+<td>=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"table-layout: fixed; border-collapse: collapse; mso-table-lspace: 0px;=
+ mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td style=3D"background-color:/* Blue 10      */ #EDF5FF ;" bgcolor=3D"/* B=
+lue 10      */ #EDF5FF ">=20
+<table align=3D"center" width=3D"600" border=3D"0" cellspacing=3D"0" cellpa=
+dding=3D"0" class=3D"em_tall_header em_main_table" style=3D"width: 600px; b=
+order-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"dark-gray100" style=3D"border-=
+collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td height=3D"16" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"em_padnone" style=3D"padding: =
+0 16px; border-collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"padding: 0 16px; border-collap=
+se: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"border-collapse: collapse; mso=
+-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"border-collapse: collapse; mso-l=
+ine-height-rule: exactly;">=20
+<table width=3D"288" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=
+=3D"left" style=3D"width: 288px; border-collapse: collapse; mso-table-lspac=
+e: 0px; mso-table-rspace: 0px;" class=3D"em_w200">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"middle" class=3D"heading-01" style=3D"border-c=
+ollapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex Sans=
+', Arial, Helvetica;font-weight: normal;font-size: 16px;line-height: 22px;l=
+etter-spacing: 0px;padding: 1px 0;color: #161616">=20
+<div class=3D"mktoText" id=3D"brand-head-3-text99a1e5f6-b6dc-4841-b274-4de8=
+a61dcf5b">
+ March 2026=20
+<br>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+<td width=3D"15" style=3D"width: 15px; border-collapse: collapse; mso-line-=
+height-rule: exactly;">&nbsp;</td>=20
+<td align=3D"center" valign=3D"top" width=3D"26" style=3D"width: 26px; bord=
+er-collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"border-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0p=
+x;">=20
+<tbody>=20
+<tr>=20
+<td height=3D"6" style=3D"line-height: 0px; font-size: 0px; height: 6px; bo=
+rder-collapse: collapse; mso-line-height-rule: exactly;"> <img src=3D"https=
+://1.dam.s81c.com/m/56b16e60281c010c/original/IMAGE-PLACEHOLDER-ONLY-SPACER=
+-1x1.gif" width=3D"1" height=3D"1" alt=3D"" border=3D"0" style=3D"display: =
+block; border: 0 !important; outline: none !important;"> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"em_white_logo" style=3D"border=
+-collapse: collapse; mso-line-height-rule: exactly; display: block; padding=
+-bottom: 6px;">=20
+<div class=3D"mktoImg" id=3D"band-head-logo-3a851797a-0a65-438f-9d81-a57964=
+42d0ce">=20
+<a href=3D"https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6CEW_i2dkVHccs9Zsu9=
+mJWoH9DyzMdLHGZCjDmRakld4ynilVB0L50jVWDuEzzy6HU6yNnM=3D" target=3D"_blank" =
+style=3D"text-decoration: none; border-collapse: collapse; mso-line-height-=
+rule: exactly;"> <img src=3D"https://lp2.email.ibm.com/rs/298-RSE-650/image=
+s/IBM_logo.png" width=3D"43" border=3D"0" style=3D"max-width: 43px; outline=
+: none !important;"> </a>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>
+<tr class=3D"mktoModule em_full_wrap" id=3D"banner-3zed816dc749-410f-4939-8=
+76b-d59e5cf1063a">=20
+<td>=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"table-layout: fixed; border-collapse: collapse; mso-table-lspace: 0px;=
+ mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td style=3D"background-color:/* Blue 10      */ #EDF5FF ;" bgcolor=3D"/* B=
+lue 10      */ #EDF5FF ">=20
+<table align=3D"center" width=3D"600" border=3D"0" cellspacing=3D"0" cellpa=
+dding=3D"0" class=3D"em_tall_header em_main_table" style=3D"width: 600px; b=
+order-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"dark-gray100" style=3D"border-=
+collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"em_padnone" style=3D"padding: =
+0 16px; border-collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"padding: 0 16px; border-collapse=
+: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"border-collapse: collapse; mso-l=
+ine-height-rule: exactly;">=20
+<table width=3D"320" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=
+=3D"left" style=3D"width: 320px; border-collapse: collapse; mso-table-lspac=
+e: 0px; mso-table-rspace: 0px;" class=3D"em_w280 w256">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"heading-04-regular" style=3D"bor=
+der-collapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex=
+ Sans', Arial, Helvetica;font-weight: 300;font-size: 42px; line-height: 50p=
+x; letter-spacing: 0px;padding-top: 27px;color: #161616">=20
+<div class=3D"mktoText" id=3D"bnr3-Headingzedf7001b86-9966-40c7-9057-f15454=
+b236c5">
+ UKI Marketing Spotlight:&nbsp;=20
+<br>=20
+<em><span style=3D"font-size: 16px;">A Summer of Sport</span></em>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td style=3D"font-size: 1px; line-height: 1px;" height=3D"8">&nbsp;</td>=20
+</tr>=20
+<!-- <tr>
+                                                                           =
+                                 <td align=3D"left" valign=3D"top" style=3D=
+" border-collapse: collapse; mso-line-height-rule: exactly;">
+                                                                           =
+                                     <table width=3D"240" style=3D"max-widt=
+h: 240px;" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"left">
+                                                                           =
+                                         <tr>
+                                                                           =
+                                             <td style=3D"border-collapse: =
+collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex Sans', Arial,=
+ Helvetica;font-weight: 400;font-size: 12px; line-height: 16px; letter-spac=
+ing: 0.32px;color: #161616">
+                                                                           =
+                                                 <div class=3D"mktoText" id=
+=3D"source_content_1" mktoName=3D"Source Content"></div>
+                                                                           =
+                                             </td>
+                                                                           =
+                                         </tr>
+                                                                           =
+                                     </table>
+                                                                           =
+                                 </td>
+                                                                           =
+                             </tr> -->=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td height=3D"16" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>
+<tr class=3D"mktoModule em_full_wrap" id=3D"Free-text-module-V1ec616b2f-160=
+f-4e6e-82a3-1d823eac7216">=20
+<td>=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"table-layout: fixed; border-collapse: collapse; mso-table-lspace: 0px;=
+ mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td style=3D"background-color:#ffffff;" bgcolor=3D"#ffffff">=20
+<table align=3D"center" width=3D"600" border=3D"0" cellspacing=3D"0" cellpa=
+dding=3D"0" class=3D"em_tall_header em_main_table" style=3D"width: 600px; b=
+order-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"dark-gray100" style=3D"border-=
+collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"em_padnone" style=3D"padding: =
+0 16px; border-collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"padding: 0 16px; border-collap=
+se: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"border-collapse: collapse; mso=
+-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"border-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0p=
+x;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"border-collapse: collapse; mso=
+-line-height-rule: exactly;">=20
+<table width=3D"528" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=
+=3D"left" style=3D"width: 528px; border-collapse: collapse; mso-table-lspac=
+e: 0px; mso-table-rspace: 0px;" class=3D"em_w280">=20
+<tbody>=20
+<tr>=20
+<td height=3D"16" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"body-02-long" style=3D"border-co=
+llapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex Sans'=
+, Arial, Helvetica;font-weight: 400;font-size: 16px;line-height: 24px;lette=
+r-spacing: 0px;color: #525252">=20
+<div class=3D"mktoText" id=3D"module16-text24bfdc57-f865-494c-8bb2-61038446=
+8ba2">
+ Across Q2, IBM has a unique opportunity to create a standout brand moment =
+in London - anchored by Wimbledon and amplified by London Tech Week, SXSW, =
+F1 Silverstone and more.=20
+<br>=20
+<br>To make it easy to navigate everything happening, we've brought all Mar=
+keting, Communications and CSR activity, plus the full events calendar, tog=
+ether into one seismic page. Bookmark it now!=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td style=3D" font-size: 1px; line-height: 1px;" height=3D"8">&nbsp;</td>=20
+</tr>=20
+<!-- <tr>
+                                                                           =
+                                                         <td align=3D"left"=
+ valign=3D"top" style=3D" border-collapse: collapse; mso-line-height-rule: =
+exactly;">
+                                                                           =
+                                                             <table width=
+=3D"240" style=3D"max-width: 240px;" border=3D"0" cellspacing=3D"0" cellpad=
+ding=3D"0" align=3D"left">
+                                                                           =
+                                                                 <tbody>
+                                                                           =
+                                                                     <tr>
+                                                                           =
+                                                                         <t=
+d style=3D"border-collapse: collapse;mso-line-height-rule: exactly;font-fam=
+ily: 'IBM Plex Sans', Arial, Helvetica;font-weight: 400;font-size: 12px; li=
+ne-height: 16px; letter-spacing: 0.32px;color: #161616">
+                                                                           =
+                                                                           =
+  <div class=3D"mktoText" id=3D"source_content_14" mktoname=3D"Source Conte=
+nt"></div>
+                                                                           =
+                                                                         </=
+td>
+                                                                           =
+                                                                     </tr>
+                                                                           =
+                                                                 </tbody>
+                                                                           =
+                                                             </table>
+                                                                           =
+                                                         </td>
+                                                                           =
+                                                     </tr> -->=20
+<tr>=20
+<td height=3D"0" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>
+<tr class=3D"mktoModule em_full_wrap" id=3D"CTA-V1b6eb29a6-e505-4aad-b184-5=
+375f239afd1">=20
+<td>=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"table-layout: fixed; border-collapse: collapse; mso-table-lspace: 0px;=
+ mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td style=3D"background-color:#ffffff;" bgcolor=3D"#ffffff">=20
+<table align=3D"center" width=3D"600" border=3D"0" cellspacing=3D"0" cellpa=
+dding=3D"0" class=3D"em_tall_header em_main_table" style=3D"width: 600px; b=
+order-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"dark-gray100" style=3D"border-=
+collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td height=3D"16" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"em_padnone" style=3D"padding: =
+0 16px; border-collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"padding: 0 16px; border-collap=
+se: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"border-collapse: collapse; mso=
+-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"border-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0p=
+x;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"border-collapse: collapse; mso=
+-line-height-rule: exactly;">=20
+<table width=3D"536" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=
+=3D"left" style=3D"width: 536px; border-collapse: collapse; mso-table-lspac=
+e: 0px; mso-table-rspace: 0px;" class=3D"em_w280">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"border-collapse: collapse; mso-l=
+ine-height-rule: exactly;">=20
+<div class=3D"mktoText" id=3D"mod17-cta9f2f812d-b694-4053-a764-2eb0e88a4abe=
+">=20
+<table align=3D"left" width=3D"200" border=3D"0" cellspacing=3D"0" cellpadd=
+ing=3D"0" style=3D"width: 200px;" bgcolor=3D"#0f62fe">=20
+<tbody>=20
+<tr>=20
+<td width=3D"16" style=3D"width: 16px;">&nbsp;</td>=20
+<td valign=3D"middle" align=3D"left" height=3D"48" style=3D"height: 48px; f=
+ont-family: 'IBM Plex Sans', Arial, Helvetica, sans-serif; font-size: 16px;=
+ color: #ffffff; font-weight: 400;"><span style=3D"color: #ffffff;"><a href=
+=3D"https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6CEW_l1IpH172lJ1cmWA6RLaUV=
+tFFXKWvrzpNAHBVSRduR2CI7jPaOio2Y130OKNLzzoOWk=3D" target=3D"_blank" style=
+=3D"text-decoration: none; line-height: 48px; display: block; color: #fffff=
+f;">UKI MCC Page</a></span></td>=20
+<td valign=3D"middle" align=3D"center" width=3D"20" style=3D"width: 20px; f=
+ont-size: 0px; line-height: 0px;"><a href=3D"https://intemail.ibm.com/NzkzL=
+VZCTS05MTUAAAGg6CEW_nl689vWNxk4aaIVx_U2O4Xk3ZWyoPh0JnEJR4cAewly-eskQ_YXQ1xk=
+0yP8yLs7M-U=3D" target=3D"_blank" style=3D"text-decoration: none;"> <img sr=
+c=3D"https://1.dam.s81c.com/m/6ae583852e99753a/original/PLACEHOLDER-IMAGES-=
+ONLY-BUTTON-ARROW-GRAY10-20px.png" width=3D"20" alt=3D"" border=3D"0" style=
+=3D"display: block; max-width: 20px;"> </a></td>=20
+<td width=3D"16" style=3D"width: 16px;">&nbsp;</td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td height=3D"16" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>
+<tr class=3D"mktoModule em_full_wrap" id=3D"Head-text-WLink-V11e6abaef-815d=
+-4509-8632-582615fabd2c">=20
+<td>=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"table-layout: fixed; border-collapse: collapse; mso-table-lspace: 0px;=
+ mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td style=3D"background-color:#ffffff;" bgcolor=3D"#ffffff">=20
+<table align=3D"center" width=3D"600" border=3D"0" cellspacing=3D"0" cellpa=
+dding=3D"0" class=3D"em_tall_header em_main_table" style=3D"width: 600px; b=
+order-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"dark-gray100" style=3D"border-=
+collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"em_padnone" style=3D"padding: =
+0 16px; border-collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"padding: 0 16px; border-collap=
+se: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"border-collapse: collapse; mso=
+-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"border-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0p=
+x;">=20
+<tbody>=20
+<tr>=20
+<td height=3D"16" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"boder-collapse: collapse; mso-li=
+ne-height-rule: exactly;">=20
+<table width=3D"440" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=
+=3D"left" style=3D"width: 440px; border-collapse: collapse; mso-table-lspac=
+e: 0px; mso-table-rspace: 0px;" class=3D"em_w280 w280">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"body-02-long" style=3D"border-co=
+llapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex Sans'=
+, Arial, Helvetica;font-weight: 600;font-size: 16px;line-height: 24px;lette=
+r-spacing: 0px;color: #252525">=20
+<div class=3D"mktoText" id=3D"Link-Module-Heading-11c2d82a1-a4b9-49e0-a0c3-=
+31ba901bf14c">
+ Think London Update=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"body-02-long" style=3D"border-co=
+llapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex Sans'=
+, Arial, Helvetica;font-weight: 400;font-size: 16px;line-height: 24px;lette=
+r-spacing: 0px;color: #525252">=20
+<div class=3D"mktoText" id=3D"modnew4-text-1614aa117-6f7b-460c-a1a8-14d1aab=
+f43f1">=20
+<div>=20
+<span style=3D"font-size: 16px;">Think London will no longer be happening o=
+n 10 June. Rather than =E2=80=98Think on Tour=E2=80=99 events across market=
+s, there will be one larger Think EMEA event and we are delighted to say th=
+at it will be in London, in October. Lets really take advantage of this opp=
+ortunity.</span>=20
+</div>=20
+<div>=20
+<span style=3D"font-size: 16px;">Details will follow in due course.</span>=
+=20
+</div>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td style=3D"font-size: 1px; line-height: 1px;" height=3D"8">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"text-link" style=3D"border-colla=
+pse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex Sans', A=
+rial, Helvetica;font-weight: normal;font-size: 16px;line-height: 24px;lette=
+r-spacing: 0px;text-decoration: underline;color: #ffffff;">=20
+<div class=3D"mktoText" id=3D"modnew4-linkf6fdc8bb-a861-42bc-972e-edf5f4e22=
+d2a"></div> </td>=20
+</tr>=20
+<tr>=20
+<td height=3D"16" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>
+<tr class=3D"mktoModule em_full_wrap" id=3D"Hero_image1c12b587e-dd8a-4376-b=
+20f-a1f30ee87b57">=20
+<td>=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"table-labnryout: fixed; border-collapse: collapse; mso-table-lspace: 0=
+px; mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td class=3D"em_padnone" style=3D"background-color: #ffffff; padding: 0px 1=
+6px;" bgcolor=3D"#ffffff">=20
+<table align=3D"center" width=3D"568" border=3D"0" cellspacing=3D"0" cellpa=
+dding=3D"0" class=3D"em_tall_header em_main_table" style=3D"width: 568px; b=
+order-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"border-collapse: collapse; mso=
+-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"border-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0p=
+x;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"em_full_img">=20
+<div class=3D"mktoImg" id=3D"Hero-Image-Img135a9e287-9f92-4f37-9101-e246282=
+575a3" mktolockimgsize=3D"true">=20
+<a href=3D"#" target=3D"_blank"> <img src=3D"https://assets.ibm.com/is/imag=
+e/ibm/27c99e49-e971-4f81-a74e93c301fb2653?$original$" width=3D"568" height=
+=3D"320" border=3D"0" style=3D"display: block;"> </a>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>
+<tr class=3D"mktoModule em_full_wrap" id=3D"col2-head-CTA-modules6ca49114-7=
+172-467d-aab8-d95e8cb101fe">=20
+<td>=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"table-layout: fixed; border-collapse: collapse; mso-table-lspace: 0px;=
+ mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td style=3D"background-color:#ffffff;" bgcolor=3D"#ffffff">=20
+<table align=3D"center" width=3D"600" border=3D"0" cellspacing=3D"0" cellpa=
+dding=3D"0" class=3D"em_tall_header em_main_table" style=3D"width: 600px; b=
+order-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"dark-gray100" style=3D"border-=
+collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"em_padnone" style=3D"padding: =
+0 16px; border-collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" class=3D"em_bg_no_bleed" style=3D"border-collapse: collapse;ms=
+o-table-lspace: 0px;mso-table-rspace: 0px;background-color: #ffffff;">=20
+<tbody>=20
+<tr>=20
+<th align=3D"center" valign=3D"top" class=3D"em_clear" width=3D"284" style=
+=3D"width: 284px; border-collapse: collapse; mso-line-height-rule: exactly;=
+">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"padding: 16px; border-collapse=
+: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"padding: 16px 0; border-collap=
+se: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td style=3D"border-top:1px solid #c6c6c6;line-height:1px;font-size:1px;"> =
+&nbsp; </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"border-collapse: collapse; mso-l=
+ine-height-rule: exactly;">=20
+<table width=3D"240" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=
+=3D"left" style=3D"width: 240px; border-collapse: collapse; mso-table-lspac=
+e: 0px; mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"body-01-short" style=3D"padding-=
+bottom: 16px;border-collapse: collapse;mso-line-height-rule: exactly;font-f=
+amily: 'IBM Plex Sans', Arial, Helvetica;font-weight: normal;font-size: 16p=
+x;line-height: 22px;letter-spacing: 0px;color: #161616"> <span style=3D"bor=
+der-collapse: collapse;mso-line-height-rule: exactly;font-weight: 600;color=
+: #161616;">=20
+<div class=3D"mktoText" id=3D"mod15lefh74c3a7ab-6f94-44c5-bdce-07753d5eab87=
+"></div> </span> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"border-collapse: collapse; mso-l=
+ine-height-rule: exactly;">=20
+<table width=3D"240" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=
+=3D"left" style=3D"width: 240px; border-collapse: collapse; mso-table-lspac=
+e: 0px; mso-table-rspace: 0px;" class=3D"em_w280 w280">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"body-01-short" style=3D"border-c=
+ollapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex Sans=
+', Arial, Helvetica;font-weight: 400;font-size: 16px;line-height: 22px;lett=
+er-spacing: 0px;color: #525252">=20
+<div class=3D"mktoText" id=3D"mod15lefttxt487b2d6f-929d-41c5-81aa-622524c2d=
+7f2">=20
+<strong><a href=3D"https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6CEW_iDRpyy=
+RXT9eE29hn5wJ8Gs-U3fH7ydd2Mc77R_-8xncjg4_eIGIJ-YbArCm530Nsqs=3D" target=3D"=
+_blank">Unlocking the Power of AI Agents</a><strong><br></strong><strong>Da=
+te:&nbsp;</strong></strong>2 April=20
+<strong><strong><br>Location: </strong></strong>Innovation Studio, London=20
+<br>=20
+<strong>Audience</strong>: Business &amp; Operational Leaders=20
+<strong></strong>=20
+<strong><a href=3D"https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6CEW_h3_-fT=
+RL_x8ccB9dWEJYqjifN9YhxoEMjCJ73BXavaZeME_Kh4CIM6e5fQzFQP1Y8k=3D" target=3D"=
+_blank" id=3D""><br><br>Intelligence Squared Debate Series</a></strong>=20
+<strong><br></strong>=20
+<strong>Date:&nbsp;</strong>16 April &amp; 13 May=20
+<strong><br>Location: </strong>Kings Place, London=20
+<br>=20
+<strong>Audience: </strong>C-Suite -1, -2 + Business, Technology &amp; Tran=
+sformation Leaders=20
+<br>=20
+<strong># of Attendees:</strong>&nbsp;200=20
+<a href=3D"https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6CEW_rYSSAQzIFhWCpR=
+8p9p6inJbc8NVLKWzpy6k6b4e_j2xnnyKYzucyjUytGGL8B9Y5KE=3D" target=3D"_blank">=
+<br><br><strong>Digital Sovereignty for Banking Dinner</strong></a>=20
+<br>=20
+<strong>Date:</strong>&nbsp;23 April=20
+<br>=20
+<strong>Location:</strong>&nbsp;Private Venue TBC, London=20
+<br>=20
+<strong>Audience:</strong>&nbsp;CTO, CIO, Heads of=20
+<br>=20
+<br>=20
+<span style=3D"font-family: 'IBM=20
+Plex Sans', Arial, Helvetica; font-size: 16px; font-style: normal; font-var=
+iant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter=
+-spacing: normal; text-align: -moz-left; text-indent: 0px; text-transform: =
+none; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: norma=
+l;"><b><strong><a href=3D"https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6CEW=
+_oz1F8FJzDJeLNglZTgR865TzcWeaGLqXHD6OjMQDNl_PDZZgDcD0X5BBJW0_BmCABM=3D" tar=
+get=3D"_blank" id=3D"">Retail Technology Show</a></strong><br></b><strong>D=
+ate:</strong><span style=3D"font-weight: 400;">&nbsp;22-23 April</span></sp=
+an>=20
+<br style=3D"color: #525252; font-family: 'IBM Plex Sans', Arial, Helvetica=
+; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font=
+-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2=
+; text-align:=20
+-webkit-left; text-indent: 0px; text-transform: none; widows: 2; word-spaci=
+ng: 0px; -webkit-text-stroke-width: 0px; white-space: normal;">=20
+<span style=3D"font-family: 'IBM Plex Sans', Arial, Helvetica; font-size: 1=
+6px; font-style: normal; font-variant-ligatures: normal; font-variant-caps:=
+ normal; font-weight: 400; letter-spacing: normal; text-align: -moz-left; t=
+ext-indent: 0px; text-transform:=20
+none; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: norma=
+l;"><strong>Location:</strong>&nbsp;ExCel, London</span>=20
+<br style=3D"color: #525252; font-family: 'IBM Plex Sans', Arial, Helvetica=
+; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font=
+-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2=
+; text-align: -webkit-left; text-indent:=20
+0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-strok=
+e-width: 0px; white-space: normal;">=20
+<span style=3D"font-family: 'IBM Plex Sans', Arial, Helvetica; font-size: 1=
+6px; font-style: normal; font-variant-ligatures: normal; font-variant-caps:=
+ normal; font-weight: 400; letter-spacing: normal; text-align: -moz-left; t=
+ext-indent: 0px; text-transform: none; word-spacing: 0px;=20
+-webkit-text-stroke-width: 0px; white-space: normal;"><strong>Audience:</st=
+rong>&nbsp;C-Suite -1</span>=20
+<br style=3D"color: #525252; font-family: 'IBM Plex Sans', Arial, Helvetica=
+; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font=
+-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2=
+; text-align: -webkit-left; text-indent: 0px; text-transform: none;=20
+widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: =
+normal;">=20
+<span style=3D"font-family: 'IBM Plex Sans', Arial, Helvetica; font-size: 1=
+6px; font-style: normal; font-variant-ligatures: normal; font-variant-caps:=
+ normal; font-weight: 400; letter-spacing: normal; text-align: -moz-left; t=
+ext-indent: 0px; text-transform: none; word-spacing: 0px; -webkit-text-stro=
+ke-width: 0px;=20
+white-space: normal;"><strong># of Attendees:</strong>&nbsp;15,000</span>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td style=3D"height:8px" height=3D"8"></td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"text-link pad_btm0" style=3D"pad=
+ding-bottom: 25px;border-collapse: collapse;mso-line-height-rule: exactly;f=
+ont-family: 'IBM Plex Sans', Arial, Helvetica;font-weight: 400;font-size: 1=
+6px;line-height: 24px;letter-spacing: 0px;text-decoration: underline;color:=
+ #ffffff;">=20
+<div class=3D"mktoText" id=3D"mod15leftlinkf25766b9-ba50-4bb9-a321-f38f6350=
+5aaf"></div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </th>=20
+<th align=3D"center" valign=3D"top" class=3D"em_clear" width=3D"284" style=
+=3D"width: 284px; border-collapse: collapse; mso-line-height-rule: exactly;=
+">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"padding: 16px; border-collapse=
+: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"padding: 16px 0; border-collap=
+se: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td style=3D"border-top:1px solid #c6c6c6;line-height:1px;font-size:1px;"> =
+&nbsp; </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"border-collapse: collapse; mso-l=
+ine-height-rule: exactly;">=20
+<table width=3D"240" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=
+=3D"left" style=3D"width: 240px; border-collapse: collapse; mso-table-lspac=
+e: 0px; mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"body-01-short" style=3D"padding-=
+bottom: 16px;border-collapse: collapse;mso-line-height-rule: exactly;font-f=
+amily: 'IBM Plex Sans', Arial, Helvetica;font-weight: normal;font-size: 16p=
+x;line-height: 22px;letter-spacing: 0px;color: #161616"> <span style=3D"bor=
+der-collapse: collapse;mso-line-height-rule: exactly;font-weight: 600;color=
+: #161616">=20
+<div class=3D"mktoText" id=3D"mod15righth19d21d40-9c91-4220-8e63-aebd181cc1=
+32"></div> </span> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"border-collapse: collapse; mso-l=
+ine-height-rule: exactly;">=20
+<table width=3D"240" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=
+=3D"left" style=3D"width: 240px; border-collapse: collapse; mso-table-lspac=
+e: 0px; mso-table-rspace: 0px;" class=3D"em_w280 w280">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"body-01-short" style=3D"border-c=
+ollapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex Sans=
+', Arial, Helvetica;font-weight: normal;font-size: 16px;line-height: 22px;l=
+etter-spacing: 0px;color: #525252">=20
+<div class=3D"mktoText" id=3D"mod15righttxta029fdf7-eade-45e4-b76e-85039d05=
+2e7d">=20
+<strong><a href=3D"https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6CEW_k0KKRb=
+TmDdnsvTe2TCJsCb2FbK8qUSOns77mZ893rPZHKTrtZbi0oM-rdkc_6n5RFQ=3D" target=3D"=
+_blank">IBM NED Talks 2026</a></strong>=20
+<br style=3D"color: #525252; font-family: 'IBM Plex Sans', Arial, Helvetica=
+; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font=
+-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2=
+; text-align: -webkit-left; text-indent:=20
+0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-strok=
+e-width: 0px; white-space: normal;">=20
+<span style=3D"font-family: 'IBM Plex Sans', Arial, Helvetica; font-size: 1=
+6px; font-style: normal; font-variant-ligatures: normal; font-variant-caps:=
+ normal; font-weight: 400; letter-spacing: normal; text-align: -moz-left; t=
+ext-indent: 0px; text-transform: none; word-spacing: 0px;=20
+-webkit-text-stroke-width: 0px; white-space: normal;"><strong>Date:</strong=
+>&nbsp;13 May &amp; 4 November</span>=20
+<br style=3D"color: #525252; font-family: 'IBM Plex Sans', Arial, Helvetica=
+; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font=
+-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2=
+; text-align: -webkit-left; text-indent: 0px; text-transform:=20
+none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-s=
+pace: normal;">=20
+<span style=3D"font-family: 'IBM Plex Sans', Arial, Helvetica; font-size: 1=
+6px; font-style: normal; font-variant-ligatures: normal; font-variant-caps:=
+ normal; font-weight: 400; letter-spacing: normal; text-align: -moz-left; t=
+ext-indent: 0px; text-transform: none; word-spacing: 0px;=20
+-webkit-text-stroke-width: 0px; white-space: normal;"><strong>Location:</st=
+rong>&nbsp;Innovation Studio, London</span>=20
+<br style=3D"color: #525252; font-family: 'IBM Plex Sans', Arial, Helvetica=
+; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font=
+-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2=
+; text-align: -webkit-left; text-indent: 0px;=20
+text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-wid=
+th: 0px; white-space: normal;">=20
+<span style=3D"font-family: 'IBM Plex Sans', Arial, Helvetica; font-size: 1=
+6px; font-style: normal; font-variant-ligatures: normal; font-variant-caps:=
+ normal; font-weight: 400; letter-spacing: normal; text-align: -moz-left; t=
+ext-indent: 0px; text-transform: none; word-spacing: 0px;=20
+-webkit-text-stroke-width: 0px; white-space: normal;"><strong>Audience:</st=
+rong>&nbsp;C-Suite -1 &amp; Non-Executive Directors</span>=20
+<br style=3D"color: #525252; font-family: 'IBM Plex Sans', Arial, Helvetica=
+; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font=
+-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2=
+; text-align: -webkit-left; text-indent:=20
+0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-strok=
+e-width: 0px; white-space: normal;">=20
+<span style=3D"font-family: 'IBM Plex Sans', Arial, Helvetica; font-size: 1=
+6px; font-style: normal; font-variant-ligatures: normal; font-variant-caps:=
+ normal; font-weight: 400; letter-spacing: normal; text-align: -moz-left; t=
+ext-indent: 0px; text-transform: none; word-spacing: 0px;=20
+-webkit-text-stroke-width: 0px; white-space: normal;"><strong># of Attendee=
+s:</strong>&nbsp;40 clients<br><br><strong><strong><a href=3D"https://intem=
+ail.ibm.com/NzkzLVZCTS05MTUAAAGg6CEW_o0n-ls3Bf02tHbGYHUQ6CImN7RytHmsw52YlC8=
+MFZzM40bBCi8_1cSv6fljn5zGJjw=3D" target=3D"_blank" id=3D"">IBM Bobathon</a>=
+<br></strong></strong><span style=3D"font-family: 'IBM Plex Sans', Arial, H=
+elvetica; font-size: 16px; font-style: normal; font-variant-ligatures: norm=
+al;=20
+font-variant-caps: normal; font-weight: 400; letter-spacing: normal; text-a=
+lign: -moz-left; text-indent: 0px; text-transform: none; word-spacing: 0px;=
+ -webkit-text-stroke-width: 0px; white-space: normal;"><strong>Date:</stron=
+g>&nbsp;13 May</span><br style=3D"color: #525252; font-family: 'IBM Plex Sa=
+ns', Arial, Helvetica; font-size: 16px; font-style: normal; font-variant-li=
+gatures: normal;=20
+font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphan=
+s: 2; text-align: -webkit-left; text-indent: 0px; text-transform: none; wid=
+ows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nor=
+mal;"><span style=3D"font-family: 'IBM Plex Sans', Arial, Helvetica; font-s=
+ize: 16px; font-style: normal; font-variant-ligatures: normal; font-variant=
+-caps: normal;=20
+font-weight: 400; letter-spacing: normal; text-align: -moz-left; text-inden=
+t: 0px; text-transform: none; word-spacing: 0px; -webkit-text-stroke-width:=
+ 0px; white-space: normal;"><strong>Location:</strong>&nbsp;Innovation Stud=
+io, London</span><br style=3D"color: #525252; font-family: 'IBM Plex Sans',=
+ Arial, Helvetica; font-size: 16px; font-style: normal; font-variant-ligatu=
+res: normal;=20
+font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphan=
+s: 2; text-align: -webkit-left; text-indent: 0px; text-transform: none; wid=
+ows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nor=
+mal;"><span style=3D"font-family: 'IBM Plex Sans', Arial, Helvetica; font-s=
+ize: 16px; font-style: normal; font-variant-ligatures: normal; font-variant=
+-caps: normal;=20
+font-weight: 400; letter-spacing: normal; text-align: -moz-left; text-inden=
+t: 0px; text-transform: none; word-spacing: 0px; -webkit-text-stroke-width:=
+ 0px; white-space: normal;"><strong>Audience:</strong>&nbsp;Business &amp; =
+Operational Leaders</span><br><br></span>=20
+<strong><strong><a href=3D"https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6CE=
+W_e3aj2t_ySD_BEnueB8wFluQ4CqKJtRYG5N0BQqlFjDQJHp8Xh0s-nZ8qcUtJrb2lRw=3D" ta=
+rget=3D"_blank" id=3D"">Gartner &amp; Data Analytics</a><br></strong></stro=
+ng>=20
+<span style=3D"font-family: 'IBM Plex Sans', Arial, Helvetica; font-size: 1=
+6px; font-style: normal; font-variant-ligatures: normal; font-variant-caps:=
+ normal; font-weight: 400; letter-spacing: normal; text-align: -moz-left; t=
+ext-indent: 0px; text-transform: none; word-spacing: 0px; -webkit-text-stro=
+ke-width: 0px; white-space:=20
+normal;"><strong>Date:</strong>&nbsp;11-13 May</span>=20
+<br style=3D"color: #525252; font-family: 'IBM Plex Sans', Arial, Helvetica=
+; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font=
+-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2=
+; text-align: -webkit-left; text-indent: 0px; text-transform: none; widows:=
+ 2; word-spacing: 0px;=20
+-webkit-text-stroke-width: 0px; white-space: normal;">=20
+<span style=3D"font-family: 'IBM Plex Sans', Arial, Helvetica; font-size: 1=
+6px; font-style: normal; font-variant-ligatures: normal; font-variant-caps:=
+ normal; font-weight: 400; letter-spacing: normal; text-align: -moz-left; t=
+ext-indent: 0px; text-transform: none; word-spacing: 0px; -webkit-text-stro=
+ke-width: 0px; white-space:=20
+normal;"><strong>Location:</strong>&nbsp;London</span>=20
+<br style=3D"color: #525252; font-family: 'IBM Plex Sans', Arial, Helvetica=
+; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font=
+-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2=
+; text-align: -webkit-left; text-indent: 0px; text-transform: none; widows:=
+ 2; word-spacing: 0px;=20
+-webkit-text-stroke-width: 0px; white-space: normal;">=20
+<span style=3D"font-family: 'IBM Plex Sans', Arial, Helvetica; font-size: 1=
+6px; font-style: normal; font-variant-ligatures: normal; font-variant-caps:=
+ normal; font-weight: 400; letter-spacing: normal; text-align: -moz-left; t=
+ext-indent: 0px; text-transform: none; word-spacing: 0px; -webkit-text-stro=
+ke-width: 0px; white-space:=20
+normal;"><strong>Audience:</strong>&nbsp;CDO, CAO, Heads of</span>=20
+<br>=20
+<br>=20
+<span style=3D"font-family: 'IBM Plex Sans', Arial, Helvetica; font-size: 1=
+6px; font-style: normal; font-variant-ligatures: normal; font-variant-caps:=
+ normal; font-weight: 400; letter-spacing: normal; text-align: -moz-left; t=
+ext-indent: 0px; text-transform: none; word-spacing: 0px; -webkit-text-stro=
+ke-width: 0px;=20
+white-space: normal;"><b>Summer of Sport<br></b><strong>Date:</strong> June=
+ - July<br style=3D"color: #525252; font-family: 'IBM Plex Sans', Arial, He=
+lvetica; font-size: 16px; font-style: normal; font-variant-ligatures: norma=
+l; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orp=
+hans: 2; text-align: -webkit-left; text-indent: 0px; text-transform: none; =
+widows: 2;=20
+word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; tex=
+t-decoration-thickness: initial; text-decoration-style: initial; text-decor=
+ation-color: initial;"><strong>Location:</strong> London, Wimbledon, Silver=
+stone<br style=3D"color: #525252; font-family: 'IBM Plex Sans', Arial, Helv=
+etica; font-size: 16px; font-style: normal; font-variant-ligatures: normal;=
+ font-variant-caps:=20
+normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: -=
+webkit-left; text-indent: 0px; text-transform: none; widows: 2; word-spacin=
+g: 0px; -webkit-text-stroke-width: 0px; white-space: normal; text-decoratio=
+n-thickness: initial; text-decoration-style: initial; text-decoration-color=
+: initial;"><strong>Audience:</strong> Senior business &amp; technology lea=
+ders</span>=20
+<br>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+</tr>=20
+<tr>=20
+<td style=3D"height:8px" height=3D"8"></td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"text-link" style=3D"padding-bott=
+om: 25px;border-collapse: collapse;mso-line-height-rule: exactly;font-famil=
+y: 'IBM Plex Sans', Arial, Helvetica;font-weight: normal;font-size: 16px;li=
+ne-height: 24px;letter-spacing: 0px;text-decoration: underline;color: #ffff=
+ff">=20
+<div class=3D"mktoText" id=3D"mod16rightlink1dcf2530-14c9-4f6f-b7ff-9dc898b=
+bbe17"></div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </th>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>
+<tr class=3D"mktoModule em_full_wrap" id=3D"Head-text-WLink-V1786e33ba-2e4a=
+-4189-a2a4-caf98f52994b">=20
+<td>=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"table-layout: fixed; border-collapse: collapse; mso-table-lspace: 0px;=
+ mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td style=3D"background-color:#ffffff;" bgcolor=3D"#ffffff">=20
+<table align=3D"center" width=3D"600" border=3D"0" cellspacing=3D"0" cellpa=
+dding=3D"0" class=3D"em_tall_header em_main_table" style=3D"width: 600px; b=
+order-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"dark-gray100" style=3D"border-=
+collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"em_padnone" style=3D"padding: =
+0 16px; border-collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"padding: 0 16px; border-collap=
+se: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"border-collapse: collapse; mso=
+-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"border-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0p=
+x;">=20
+<tbody>=20
+<tr>=20
+<td height=3D"16" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"boder-collapse: collapse; mso-li=
+ne-height-rule: exactly;">=20
+<table width=3D"440" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=
+=3D"left" style=3D"width: 440px; border-collapse: collapse; mso-table-lspac=
+e: 0px; mso-table-rspace: 0px;" class=3D"em_w280 w280">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"body-02-long" style=3D"border-co=
+llapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex Sans'=
+, Arial, Helvetica;font-weight: 600;font-size: 16px;line-height: 24px;lette=
+r-spacing: 0px;color: #252525">=20
+<div class=3D"mktoText" id=3D"Link-Module-Heading-1e875a07b-ad11-41c7-9412-=
+049e97aa502e">
+ Think Boston 2026, 4-7 May=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"body-02-long" style=3D"border-co=
+llapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex Sans'=
+, Arial, Helvetica;font-weight: 400;font-size: 16px;line-height: 24px;lette=
+r-spacing: 0px;color: #525252">=20
+<div class=3D"mktoText" id=3D"modnew4-text-1f9a4b4a6-f015-4eea-90e3-9afd842=
+4fada">
+ To nominate your clients and partners for a complimentary pass and help th=
+em register, visit the Seismic page for all the latest information. Target =
+for UKI is to achieve 30 client registrations from Enterprise, Strategic &a=
+mp; Horizon accounts; 20 from Select Territory and 50 from Business Partner=
+s.=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td style=3D"font-size: 1px; line-height: 1px;" height=3D"8">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"text-link" style=3D"border-colla=
+pse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex Sans', A=
+rial, Helvetica;font-weight: normal;font-size: 16px;line-height: 24px;lette=
+r-spacing: 0px;text-decoration: underline;color: #ffffff;">=20
+<div class=3D"mktoText" id=3D"modnew4-link431188d9-eec8-466a-8d17-c2f587596=
+986">=20
+<span style=3D"color: #000000;"><span style=3D"color: #0000ff;"><a href=3D"=
+https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6CEW_uRCgcg-VIfLcqquhoqPQcBfhV=
+w5sM1NEkT5kDJgVL6pd3u_27ae9IOofLPW0Rv6qlY=3D" target=3D"_blank" style=3D"co=
+lor: #0000ff;">Nominate your clients and partners</a></span></span>=20
+<br style=3D"color: #525252; font-family: 'IBM Plex Sans', Arial, Helvetica=
+; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font=
+-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2=
+; text-align: -webkit-left; text-indent: 0px; text-transform: none; widows:=
+ 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal;=
+ background-color: #ffffff; text-decoration-thickness: initial; text-decora=
+tion-style: initial; text-decoration-color: initial;">=20
+<span style=3D"color: #0000ff;"><a href=3D"https://intemail.ibm.com/NzkzLVZ=
+CTS05MTUAAAGg6CEW_tV-Y2unxF34Wk1536NU9ZI4aycvEvqs1T7H_YYYce9wNuH07WEFY1Erem=
+z4SX1ndkc=3D" target=3D"_blank" id=3D"" style=3D"color: #0000ff;">More deta=
+ils</a></span>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td height=3D"16" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>
+<tr class=3D"mktoModule em_full_wrap" id=3D"col2-V3-LcontentRimg81a24577-44=
+cd-4b86-9ae3-132ce102f327">=20
+<td>=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"table-layout: fixed; border-collapse: collapse; mso-table-lspace: 0px;=
+ mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td class=3D"em_padnone" style=3D"background-color:#ffffff; padding:0px 16p=
+x" bgcolor=3D"#ffffff">=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" style=3D"border-s=
+pacing: 0; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto; wi=
+dth: 100%;" border=3D"0" align=3D"center">=20
+<tbody>=20
+<tr>=20
+<th class=3D"block" valign=3D"top" style=3D"padding: 0px 16px;">=20
+<table class=3D"deviceWidth2" width=3D"100%" cellpadding=3D"0" cellspacing=
+=3D"0" style=3D"border-spacing: 0; mso-table-lspace: 0pt; mso-table-rspace:=
+ 0pt; margin: 0 auto; width: 100%;" border=3D"0" align=3D"center">=20
+<tbody>=20
+<tr>=20
+<td style=3D"font-size: 1px; line-height: 1px;" height=3D"16">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"body-02-long" style=3D"border-co=
+llapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex Sans'=
+, Arial, Helvetica;font-weight: 600;font-size: 16px;line-height: 24px;lette=
+r-spacing: 0px;color: #161616">=20
+<div class=3D"mktoText" id=3D"twoCol-V3-heading9aa7de96-b560-4175-ba8a-a0a6=
+0b28f8c8" width=3D"240" style=3D"max-width: 240px;">=20
+<span style=3D"font-size: 16px;">Wimbledon 2026</span>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"body-02-long" style=3D"border-co=
+llapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex Sans'=
+, Arial, Helvetica;font-weight: 400;font-size: 16px;line-height: 24px;lette=
+r-spacing: 0px;color: #525252;">=20
+<div class=3D"mktoText" id=3D"twoCol-V3-text69f20e09-2937-4b5b-a98e-e343c37=
+a3918" width=3D"240" style=3D"max-width: 240px;">=20
+<div>=20
+<span style=3D"font-size: 16px; font-family: arial, helvetica, sans-serif;"=
+>This years' Championships will take place between 29th June and 12th July.=
+ There are several enhancements to both our suite environment and overall h=
+osting structure to further elevate the experience for our clients and alig=
+n with IBM=E2=80=99s global hospitality programmes.<br><br></span>=20
+</div>=20
+<div>=20
+<span style=3D"font-size: 16px; font-family: arial, helvetica, sans-serif;"=
+>Both UKI Technology and Consulting have an allocation of tickets on specif=
+ic dates across the Championships. If you have clients that you would like =
+to nominate, please speak to your business leader in the first instance, wh=
+o have been briefed on this years process and will be gathering nominations=
+ to put through CTEBA for their ticket allocation.</span>=20
+</div>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td style=3D"height:8px" height=3D"8"></td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"text-link pad_btm0" style=3D"pad=
+ding-bottom: 25px;border-collapse: collapse;mso-line-height-rule: exactly;f=
+ont-family: 'IBM Plex Sans', Arial, Helvetica;font-weight: 400;font-size: 1=
+6px;line-height: 24px;letter-spacing: 0px;text-decoration: underline;color:=
+ #0f62fe;">=20
+<div class=3D"mktoText" id=3D"twoCol-V3-linka4d4ddd2-d054-4179-afdf-f9b6bec=
+be3aa">=20
+<a target=3D"_blank" href=3D"https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6=
+CEW_kJLvDGw4xqtscItPUwTfgHkbU40qH23F0VIrp_aqMDMLGeymnet6AlvCGVtSvhBi1U=3D" =
+rel=3D"noopener noreferrer" aria-describedby=3D"sk-tooltip-2000" style=3D"c=
+olor: #1264a3; text-decoration: none;">Daily view of the 2026 Ticket Alloca=
+tion</a>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td height=3D"0" style=3D"line-height:0px;font-size:0px;">&nbsp;</td>=20
+</tr>=20
+</tbody>=20
+</table> </th>=20
+<th class=3D"block em_center iphone-width" width=3D"284" style=3D"text-alig=
+n: left;" valign=3D"top">=20
+<div class=3D"mktoImg" id=3D"twoCol-V3-img804e509c-8f68-4f51-8ec3-ba1831c51=
+fe4" mktolockimgsize=3D"true">=20
+<img src=3D"https://assets.ibm.com/is/image/ibm/wimbeldon_full_stadium_bann=
+er?$original$" width=3D"284" height=3D"284" border=3D"0" align=3D"absbottom=
+" style=3D"">=20
+</div> </th>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>
+<tr class=3D"mktoModule em_full_wrap" id=3D"Free-text-module-V16bd6b2b6-c7b=
+1-4930-aa66-8331fff433b0">=20
+<td>=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"table-layout: fixed; border-collapse: collapse; mso-table-lspace: 0px;=
+ mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td style=3D"background-color:#ffffff;" bgcolor=3D"#ffffff">=20
+<table align=3D"center" width=3D"600" border=3D"0" cellspacing=3D"0" cellpa=
+dding=3D"0" class=3D"em_tall_header em_main_table" style=3D"width: 600px; b=
+order-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"dark-gray100" style=3D"border-=
+collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"em_padnone" style=3D"padding: =
+0 16px; border-collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"padding: 0 16px; border-collap=
+se: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"border-collapse: collapse; mso=
+-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"border-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0p=
+x;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"border-collapse: collapse; mso=
+-line-height-rule: exactly;">=20
+<table width=3D"528" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=
+=3D"left" style=3D"width: 528px; border-collapse: collapse; mso-table-lspac=
+e: 0px; mso-table-rspace: 0px;" class=3D"em_w280">=20
+<tbody>=20
+<tr>=20
+<td height=3D"0" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"body-02-long" style=3D"border-co=
+llapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex Sans'=
+, Arial, Helvetica;font-weight: 400;font-size: 16px;line-height: 24px;lette=
+r-spacing: 0px;color: #525252">=20
+<div class=3D"mktoText" id=3D"module16-text318d7400-03f4-47d0-91f3-acb802b9=
+c419">
+ We look forward to your partnership in 2026 to help drive the growth we ne=
+ed in UK &amp; Ireland.=20
+<br>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td style=3D" font-size: 1px; line-height: 1px;" height=3D"8">&nbsp;</td>=20
+</tr>=20
+<!-- <tr>
+                                                                           =
+                                                         <td align=3D"left"=
+ valign=3D"top" style=3D" border-collapse: collapse; mso-line-height-rule: =
+exactly;">
+                                                                           =
+                                                             <table width=
+=3D"240" style=3D"max-width: 240px;" border=3D"0" cellspacing=3D"0" cellpad=
+ding=3D"0" align=3D"left">
+                                                                           =
+                                                                 <tbody>
+                                                                           =
+                                                                     <tr>
+                                                                           =
+                                                                         <t=
+d style=3D"border-collapse: collapse;mso-line-height-rule: exactly;font-fam=
+ily: 'IBM Plex Sans', Arial, Helvetica;font-weight: 400;font-size: 12px; li=
+ne-height: 16px; letter-spacing: 0.32px;color: #161616">
+                                                                           =
+                                                                           =
+  <div class=3D"mktoText" id=3D"source_content_14" mktoname=3D"Source Conte=
+nt"></div>
+                                                                           =
+                                                                         </=
+td>
+                                                                           =
+                                                                     </tr>
+                                                                           =
+                                                                 </tbody>
+                                                                           =
+                                                             </table>
+                                                                           =
+                                                         </td>
+                                                                           =
+                                                     </tr> -->=20
+<tr>=20
+<td height=3D"0" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>
+<tr class=3D"mktoModule em_full_wrap" id=3D"signature-modulef199cc62-a5cd-4=
+f00-a05a-a1a5ed9101f8">=20
+<td>=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"table-layout: fixed; border-collapse: collapse; mso-table-lspace: 0px;=
+ mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td style=3D"background-color:#ffffff;" bgcolor=3D"#ffffff">=20
+<table align=3D"center" width=3D"600" border=3D"0" cellspacing=3D"0" cellpa=
+dding=3D"0" class=3D"em_tall_header em_main_table" style=3D"width: 600px; b=
+order-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"dark-gray100" style=3D"border-=
+collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td height=3D"16" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"em_padnone" style=3D"padding: =
+0 16px; border-collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"padding: 0 16px; border-collap=
+se: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td class=3D"sign-col" align=3D"left" width=3D"33.3%" valign=3D"top" style=
+=3D"width: 33.3%; border-collapse: collapse; mso-line-height-rule: exactly;=
+">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"border-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0p=
+x;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"border-collapse: collapse; mso-l=
+ine-height-rule: exactly;">=20
+<table border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"left" styl=
+e=3D" border-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0=
+px;" class=3D"em_w280 w280">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" width=3D"140" class=3D"body-02-long em_w2=
+80 w280" style=3D"width: 140px; border-collapse: collapse;mso-line-height-r=
+ule: exactly;font-family: 'IBM Plex Sans', Arial, sans-serif;font-weight: n=
+ormal;font-size: 16px;line-height: 20px; letter-spacing: 0px;color: #525252=
+">=20
+<div class=3D"mktoText" id=3D"module3colsign1b41d941c-684a-4dd6-b7ee-93afed=
+2ff336">=20
+<strong>Charlie Smith</strong>=20
+<br>CMO and Named Accounts Marketing Leader=20
+<br>IBM UKI &amp; Ireland=20
+</div> </td>=20
+</tr>=20
+<!-- <tr>=20
+                                                                           =
+     <td align=3D"left" valign=3D"top" class=3D"body-02-long" style=3D"bord=
+er-collapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex =
+Sans', Arial, sans-serif;font-weight: normal;font-size: 16px;line-height: 2=
+0px;letter-spacing: 0px;color: #525252">=20
+                                                                           =
+       <div class=3D"mktoText" id=3D"module3colsignsub1" mktoname=3D"Signat=
+ure Sub Text1">
+                                                                           =
+         <div>
+                                                                           =
+            =20
+                                                                           =
+           <br />=20
+                                                                           =
+         </div>
+                                                                           =
+       </div> </td>=20
+                                                                           =
+   </tr>  -->=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td style=3D"font-size: 1px; line-height: 1px;" height=3D"8">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<!-- <td align=3D"left" valign=3D"top" style=3D"border-collapse: collapse; =
+mso-line-height-rule: exactly;">
+                                                                           =
+                                                 <table width=3D"33.3%" sty=
+le=3D"max-width: 33.3%;" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" a=
+lign=3D"left">
+                                                                           =
+                                                     <tr>
+                                                                           =
+                                                         <td style=3D"borde=
+r-collapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex S=
+ans', Arial, Helvetica;font-weight: 400;font-size: 12px; line-height: 16px;=
+ letter-spacing: 0.32px;color: #161616">
+                                                                           =
+                                                             <div class=3D"=
+mktoText" id=3D"source_sig_content_1" mktoName=3D"Source Sign Content"></di=
+v>
+                                                                           =
+                                                         </td>
+                                                                           =
+                                                     </tr>
+                                                                           =
+                                                 </table>
+                                                                           =
+                                             </td> -->=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+<td class=3D"sign-col" align=3D"left" width=3D"33.3%" valign=3D"top" style=
+=3D"width: 33.3%;  border-collapse: collapse; mso-line-height-rule: exactly=
+;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"border-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0p=
+x;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"border-collapse: collapse; mso-l=
+ine-height-rule: exactly;">=20
+<table border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"left" styl=
+e=3D" border-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0=
+px;" class=3D"em_w280 w280">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" width=3D"140" class=3D"body-02-long em_w2=
+80 w280" style=3D"width: 140px; border-collapse: collapse;mso-line-height-r=
+ule: exactly;font-family: 'IBM Plex Sans', Arial, sans-serif;font-weight: n=
+ormal;font-size: 16px;line-height: 20px; letter-spacing: 0px;color: #525252=
+">=20
+<div class=3D"mktoText" id=3D"module3colsign2e4e964ea-9e4f-4d11-a1e5-8685d1=
+23ceda"></div> </td>=20
+</tr>=20
+<!-- <tr>
+                                                                           =
+                                                         <td height=3D"15" =
+style=3D"font-size: 1px; line-height: 1px;"></td>
+                                                                           =
+                                                     </tr> -->=20
+<!-- <tr>=20
+                                                                           =
+     <td align=3D"left" valign=3D"top" class=3D"body-02-long" style=3D"bord=
+er-collapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex =
+Sans', Arial, sans-serif;font-weight: normal;font-size: 16px;line-height: 2=
+0px;letter-spacing: 0px;color: #525252">=20
+                                                                           =
+       <div class=3D"mktoText" id=3D"module3colsignsub2" mktoname=3D"Signat=
+ure Sub Text2">
+                                                                           =
+         <div>
+                                                                           =
+           =20
+                                                                           =
+           <br />=20
+                                                                           =
+         </div>
+                                                                           =
+       </div> </td>=20
+                                                                           =
+   </tr>  -->=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td style=3D"font-size: 1px; line-height: 1px;" height=3D"8">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+<td class=3D"sign-col" align=3D"left" width=3D"33.3%" valign=3D"top" style=
+=3D"width: 33.3%;  border-collapse: collapse; mso-line-height-rule: exactly=
+;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"border-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0p=
+x;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"border-collapse: collapse; mso-l=
+ine-height-rule: exactly;">=20
+<table border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"left" styl=
+e=3D" border-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0=
+px;" class=3D"em_w280 w280">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" width=3D"140" class=3D"body-02-long em_w2=
+80 w280" style=3D"width: 140px; border-collapse: collapse;mso-line-height-r=
+ule: exactly;font-family: 'IBM Plex Sans', Arial, sans-serif;font-weight: n=
+ormal;font-size: 16px;line-height: 20px; letter-spacing: 0px;color: #525252=
+">=20
+<div class=3D"mktoText" id=3D"module3colsign35e8eeb25-3d63-46de-8394-d98246=
+ec15e0">=20
+<strong>Louise Kettle</strong>=20
+<br>Select Territory Marketing Leader=20
+<br>IBM UK &amp; Ireland=20
+</div> </td>=20
+</tr>=20
+<!-- <tr>
+                                                                           =
+                                                         <td height=3D"15" =
+style=3D"font-size: 1px; line-height: 1px;"></td>
+                                                                           =
+                                                     </tr> -->=20
+<!-- <tr>=20
+                                                                           =
+     <td align=3D"left" valign=3D"top" class=3D"body-02-long" style=3D"bord=
+er-collapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex =
+Sans', Arial, sans-serif;font-weight: normal;font-size: 16px;line-height: 2=
+0px;letter-spacing: 0px;color: #525252">=20
+                                                                           =
+       <div class=3D"mktoText" id=3D"module3colsignsub3" mktoname=3D"Signat=
+ure Sub Text3">
+                                                                           =
+         <div>
+                                                                           =
+           =20
+                                                                           =
+           <br />=20
+                                                                           =
+         </div>
+                                                                           =
+       </div> </td>=20
+                                                                           =
+   </tr>  -->=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td style=3D"font-size: 1px; line-height: 1px;" height=3D"8">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<!-- <td align=3D"left" valign=3D"top" style=3D"border-collapse: collapse; =
+mso-line-height-rule: exactly;">
+                                                                           =
+                                                 <table width=3D"33.3%" sty=
+le=3D"max-width: 33.3%; " border=3D"0" cellspacing=3D"0" cellpadding=3D"0" =
+align=3D"left">
+                                                                           =
+                                                     <tr>
+                                                                           =
+                                                         <td style=3D"borde=
+r-collapse: collapse;mso-line-height-rule: exactly;font-family: 'IBM Plex S=
+ans', Arial, Helvetica;font-weight: 400;font-size: 12px; line-height: 16px;=
+ letter-spacing: 0.32px;color: #161616">
+                                                                           =
+                                                             <div class=3D"=
+mktoText" id=3D"source_sig_content_3" mktoName=3D"Source Sign Content"></di=
+v>
+                                                                           =
+                                                         </td>
+                                                                           =
+                                                     </tr>
+                                                                           =
+                                                 </table>
+                                                                           =
+                                             </td> -->=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td height=3D"16" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>
+<tr class=3D"mktoModule em_full_wrap" id=3D"FooterV1e492a5e5-104d-4a2e-9042=
+-8c56d83282fb">=20
+<td>=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"table-layout: fixed; border-collapse: collapse; mso-table-lspace: 0px;=
+ mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td style=3D"background-color:#f4f4f4;" bgcolor=3D"#f4f4f4">=20
+<table align=3D"left" width=3D"600" border=3D"0" cellspacing=3D"0" cellpadd=
+ing=3D"0" class=3D"em_tall_header em_main_table" style=3D"width: 600px; bor=
+der-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"dark-gray100" style=3D"border-co=
+llapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"left" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso-t=
+able-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td height=3D"16" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"em_padnone" style=3D"padding: 0 =
+16px; border-collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"left" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso-t=
+able-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"padding: 0 16px; border-collapse=
+: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"left" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso-t=
+able-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"border-collapse: collapse; mso-l=
+ine-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"center" style=3D"border-collapse: collapse; mso-table-lspace: 0px; mso=
+-table-rspace: 0px;">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"border-collapse: collapse; mso-l=
+ine-height-rule: exactly;">=20
+<table width=3D"366" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=
+=3D"left" style=3D"width: 366px; border-collapse: collapse; mso-table-lspac=
+e: 0px; mso-table-rspace: 0px;" class=3D"em_w202">=20
+<tbody>=20
+<tr>=20
+<td height=3D"4" style=3D"line-height: 0px; font-size: 0px; height: 4px; bo=
+rder-collapse: collapse; mso-line-height-rule: exactly;"> <img src=3D"https=
+://1.dam.s81c.com/m/56b16e60281c010c/original/IMAGE-PLACEHOLDER-ONLY-SPACER=
+-1x1.gif" width=3D"1" height=3D"1" alt=3D"" border=3D"0" style=3D"display: =
+block; border: 0 !important; outline: none !important;"> </td>=20
+</tr>=20
+<!-- <tr>
+                                                                           =
+                                 <td align=3D"left" valign=3D"middle" class=
+=3D"heading-01" style=3D" border-collapse: collapse; mso-line-height-rule: =
+exactly; font-family: 'IBM Plex Sans', Arial, Helvetica; font-weight: 400; =
+font-size: 12px; line-height: 16px; letter-spacing: 0px; padding: 1px 0; le=
+tter-spacing: 0.32px; color: #525252; ">
+                                                                           =
+                                     <div class=3D"mktoSnippet" id=3D"foote=
+r-text" mktoName=3D"Copyright Text" mktoDefaultSnippetId=3D"4"></div>
+                                                                           =
+                                 </td>
+                                                                           =
+                             </tr> -->=20
+</tbody>=20
+</table> </td>=20
+<td width=3D"15" style=3D"width: 15px; border-collapse: collapse; mso-line-=
+height-rule: exactly;">&nbsp;</td>=20
+<td align=3D"left" valign=3D"top" width=3D"26" style=3D"width: 26px; border=
+-collapse: collapse; mso-line-height-rule: exactly;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"border-collapse: collapse; mso-table-lspace: 0px; mso-table-rspace: 0p=
+x;">=20
+<tbody>=20
+<tr>=20
+<td height=3D"8" style=3D"line-height: 0px; font-size: 0px; height: 8px; bo=
+rder-collapse: collapse; mso-line-height-rule: exactly;"> <img src=3D"https=
+://1.dam.s81c.com/m/56b16e60281c010c/original/IMAGE-PLACEHOLDER-ONLY-SPACER=
+-1x1.gif" width=3D"1" height=3D"1" alt=3D"" border=3D"0" style=3D"display: =
+block; border: 0 !important; outline: none !important;"> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"em_white_logo" style=3D"border-c=
+ollapse: collapse; mso-line-height-rule: exactly; display: block;">=20
+<div class=3D"mktoImg" id=3D"footer-logbb903c95-2ea7-4444-9d3c-1d61b127760c=
+">=20
+<a href=3D"https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6CEW_i2dkVHccs9Zsu9=
+mJWoH9DyzMdLHGZCjDmRakld4ynilVB0L50jVWDuEzzy6HU6yNnM=3D" target=3D"_blank" =
+style=3D"text-decoration: none; border-collapse: collapse; mso-line-height-=
+rule: exactly;"> <img src=3D"https://lp2.email.ibm.com/rs/298-RSE-650/image=
+s/IBM_footer_logo.png" width=3D"43" border=3D"0" style=3D"max-width: 43px; =
+outline: none !important;"> </a>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td height=3D"16" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<td style=3D"border-top:1px solid #c6c6c6;line-height:1px;font-size:1px;">&=
+nbsp;</td>=20
+</tr>=20
+<tr>=20
+<td height=3D"16" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"border-collapse: collapse; mso-l=
+ine-height-rule: exactly;">=20
+<table width=3D"452" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=
+=3D"left" style=3D"width: 452px; border-collapse: collapse; mso-table-lspac=
+e: 0px; mso-table-rspace: 0px;" class=3D"em_w280 w280">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"legal" style=3D" border-collapse=
+: collapse; mso-line-height-rule: exactly; font-family: 'IBM Plex Sans', Ar=
+ial, Helvetica; font-weight: normal; font-size: 12px; line-height: 16px; le=
+tter-spacing: 0.5px; color: #525252; ">=20
+<div class=3D"mktoSnippet" id=3D"footer-text27eabd755-06c8-4278-8277-ea3718=
+2c5300">
+ <p>This email is required communication from UKI Marketing Spotlight.</p>=
+=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td height=3D"16" style=3D"line-height: 1px; font-size: 1px;">&nbsp;</td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> =20
+<a href=3D"https://intemail.ibm.com/NzkzLVZCTS05MTUAAAGg6CEW_h5TWenaFrmIwWj=
+QQvtafWREDN5I6JWIBDC44XkH_WQueCDtkOlpYKBFcnP7QTbwlkM=3D"></a>
+<img src=3D"https://intemail.ibm.com/trk?t=3D1&amp;mid=3DNzkzLVZCTS05MTUAAA=
+Gg6CEW_otBXuterWWdjaiWKCw46CscNkEUYRdxa_DlGzyVzT00K__EyMHGncIIq5HdEMg-BKLEl=
+vS9HQJk3KPfyRFK2GnSOEnA1hsm7QdWQl34k5tSFKqVS8NRZA" width=3D"1" height=3D"1"=
+ style=3D"display:none !important;" alt=3D"">
+
+<!--.-->
+</body>
+</html>=
+
+------=_Part_8095591_1970984726.1775048877842--

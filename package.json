@@ -1,0 +1,33 @@
+{
+  "name": "ibm-comms-app",
+  "version": "1.0.0",
+  "description": "IBM Marketing Comms App with Carbon Design System",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack serve --mode development --open",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "@carbon/icons-react": "^11.78.0",
+    "@carbon/react": "^1.105.0",
+    "@carbon/styles": "^1.104.0",
+    "carbon-components": "^10.59.2",
+    "carbon-components-react": "^7.60.5",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "sass": "^1.99.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
+    "@babel/preset-react": "^7.28.5",
+    "babel-loader": "^10.1.1",
+    "css-loader": "^7.1.4",
+    "html-webpack-plugin": "^5.6.7",
+    "sass-loader": "^16.0.7",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.106.2",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.3"
+  }
+}
