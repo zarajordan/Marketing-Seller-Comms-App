@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marketing Spotlight - Color Scheme Options</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'IBM Plex Sans', Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 40px 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      color: #161616;
+      margin-bottom: 40px;
+    }
+    .schemes-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+    .scheme-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .scheme-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #161616;
+    }
+    .scheme-description {
+      font-size: 14px;
+      color: #525252;
+      margin-bottom: 20px;
+    }
+    .email-preview {
+      background: white;
+      border: 2px solid #d0d0d0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .header {
+      padding: 20px;
+      text-align: center;
+      color: white;
+    }
+    .header-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0;
+    }
+    .header-subtitle {
+      font-size: 12px;
+      margin: 5px 0 0 0;
+    }
+    .summary {
+      padding: 15px;
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+    }
+    .summary-item {
+      flex: 1;
+    }
+    .summary-number {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .summary-label {
+      font-size: 11px;
+      color: #525252;
+    }
+    .section-header {
+      padding: 12px;
+      text-align: center;
+      margin: 15px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .event-card {
+      background: #f4f4f4;
+      margin: 10px 15px;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .event-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #161616;
+      margin: 0 0 5px 0;
+    }
+    .event-date {
+      font-size: 10px;
+      color: #525252;
+      margin: 0;
+    }
+    .color-palette {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #e0e0e0;
+    }
+    .color-swatch {
+      flex: 1;
+      height: 40px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: white;
+      font-weight: 600;
+    }
+    @media (max-width: 1200px) {
+      .schemes-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 Marketing Spotlight Email - Color Scheme Options</h1>
+    
+    <div class="schemes-grid">
+      
+      <!-- Scheme 1: Current IBM Colors -->
+      <div class="scheme-card">
+        <div class="scheme-title">Option 1: IBM Brand Colors (Current)</div>
+        <div class="scheme-description">Classic IBM blue and purple palette - professional and on-brand</div>
+        
+        <div class="email-preview">
+          <div class="header" style="background: #8a3ffc;">
+            <p class="header-subtitle">January 2026</p>
+            <h2 class="header-title">UKI Marketing Spotlight</h2>
+          </div>
+          
+          <div class="summary" style="background: #e8f4ff; border-bottom: 2px solid #0f62fe;">
+            <div class="summary-item">
+              <div class="summary-number" style="color: #0f62fe;">5</div>
+              <div class="summary-label">📅 IBM Events</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-number" style="color: #8a3ffc;">3</div>
+              <div class="summary-label">🤝 3rd Party</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-number" style="color: #0072c3;">2</div>
+              <div class="summary-label">🎥 On-Demand</div>
+            </div>
+          </div>
+          
+          <div class="section-header" style="background: #8a3ffc; color: white;">
+            ⭐ Featured Events
+          </div>
+          
+          <div class="section-header" style="background: #e8f4ff; border-left: 4px solid #0f62fe; color: #161616;">
+            📅 IBM Events
+          </div>
+          <div class="event-card" style="border-left: 3px solid #0f62fe;">
+            <h4 class="event-title">IBM Robother</h4>
+            <p class="event-date">15 January 2026</p>
+          </div>
+          
+          <div class="section-header" style="background: #f0f7f0; border-left: 4px solid #198038; color: #161616;">
+            🤝 3rd Party Events
+          </div>
+          <div class="event-card" style="border-left: 3px solid #198038;">
+            <h4 class="event-title">AI Summit</h4>
+            <p class="event-date">20 January 2026</p>
+          </div>
+          
+          <div class="section-header" style="background: #f6f2ff; border-left: 4px solid #8a3ffc; color: #161616;">
+            💻 On-Demand Webinars
+          </div>
+          <div class="event-card" style="border-left: 3px solid #8a3ffc;">
+            <h4 class="event-title">Cloud Modernization</h4>
+            <p class="event-date">Available Now</p>
+          </div>
+        </div>
+        
+        <div class="color-palette">
+          <div class="color-swatch" style="background: #8a3ffc;">Purple<br>#8a3ffc</div>
+          <div class="color-swatch" style="background: #0f62fe;">Blue<br>#0f62fe</div>
+          <div class="color-swatch" style="background: #198038;">Green<br>#198038</div>
+          <div class="color-swatch" style="background: #0072c3;">Cyan<br>#0072c3</div>
+        </div>
+      </div>
+      
+      <!-- Scheme 2: Professional Navy & Teal -->
+      <div class="scheme-card">
+        <div class="scheme-title">Option 2: Professional Navy & Teal</div>
+        <div class="scheme-description">Sophisticated navy blue with teal accents - corporate and trustworthy</div>
+        
+        <div class="email-preview">
+          <div class="header" style="background: #1e3a8a;">
+            <p class="header-subtitle">January 2026</p>
+            <h2 class="header-title">UKI Marketing Spotlight</h2>
+          </div>
+          
+          <div class="summary" style="background: #dbeafe; border-bottom: 2px solid #1e40af;">
+            <div class="summary-item">
+              <div class="summary-number" style="color: #1e40af;">5</div>
+              <div class="summary-label">📅 IBM Events</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-number" style="color: #0891b2;">3</div>
+              <div class="summary-label">🤝 3rd Party</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-number" style="color: #0d9488;">2</div>
+              <div class="summary-label">🎥 On-Demand</div>
+            </div>
+          </div>
+          
+          <div class="section-header" style="background: #1e3a8a; color: white;">
+            ⭐ Featured Events
+          </div>
+          
+          <div class="section-header" style="background: #dbeafe; border-left: 4px solid #1e40af; color: #161616;">
+            📅 IBM Events
+          </div>
+          <div class="event-card" style="border-left: 3px solid #1e40af;">
+            <h4 class="event-title">IBM Robother</h4>
+            <p class="event-date">15 January 2026</p>
+          </div>
+          
+          <div class="section-header" style="background: #ccfbf1; border-left: 4px solid #0891b2; color: #161616;">
+            🤝 3rd Party Events
+          </div>
+          <div class="event-card" style="border-left: 3px solid #0891b2;">
+            <h4 class="event-title">AI Summit</h4>
+            <p class="event-date">20 January 2026</p>
+          </div>
+          
+          <div class="section-header" style="background: #d1fae5; border-left: 4px solid #0d9488; color: #161616;">
+            💻 On-Demand Webinars
+          </div>
+          <div class="event-card" style="border-left: 3px solid #0d9488;">
+            <h4 class="event-title">Cloud Modernization</h4>
+            <p class="event-date">Available Now</p>
+          </div>
+        </div>
+        
+        <div class="color-palette">
+          <div class="color-swatch" style="background: #1e3a8a;">Navy<br>#1e3a8a</div>
+          <div class="color-swatch" style="background: #1e40af;">Blue<br>#1e40af</div>
+          <div class="color-swatch" style="background: #0891b2;">Cyan<br>#0891b2</div>
+          <div class="color-swatch" style="background: #0d9488;">Teal<br>#0d9488</div>
+        </div>
+      </div>
+      
+      <!-- Scheme 3: Modern Indigo & Coral -->
+      <div class="scheme-card">
+        <div class="scheme-title">Option 3: Modern Indigo & Coral</div>
+        <div class="scheme-description">Contemporary indigo with warm coral touches - energetic and modern</div>
+        
+        <div class="email-preview">
+          <div class="header" style="background: #4f46e5;">
+            <p class="header-subtitle">January 2026</p>
+            <h2 class="header-title">UKI Marketing Spotlight</h2>
+          </div>
+          
+          <div class="summary" style="background: #e0e7ff; border-bottom: 2px solid #4f46e5;">
+            <div class="summary-item">
+              <div class="summary-number" style="color: #4f46e5;">5</div>
+              <div class="summary-label">📅 IBM Events</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-number" style="color: #f97316;">3</div>
+              <div class="summary-label">🤝 3rd Party</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-number" style="color: #ec4899;">2</div>
+              <div class="summary-label">🎥 On-Demand</div>
+            </div>
+          </div>
+          
+          <div class="section-header" style="background: #4f46e5; color: white;">
+            ⭐ Featured Events
+          </div>
+          
+          <div class="section-header" style="background: #e0e7ff; border-left: 4px solid #4f46e5; color: #161616;">
+            📅 IBM Events
+          </div>
+          <div class="event-card" style="border-left: 3px solid #4f46e5;">
+            <h4 class="event-title">IBM Robother</h4>
+            <p class="event-date">15 January 2026</p>
+          </div>
+          
+          <div class="section-header" style="background: #ffedd5; border-left: 4px solid #f97316; color: #161616;">
+            🤝 3rd Party Events
+          </div>
+          <div class="event-card" style="border-left: 3px solid #f97316;">
+            <h4 class="event-title">AI Summit</h4>
+            <p class="event-date">20 January 2026</p>
+          </div>
+          
+          <div class="section-header" style="background: #fce7f3; border-left: 4px solid #ec4899; color: #161616;">
+            💻 On-Demand Webinars
+          </div>
+          <div class="event-card" style="border-left: 3px solid #ec4899;">
+            <h4 class="event-title">Cloud Modernization</h4>
+            <p class="event-date">Available Now</p>
+          </div>
+        </div>
+        
+        <div class="color-palette">
+          <div class="color-swatch" style="background: #4f46e5;">Indigo<br>#4f46e5</div>
+          <div class="color-swatch" style="background: #6366f1;">Purple<br>#6366f1</div>
+          <div class="color-swatch" style="background: #f97316;">Orange<br>#f97316</div>
+          <div class="color-swatch" style="background: #ec4899;">Pink<br>#ec4899</div>
+        </div>
+      </div>
+      
+      <!-- Scheme 4: Executive Charcoal & Gold -->
+      <div class="scheme-card">
+        <div class="scheme-title">Option 4: Executive Charcoal & Gold</div>
+        <div class="scheme-description">Premium dark gray with gold accents - elegant and executive</div>
+        
+        <div class="email-preview">
+          <div class="header" style="background: #374151;">
+            <p class="header-subtitle">January 2026</p>
+            <h2 class="header-title">UKI Marketing Spotlight</h2>
+          </div>
+          
+          <div class="summary" style="background: #fef3c7; border-bottom: 2px solid #d97706;">
+            <div class="summary-item">
+              <div class="summary-number" style="color: #1f2937;">5</div>
+              <div class="summary-label">📅 IBM Events</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-number" style="color: #d97706;">3</div>
+              <div class="summary-label">🤝 3rd Party</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-number" style="color: #0891b2;">2</div>
+              <div class="summary-label">🎥 On-Demand</div>
+            </div>
+          </div>
+          
+          <div class="section-header" style="background: #374151; color: white;">
+            ⭐ Featured Events
+          </div>
+          
+          <div class="section-header" style="background: #f3f4f6; border-left: 4px solid #1f2937; color: #161616;">
+            📅 IBM Events
+          </div>
+          <div class="event-card" style="border-left: 3px solid #1f2937;">
+            <h4 class="event-title">IBM Robother</h4>
+            <p class="event-date">15 January 2026</p>
+          </div>
+          
+          <div class="section-header" style="background: #fef3c7; border-left: 4px solid #d97706; color: #161616;">
+            🤝 3rd Party Events
+          </div>
+          <div class="event-card" style="border-left: 3px solid #d97706;">
+            <h4 class="event-title">AI Summit</h4>
+            <p class="event-date">20 January 2026</p>
+          </div>
+          
+          <div class="section-header" style="background: #cffafe; border-left: 4px solid #0891b2; color: #161616;">
+            💻 On-Demand Webinars
+          </div>
+          <div class="event-card" style="border-left: 3px solid #0891b2;">
+            <h4 class="event-title">Cloud Modernization</h4>
+            <p class="event-date">Available Now</p>
+          </div>
+        </div>
+        
+        <div class="color-palette">
+          <div class="color-swatch" style="background: #374151;">Charcoal<br>#374151</div>
+          <div class="color-swatch" style="background: #1f2937;">Gray<br>#1f2937</div>
+          <div class="color-swatch" style="background: #d97706;">Gold<br>#d97706</div>
+          <div class="color-swatch" style="background: #0891b2;">Cyan<br>#0891b2</div>
+        </div>
+      </div>
+      
+    </div>
+    
+      <!-- Scheme 5: Official IBM Brand Colors -->
+      <div class="scheme-card">
+        <div class="scheme-title">Option 5: Official IBM Brand Colors</div>
+        <div class="scheme-description">Pure IBM brand palette - classic blue, white, and black for maximum brand consistency</div>
+        
+        <div class="email-preview">
+          <div class="header" style="background: #0530AD;">
+            <p class="header-subtitle">January 2026</p>
+            <h2 class="header-title">UKI Marketing Spotlight</h2>
+          </div>
+          
+          <div class="summary" style="background: #e6eeff; border-bottom: 2px solid #0530AD;">
+            <div class="summary-item">
+              <div class="summary-number" style="color: #0530AD;">5</div>
+              <div class="summary-label">📅 IBM Events</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-number" style="color: #000000;">3</div>
+              <div class="summary-label">🤝 3rd Party</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-number" style="color: #0530AD;">2</div>
+              <div class="summary-label">🎥 On-Demand</div>
+            </div>
+          </div>
+          
+          <div class="section-header" style="background: #0530AD; color: white;">
+            ⭐ Featured Events
+          </div>
+          
+          <div class="section-header" style="background: #e6eeff; border-left: 4px solid #0530AD; color: #000000;">
+            📅 IBM Events
+          </div>
+          <div class="event-card" style="border-left: 3px solid #0530AD;">
+            <h4 class="event-title">IBM Robother</h4>
+            <p class="event-date">15 January 2026</p>
+          </div>
+          
+          <div class="section-header" style="background: #f5f5f5; border-left: 4px solid #000000; color: #000000;">
+            🤝 3rd Party Events
+          </div>
+          <div class="event-card" style="border-left: 3px solid #000000;">
+            <h4 class="event-title">AI Summit</h4>
+            <p class="event-date">20 January 2026</p>
+          </div>
+          
+          <div class="section-header" style="background: #e6eeff; border-left: 4px solid #0530AD; color: #000000;">
+            💻 On-Demand Webinars
+          </div>
+          <div class="event-card" style="border-left: 3px solid #0530AD;">
+            <h4 class="event-title">Cloud Modernization</h4>
+            <p class="event-date">Available Now</p>
+          </div>
+        </div>
+        
+        <div class="color-palette">
+          <div class="color-swatch" style="background: #0530AD;">IBM Blue<br>#0530AD</div>
+          <div class="color-swatch" style="background: #FFFFFF; color: #000; border: 1px solid #e0e0e0;">White<br>#FFFFFF</div>
+          <div class="color-swatch" style="background: #000000;">Black<br>#000000</div>
+          <div class="color-swatch" style="background: #e6eeff; color: #000;">Light Blue<br>#e6eeff</div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <div style="text-align: center; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 30px;">
+      <h3 style="margin-top: 0;">Which color scheme do you prefer?</h3>
+      <p style="color: #525252;">Each scheme maintains professional appearance while offering different emotional tones and brand positioning.</p>
+      <p style="color: #0530AD; font-weight: 600;">✨ Option 5 uses the official IBM brand colors for maximum brand consistency</p>
+    </div>
+  </div>
+</body>
+</html>

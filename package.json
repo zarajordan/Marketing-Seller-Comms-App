@@ -11,10 +11,18 @@
     "@carbon/icons-react": "^11.78.0",
     "@carbon/react": "^1.105.0",
     "@carbon/styles": "^1.104.0",
+    "@tiptap/extension-color": "^3.22.4",
+    "@tiptap/extension-image": "^3.22.4",
+    "@tiptap/extension-link": "^3.22.4",
+    "@tiptap/extension-text-style": "^3.22.4",
+    "@tiptap/react": "^3.22.4",
+    "@tiptap/starter-kit": "^3.22.4",
     "carbon-components": "^10.59.2",
     "carbon-components-react": "^7.60.5",
+    "html2canvas": "^1.4.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "react-toastify": "^11.1.0",
     "sass": "^1.99.0"
   },
   "devDependencies": {

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Spotlight - Two Column Layout Preview</title>
+    <style>
+        body {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .preview-note {
+            background-color: #0f62fe;
+            color: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .preview-note h2 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+        }
+        .preview-note p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .email-preview {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+        }
+        
+        table {
+            border-collapse: collapse;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .two-column-table {
+                width: 100% !important;
+            }
+            .column-cell {
+                display: block !important;
+                width: 100% !important;
+                padding: 0 !important;
+            }
+            .event-card {
+                margin-bottom: 15px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="preview-note">
+            <h2>📧 Two-Column Layout Preview</h2>
+            <p><strong>Current Layout:</strong> 15 events stacked vertically = ~3000px height</p>
+            <p><strong>New Layout:</strong> 15 events in 2 columns = ~1600px height (47% reduction!)</p>
+            <p><strong>Features:</strong> Outlook-compatible table structure, mobile responsive (stacks to 1 column), maintains readability</p>
+        </div>
+
+        <div class="email-preview">
+            <!-- Email Content Starts Here -->
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff;">
+                
+                <!-- Header -->
+                <tr>
+                    <td style="background-color: #8a3ffc; color: white; padding: 30px; text-align: center;">
+                        <h1 style="margin: 0 0 10px 0; font-size: 42px; font-weight: 700; color: white; font-family: 'IBM Plex Sans', Arial, sans-serif;">
+                            UKI Marketing Spotlight
+                        </h1>
+                        <p style="margin: 0; font-size: 18px; color: white; font-family: 'IBM Plex Sans', Arial, sans-serif;">
+                            May 2026 | Q2
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Quick Summary -->
+                <tr>
+                    <td style="background-color: #f4f4f4; padding: 20px;">
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td width="33%" align="center" style="padding: 10px;">
+                                    <div style="font-size: 28px; font-weight: 600; color: #0f62fe; margin-bottom: 5px;">8</div>
+                                    <div style="font-size: 14px; color: #525252;">📅 IBM Events</div>
+                                </td>
+                                <td width="33%" align="center" style="padding: 10px;">
+                                    <div style="font-size: 28px; font-weight: 600; color: #8a3ffc; margin-bottom: 5px;">5</div>
+                                    <div style="font-size: 14px; color: #525252;">🤝 3rd Party</div>
+                                </td>
+                                <td width="33%" align="center" style="padding: 10px;">
+                                    <div style="font-size: 28px; font-weight: 600; color: #0f62fe; margin-bottom: 5px;">2</div>
+                                    <div style="font-size: 14px; color: #525252;">💻 Webinars</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Featured Events Section -->
+                <tr>
+                    <td style="padding: 30px 20px 10px 20px;">
+                        <h2 style="margin: 0 0 20px 0; font-size: 24px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; text-align: center;">
+                            ⭐ Featured Event
+                        </h2>
+                    </td>
+                </tr>
+
+                <!-- Featured Event (Full Width) -->
+                <tr>
+                    <td style="padding: 0 20px 20px 20px;">
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; border-left: 4px solid #0f62fe;">
+                            <tr>
+                                <td style="padding: 20px;">
+                                    <div style="background-color: #0f62fe; color: white; display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-bottom: 10px;">
+                                        📅 IBM Event
+                                    </div>
+                                    <h3 style="margin: 0 0 10px 0; font-size: 20px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif;">
+                                        IBM Think 2026 - London Summit
+                                    </h3>
+                                    <p style="margin: 0 0 5px 0; font-size: 14px; color: #525252;">
+                                        <strong>📅 Date:</strong> May 15, 2026 | 9:00 AM - 5:00 PM
+                                    </p>
+                                    <p style="margin: 0 0 15px 0; font-size: 14px; color: #525252;">
+                                        <strong>📍 Location:</strong> ExCeL London, Royal Victoria Dock
+                                    </p>
+                                    <p style="margin: 0 0 20px 0; font-size: 14px; color: #393939; line-height: 1.5;">
+                                        Join us for the premier IBM technology event featuring keynotes from industry leaders, hands-on workshops, and networking opportunities.
+                                    </p>
+                                    <table cellpadding="0" cellspacing="0" border="0">
+                                        <tr>
+                                            <td style="padding-right: 10px;">
+                                                <a href="#" style="display: inline-block; background-color: #0f62fe; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: 600;">
+                                                    Register Now →
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="#" style="display: inline-block; background-color: #8a3ffc; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: 600;">
+                                                    View in Seismic →
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- IBM Events Section Header -->
+                <tr>
+                    <td style="padding: 30px 20px 20px 20px;">
+                        <h2 style="margin: 0; font-size: 24px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; text-align: center;">
+                            📅 IBM Events
+                        </h2>
+                    </td>
+                </tr>
+
+                <!-- Two-Column Event Grid - IBM Events -->
+                <tr>
+                    <td style="padding: 0 20px 20px 20px;">
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" class="two-column-table">
+                            <tr>
+                                <td width="48%" valign="top" style="padding-right: 10px; padding-bottom: 15px;" class="column-cell">
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; border-left: 3px solid #0f62fe;" class="event-card">
+                                        <tr>
+                                            <td style="padding: 15px;">
+                                                <div style="background-color: #0f62fe; color: white; display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">📅 IBM Event</div>
+                                                <h4 style="margin: 0 0 8px 0; font-size: 16px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; line-height: 1.3;">AI & Data Workshop</h4>
+                                                <p style="margin: 0 0 4px 0; font-size: 12px; color: #525252;"><strong>📅</strong> May 8, 2026 | 2:00 PM</p>
+                                                <p style="margin: 0 0 12px 0; font-size: 12px; color: #525252;"><strong>📍</strong> Virtual Event</p>
+                                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #393939; line-height: 1.4;">Hands-on workshop exploring IBM's latest AI and data analytics solutions.</p>
+                                                <table cellpadding="0" cellspacing="0" border="0">
+                                                    <tr>
+                                                        <td style="padding-right: 8px;"><a href="#" style="display: inline-block; background-color: #0f62fe; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Register →</a></td>
+                                                        <td><a href="#" style="display: inline-block; background-color: #8a3ffc; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Seismic →</a></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td width="48%" valign="top" style="padding-left: 10px; padding-bottom: 15px;" class="column-cell">
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; border-left: 3px solid #0f62fe;" class="event-card">
+                                        <tr>
+                                            <td style="padding: 15px;">
+                                                <div style="background-color: #0f62fe; color: white; display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">📅 IBM Event</div>
+                                                <h4 style="margin: 0 0 8px 0; font-size: 16px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; line-height: 1.3;">Cloud Security Briefing</h4>
+                                                <p style="margin: 0 0 4px 0; font-size: 12px; color: #525252;"><strong>📅</strong> May 12, 2026 | 10:00 AM</p>
+                                                <p style="margin: 0 0 12px 0; font-size: 12px; color: #525252;"><strong>📍</strong> IBM Office, Manchester</p>
+                                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #393939; line-height: 1.4;">Executive briefing on IBM's cloud security strategy and solutions.</p>
+                                                <table cellpadding="0" cellspacing="0" border="0">
+                                                    <tr>
+                                                        <td style="padding-right: 8px;"><a href="#" style="display: inline-block; background-color: #0f62fe; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Register →</a></td>
+                                                        <td><a href="#" style="display: inline-block; background-color: #8a3ffc; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Seismic →</a></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="48%" valign="top" style="padding-right: 10px; padding-bottom: 15px;" class="column-cell">
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; border-left: 3px solid #0f62fe;" class="event-card">
+                                        <tr>
+                                            <td style="padding: 15px;">
+                                                <div style="background-color: #0f62fe; color: white; display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">📅 IBM Event</div>
+                                                <h4 style="margin: 0 0 8px 0; font-size: 16px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; line-height: 1.3;">Quantum Computing Showcase</h4>
+                                                <p style="margin: 0 0 4px 0; font-size: 12px; color: #525252;"><strong>📅</strong> May 18, 2026 | 1:00 PM</p>
+                                                <p style="margin: 0 0 12px 0; font-size: 12px; color: #525252;"><strong>📍</strong> IBM Research Lab, Hursley</p>
+                                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #393939; line-height: 1.4;">Explore the future of computing with IBM Quantum technology demonstrations.</p>
+                                                <table cellpadding="0" cellspacing="0" border="0">
+                                                    <tr>
+                                                        <td style="padding-right: 8px;"><a href="#" style="display: inline-block; background-color: #0f62fe; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Register →</a></td>
+                                                        <td><a href="#" style="display: inline-block; background-color: #8a3ffc; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Seismic →</a></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td width="48%" valign="top" style="padding-left: 10px; padding-bottom: 15px;" class="column-cell">
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; border-left: 3px solid #0f62fe;" class="event-card">
+                                        <tr>
+                                            <td style="padding: 15px;">
+                                                <div style="background-color: #0f62fe; color: white; display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">📅 IBM Event</div>
+                                                <h4 style="margin: 0 0 8px 0; font-size: 16px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; line-height: 1.3;">Sustainability Summit</h4>
+                                                <p style="margin: 0 0 4px 0; font-size: 12px; color: #525252;"><strong>📅</strong> May 22, 2026 | 9:00 AM</p>
+                                                <p style="margin: 0 0 12px 0; font-size: 12px; color: #525252;"><strong>📍</strong> Virtual Event</p>
+                                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #393939; line-height: 1.4;">Learn how IBM technology drives sustainable business practices.</p>
+                                                <table cellpadding="0" cellspacing="0" border="0">
+                                                    <tr>
+                                                        <td style="padding-right: 8px;"><a href="#" style="display: inline-block; background-color: #0f62fe; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Register →</a></td>
+                                                        <td><a href="#" style="display: inline-block; background-color: #8a3ffc; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Seismic →</a></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="48%" valign="top" style="padding-right: 10px; padding-bottom: 15px;" class="column-cell">
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; border-left: 3px solid #0f62fe;" class="event-card">
+                                        <tr>
+                                            <td style="padding: 15px;">
+                                                <div style="background-color: #0f62fe; color: white; display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">📅 IBM Event</div>
+                                                <h4 style="margin: 0 0 8px 0; font-size: 16px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; line-height: 1.3;">Partner Connect Forum</h4>
+                                                <p style="margin: 0 0 4px 0; font-size: 12px; color: #525252;"><strong>📅</strong> May 25, 2026 | 11:00 AM</p>
+                                                <p style="margin: 0 0 12px 0; font-size: 12px; color: #525252;"><strong>📍</strong> IBM Office, Edinburgh</p>
+                                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #393939; line-height: 1.4;">Networking event for IBM partners and ecosystem collaborators.</p>
+                                                <table cellpadding="0" cellspacing="0" border="0">
+                                                    <tr>
+                                                        <td style="padding-right: 8px;"><a href="#" style="display: inline-block; background-color: #0f62fe; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Register →</a></td>
+                                                        <td><a href="#" style="display: inline-block; background-color: #8a3ffc; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Seismic →</a></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td width="48%" valign="top" style="padding-left: 10px; padding-bottom: 15px;" class="column-cell">
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; border-left: 3px solid #0f62fe;" class="event-card">
+                                        <tr>
+                                            <td style="padding: 15px;">
+                                                <div style="background-color: #0f62fe; color: white; display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">📅 IBM Event</div>
+                                                <h4 style="margin: 0 0 8px 0; font-size: 16px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; line-height: 1.3;">Hybrid Cloud Roadshow</h4>
+                                                <p style="margin: 0 0 4px 0; font-size: 12px; color: #525252;"><strong>📅</strong> May 29, 2026 | 3:00 PM</p>
+                                                <p style="margin: 0 0 12px 0; font-size: 12px; color: #525252;"><strong>📍</strong> IBM Office, Birmingham</p>
+                                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #393939; line-height: 1.4;">Discover IBM's hybrid cloud solutions and migration strategies.</p>
+                                                <table cellpadding="0" cellspacing="0" border="0">
+                                                    <tr>
+                                                        <td style="padding-right: 8px;"><a href="#" style="display: inline-block; background-color: #0f62fe; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Register →</a></td>
+                                                        <td><a href="#" style="display: inline-block; background-color: #8a3ffc; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Seismic →</a></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- 3rd Party Events Section -->
+                <tr>
+                    <td style="padding: 30px 20px 20px 20px;">
+                        <h2 style="margin: 0; font-size: 24px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; text-align: center;">🤝 3rd Party Events</h2>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 0 20px 20px 20px;">
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" class="two-column-table">
+                            <tr>
+                                <td width="48%" valign="top" style="padding-right: 10px; padding-bottom: 15px;" class="column-cell">
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; border-left: 3px solid #8a3ffc;" class="event-card">
+                                        <tr>
+                                            <td style="padding: 15px;">
+                                                <div style="background-color: #8a3ffc; color: white; display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">🤝 3rd Party</div>
+                                                <h4 style="margin: 0 0 8px 0; font-size: 16px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; line-height: 1.3;">TechCrunch Disrupt London</h4>
+                                                <p style="margin: 0 0 4px 0; font-size: 12px; color: #525252;"><strong>📅</strong> May 10-12, 2026</p>
+                                                <p style="margin: 0 0 12px 0; font-size: 12px; color: #525252;"><strong>📍</strong> Tobacco Dock, London</p>
+                                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #393939; line-height: 1.4;">Europe's leading startup conference. IBM exhibiting.</p>
+                                                <table cellpadding="0" cellspacing="0" border="0">
+                                                    <tr>
+                                                        <td style="padding-right: 8px;"><a href="#" style="display: inline-block; background-color: #0f62fe; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Register →</a></td>
+                                                        <td><a href="#" style="display: inline-block; background-color: #8a3ffc; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Seismic →</a></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td width="48%" valign="top" style="padding-left: 10px; padding-bottom: 15px;" class="column-cell">
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; border-left: 3px solid #8a3ffc;" class="event-card">
+                                        <tr>
+                                            <td style="padding: 15px;">
+                                                <div style="background-color: #8a3ffc; color: white; display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">🤝 3rd Party</div>
+                                                <h4 style="margin: 0 0 8px 0; font-size: 16px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; line-height: 1.3;">Gartner IT Symposium</h4>
+                                                <p style="margin: 0 0 4px 0; font-size: 12px; color: #525252;"><strong>📅</strong> May 16-18, 2026</p>
+                                                <p style="margin: 0 0 12px 0; font-size: 12px; color: #525252;"><strong>📍</strong> Barcelona, Spain</p>
+                                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #393939; line-height: 1.4;">Premier conference for CIOs. IBM sponsoring.</p>
+                                                <table cellpadding="0" cellspacing="0" border="0">
+                                                    <tr>
+                                                        <td style="padding-right: 8px;"><a href="#" style="display: inline-block; background-color: #0f62fe; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Register →</a></td>
+                                                        <td><a href="#" style="display: inline-block; background-color: #8a3ffc; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Seismic →</a></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="48%" valign="top" style="padding-right: 10px; padding-bottom: 15px;" class="column-cell">
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; border-left: 3px solid #8a3ffc;" class="event-card">
+                                        <tr>
+                                            <td style="padding: 15px;">
+                                                <div style="background-color: #8a3ffc; color: white; display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">🤝 3rd Party</div>
+                                                <h4 style="margin: 0 0 8px 0; font-size: 16px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; line-height: 1.3;">Cloud Expo Europe</h4>
+                                                <p style="margin: 0 0 4px 0; font-size: 12px; color: #525252;"><strong>📅</strong> May 20-21, 2026</p>
+                                                <p style="margin: 0 0 12px 0; font-size: 12px; color: #525252;"><strong>📍</strong> ExCeL London</p>
+                                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #393939; line-height: 1.4;">Europe's largest cloud event. Visit IBM at Stand B42.</p>
+                                                <table cellpadding="0" cellspacing="0" border="0">
+                                                    <tr>
+                                                        <td style="padding-right: 8px;"><a href="#" style="display: inline-block; background-color: #0f62fe; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Register →</a></td>
+                                                        <td><a href="#" style="display: inline-block; background-color: #8a3ffc; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Seismic →</a></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td width="48%" valign="top" style="padding-left: 10px; padding-bottom: 15px;" class="column-cell">
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; border-left: 3px solid #8a3ffc;" class="event-card">
+                                        <tr>
+                                            <td style="padding: 15px;">
+                                                <div style="background-color: #8a3ffc; color: white; display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">🤝 3rd Party</div>
+                                                <h4 style="margin: 0 0 8px 0; font-size: 16px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; line-height: 1.3;">AI Summit London</h4>
+                                                <p style="margin: 0 0 4px 0; font-size: 12px; color: #525252;"><strong>📅</strong> May 27-28, 2026</p>
+                                                <p style="margin: 0 0 12px 0; font-size: 12px; color: #525252;"><strong>📍</strong> Old Billingsgate, London</p>
+                                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #393939; line-height: 1.4;">Leading AI conference featuring IBM watsonx demos.</p>
+                                                <table cellpadding="0" cellspacing="0" border="0">
+                                                    <tr>
+                                                        <td style="padding-right: 8px;"><a href="#" style="display: inline-block; background-color: #0f62fe; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Register →</a></td>
+                                                        <td><a href="#" style="display: inline-block; background-color: #8a3ffc; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Seismic →</a></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="48%" valign="top" style="padding-right: 10px; padding-bottom: 15px;" class="column-cell">
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; border-left: 3px solid #8a3ffc;" class="event-card">
+                                        <tr>
+                                            <td style="padding: 15px;">
+                                                <div style="background-color: #8a3ffc; color: white; display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">🤝 3rd Party</div>
+                                                <h4 style="margin: 0 0 8px 0; font-size: 16px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; line-height: 1.3;">DevOps Enterprise Summit</h4>
+                                                <p style="margin: 0 0 4px 0; font-size: 12px; color: #525252;"><strong>📅</strong> May 30-31, 2026</p>
+                                                <p style="margin: 0 0 12px 0; font-size: 12px; color: #525252;"><strong>📍</strong> Virtual Event</p>
+                                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #393939; line-height: 1.4;">DevOps best practices. IBM presenting on CI/CD automation.</p>
+                                                <table cellpadding="0" cellspacing="0" border="0">
+                                                    <tr>
+                                                        <td style="padding-right: 8px;"><a href="#" style="display: inline-block; background-color: #0f62fe; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Register →</a></td>
+                                                        <td><a href="#" style="display: inline-block; background-color: #8a3ffc; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Seismic →</a></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td width="48%" valign="top" style="padding-left: 10px;" class="column-cell"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Webinars Section -->
+                <tr>
+                    <td style="padding: 30px 20px 20px 20px;">
+                        <h2 style="margin: 0; font-size: 24px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; text-align: center;">💻 On-Demand Webinars</h2>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 0 20px 30px 20px;">
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" class="two-column-table">
+                            <tr>
+                                <td width="48%" valign="top" style="padding-right: 10px; padding-bottom: 15px;" class="column-cell">
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; border-left: 3px solid #0f62fe;" class="event-card">
+                                        <tr>
+                                            <td style="padding: 15px;">
+                                                <div style="background-color: #0f62fe; color: white; display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">💻 Webinar</div>
+                                                <h4 style="margin: 0 0 8px 0; font-size: 16px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; line-height: 1.3;">Generative AI for Business</h4>
+                                                <p style="margin: 0 0 4px 0; font-size: 12px; color: #525252;"><strong>📅</strong> On-Demand | 45 minutes</p>
+                                                <p style="margin: 0 0 12px 0; font-size: 12px; color: #525252;"><strong>📍</strong> Virtual</p>
+                                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #393939; line-height: 1.4;">Discover how to leverage generative AI in your organization.</p>
+                                                <table cellpadding="0" cellspacing="0" border="0">
+                                                    <tr>
+                                                        <td style="padding-right: 8px;"><a href="#" style="display: inline-block; background-color: #0f62fe; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Watch Now →</a></td>
+                                                        <td><a href="#" style="display: inline-block; background-color: #8a3ffc; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Seismic →</a></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td width="48%" valign="top" style="padding-left: 10px; padding-bottom: 15px;" class="column-cell">
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; border-left: 3px solid #0f62fe;" class="event-card">
+                                        <tr>
+                                            <td style="padding: 15px;">
+                                                <div style="background-color: #0f62fe; color: white; display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">💻 Webinar</div>
+                                                <h4 style="margin: 0 0 8px 0; font-size: 16px; color: #161616; font-family: 'IBM Plex Sans', Arial, sans-serif; line-height: 1.3;">Zero Trust Security</h4>
+                                                <p style="margin: 0 0 4px 0; font-size: 12px; color: #525252;"><strong>📅</strong> On-Demand | 60 minutes</p>
+                                                <p style="margin: 0 0 12px 0; font-size: 12px; color: #525252;"><strong>📍</strong> Virtual</p>
+                                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #393939; line-height: 1.4;">Implement zero trust architecture with IBM Security solutions.</p>
+                                                <table cellpadding="0" cellspacing="0" border="0">
+                                                    <tr>
+                                                        <td style="padding-right: 8px;"><a href="#" style="display: inline-block; background-color: #0f62fe; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Watch Now →</a></td>
+                                                        <td><a href="#" style="display: inline-block; background-color: #8a3ffc; color: white; padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 12px; font-weight: 600;">Seismic →</a></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td style="background-color: #f4f4f4; padding: 20px; text-align: center; border-top: 2px solid #e0e0e0;">
+                        <p style="margin: 0 0 10px 0; font-size: 14px; color: #525252;">
+                            Questions? Contact the UKI Marketing Team
+                        </p>
+                        <p style="margin: 0; font-size: 12px; color: #8d8d8d;">
+                            © 2026 IBM Corporation. All rights reserved.
+                        </p>
+                    </td>
+                </tr>
+
+            </table>
+            <!-- Email Content Ends Here -->
+        </div>
+    </div>
+</body>
+</html>

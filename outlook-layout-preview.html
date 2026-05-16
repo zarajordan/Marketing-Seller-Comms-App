@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Outlook Layout Preview - Current vs Proposed</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      color: white;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 36px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .subtitle {
+      color: rgba(255,255,255,0.9);
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 18px;
+    }
+    
+    .comparison-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+    
+    .layout-section {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    
+    .layout-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #161616;
+    }
+    
+    .layout-subtitle {
+      font-size: 14px;
+      color: #525252;
+      margin-bottom: 20px;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+    
+    .status-problem {
+      background: #fff1f1;
+      color: #da1e28;
+    }
+    
+    .status-solution {
+      background: #defbe6;
+      color: #24a148;
+    }
+    
+    .viewport-simulator {
+      border: 3px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      background: #f4f4f4;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .viewport-label {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      background: #0f62fe;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    
+    .viewport-wide {
+      width: 100%;
+    }
+    
+    .viewport-narrow {
+      width: 400px;
+      margin: 0 auto;
+    }
+    
+    /* Current Layout Styles */
+    .current-email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .current-banner {
+      width: 100%;
+      height: 150px;
+      background: linear-gradient(135deg, #0f62fe 0%, #0043ce 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    
+    .current-content {
+      padding: 32px;
+    }
+    
+    .current-content-image {
+      width: 100%;
+      max-width: 500px;
+      height: 200px;
+      background: linear-gradient(135deg, #8a3ffc 0%, #6929c4 100%);
+      margin: 24px 0;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+    }
+    
+    /* Proposed Layout Styles */
+    .proposed-email-container {
+      width: 600px;
+      margin: 0 auto;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .proposed-banner {
+      width: 600px;
+      height: 150px;
+      background: linear-gradient(135deg, #0f62fe 0%, #0043ce 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    
+    .proposed-content {
+      padding: 20px;
+    }
+    
+    .proposed-content-image {
+      width: 560px;
+      height: 200px;
+      background: linear-gradient(135deg, #8a3ffc 0%, #6929c4 100%);
+      margin: 24px 0;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+    }
+    
+    .email-title {
+      font-size: 32px;
+      font-weight: bold;
+      color: #161616;
+      margin-bottom: 8px;
+    }
+    
+    .email-subtitle {
+      font-size: 18px;
+      color: #525252;
+      margin-bottom: 24px;
+    }
+    
+    .email-body {
+      font-size: 16px;
+      color: #161616;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    
+    .cta-button {
+      display: inline-block;
+      background: #0f62fe;
+      color: white;
+      padding: 12px 24px;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    
+    .info-box {
+      background: #e8f4fd;
+      border-left: 4px solid #0f62fe;
+      padding: 16px;
+      margin-top: 20px;
+      border-radius: 4px;
+    }
+    
+    .info-box h3 {
+      color: #0f62fe;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+    
+    .info-box ul {
+      margin-left: 20px;
+      color: #161616;
+    }
+    
+    .info-box li {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+    
+    .warning-box {
+      background: #fff1f1;
+      border-left: 4px solid #da1e28;
+      padding: 16px;
+      margin-top: 20px;
+      border-radius: 4px;
+    }
+    
+    .warning-box h3 {
+      color: #da1e28;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+    
+    .success-box {
+      background: #defbe6;
+      border-left: 4px solid #24a148;
+      padding: 16px;
+      margin-top: 20px;
+      border-radius: 4px;
+    }
+    
+    .success-box h3 {
+      color: #24a148;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+    
+    .action-section {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    
+    .action-button {
+      display: inline-block;
+      background: #0f62fe;
+      color: white;
+      padding: 16px 32px;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 18px;
+      margin: 10px;
+      transition: background 0.3s;
+    }
+    
+    .action-button:hover {
+      background: #0043ce;
+    }
+    
+    .action-button.secondary {
+      background: #525252;
+    }
+    
+    .action-button.secondary:hover {
+      background: #393939;
+    }
+    
+    @media (max-width: 1200px) {
+      .comparison-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 Outlook Layout Preview</h1>
+    <p class="subtitle">Compare how emails render in wide vs narrow Outlook reading panes</p>
+    
+    <div class="comparison-container">
+      <!-- CURRENT LAYOUT -->
+      <div class="layout-section">
+        <h2 class="layout-title">
+          Current Layout
+          <span class="status-badge status-problem">❌ Problematic</span>
+        </h2>
+        <p class="layout-subtitle">Uses flexible max-width that shrinks in narrow views</p>
+        
+        <!-- Wide Viewport -->
+        <h3 style="margin: 20px 0 10px 0; color: #161616;">Wide Reading Pane (800px)</h3>
+        <div class="viewport-simulator viewport-wide">
+          <div class="viewport-label">800px wide</div>
+          <div class="current-email-container">
+            <div class="current-banner">BANNER IMAGE</div>
+            <div class="current-content">
+              <div class="email-title">Email Title</div>
+              <div class="email-subtitle">Subtitle text goes here</div>
+              <div class="email-body">
+                This is the main body content. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              </div>
+              <div class="current-content-image">CONTENT IMAGE</div>
+              <a href="#" class="cta-button">Call to Action</a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Narrow Viewport -->
+        <h3 style="margin: 20px 0 10px 0; color: #161616;">Narrow Reading Pane (400px)</h3>
+        <div class="viewport-simulator viewport-narrow">
+          <div class="viewport-label">400px wide</div>
+          <div class="current-email-container">
+            <div class="current-banner" style="font-size: 18px;">BANNER<br>SHRUNK</div>
+            <div class="current-content" style="padding: 20px;">
+              <div class="email-title" style="font-size: 24px;">Email Title</div>
+              <div class="email-subtitle" style="font-size: 14px;">Subtitle text</div>
+              <div class="email-body" style="font-size: 14px;">
+                Body content shrinks and wraps awkwardly.
+              </div>
+              <div class="current-content-image" style="height: 150px; font-size: 14px;">IMAGE<br>SHRUNK</div>
+              <a href="#" class="cta-button" style="font-size: 14px; padding: 8px 16px;">CTA</a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="warning-box">
+          <h3>⚠️ Problems:</h3>
+          <ul>
+            <li>Container shrinks from 600px to 400px</li>
+            <li>Banner becomes compressed and distorted</li>
+            <li>Images shrink and lose impact</li>
+            <li>Text reflows awkwardly</li>
+            <li>Inconsistent appearance across devices</li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- PROPOSED LAYOUT -->
+      <div class="layout-section">
+        <h2 class="layout-title">
+          Proposed Layout
+          <span class="status-badge status-solution">✅ Solution</span>
+        </h2>
+        <p class="layout-subtitle">Uses fixed 600px width with table-based structure</p>
+        
+        <!-- Wide Viewport -->
+        <h3 style="margin: 20px 0 10px 0; color: #161616;">Wide Reading Pane (800px)</h3>
+        <div class="viewport-simulator viewport-wide">
+          <div class="viewport-label">800px wide</div>
+          <div class="proposed-email-container">
+            <div class="proposed-banner">BANNER IMAGE</div>
+            <div class="proposed-content">
+              <div class="email-title">Email Title</div>
+              <div class="email-subtitle">Subtitle text goes here</div>
+              <div class="email-body">
+                This is the main body content. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              </div>
+              <div class="proposed-content-image">CONTENT IMAGE</div>
+              <a href="#" class="cta-button">Call to Action</a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Narrow Viewport -->
+        <h3 style="margin: 20px 0 10px 0; color: #161616;">Narrow Reading Pane (400px)</h3>
+        <div class="viewport-simulator viewport-narrow" style="overflow-x: auto;">
+          <div class="viewport-label">400px wide (scrollable)</div>
+          <div class="proposed-email-container">
+            <div class="proposed-banner">BANNER IMAGE</div>
+            <div class="proposed-content">
+              <div class="email-title">Email Title</div>
+              <div class="email-subtitle">Subtitle text goes here</div>
+              <div class="email-body">
+                This is the main body content. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              </div>
+              <div class="proposed-content-image">CONTENT IMAGE</div>
+              <a href="#" class="cta-button">Call to Action</a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="success-box">
+          <h3>✅ Benefits:</h3>
+          <ul>
+            <li>Container stays exactly 600px wide</li>
+            <li>Banner maintains full size and alignment</li>
+            <li>Images stay at intended size (560px)</li>
+            <li>Text formatting remains consistent</li>
+            <li>Horizontal scroll appears if needed (standard email behavior)</li>
+            <li>Perfect alignment between banner and content</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Key Differences -->
+    <div class="layout-section" style="margin-bottom: 30px;">
+      <h2 class="layout-title">🔍 Key Technical Differences</h2>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+        <div>
+          <h3 style="color: #da1e28; margin-bottom: 10px;">❌ Current (Flexible)</h3>
+          <pre style="background: #f4f4f4; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 12px;"><code><div style="max-width: 600px;">
+  <img src="banner.jpg" 
+       style="width: 100%;">
+  <div style="padding: 32px;">
+    <h1>Title</h1>
+    <img src="content.jpg" 
+         style="width: 100%;">
+  </div>
+</div></code></pre>
+        </div>
+        
+        <div>
+          <h3 style="color: #24a148; margin-bottom: 10px;">✅ Proposed (Fixed)</h3>
+          <pre style="background: #f4f4f4; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 12px;"><code><table width="600">
+  <tr><td>
+    <img src="banner.jpg" 
+         width="600" height="150"
+         style="display:block;">
+  </td></tr>
+  <tr><td style="padding:20px;">
+    <h1>Title</h1>
+    <img src="content.jpg" 
+         width="560"
+         style="display:block;">
+  </td></tr>
+</table></code></pre>
+        </div>
+      </div>
+      
+      <div class="info-box" style="margin-top: 20px;">
+        <h3>💡 Why Table-Based Layout?</h3>
+        <ul>
+          <li><strong>Outlook Compatibility:</strong> Microsoft Outlook (especially Windows) uses Word's rendering engine, which handles tables better than modern CSS</li>
+          <li><strong>Predictable Sizing:</strong> Fixed widths prevent unexpected shrinking or expanding</li>
+          <li><strong>Cross-Platform Consistency:</strong> Works identically on Mac, Windows, and web versions of Outlook</li>
+          <li><strong>Industry Standard:</strong> All major email marketing platforms (Mailchimp, Constant Contact, etc.) use table-based layouts</li>
+        </ul>
+      </div>
+    </div>
+    
+    <!-- Action Section -->
+    <div class="action-section">
+      <h2 class="layout-title" style="margin-bottom: 20px;">Ready to Implement?</h2>
+      <p style="color: #525252; margin-bottom: 30px; font-size: 16px;">
+        The proposed layout will ensure your emails look perfect in Outlook,<br>
+        no matter how users resize their reading pane.
+      </p>
+      <a href="#" class="action-button" onclick="alert('Return to the app and confirm you want to implement the changes!'); return false;">
+        ✅ Yes, Implement This Layout
+      </a>
+      <a href="#" class="action-button secondary" onclick="alert('No problem! Let me know if you have questions.'); return false;">
+        ❓ I Have Questions
+      </a>
+    </div>
+  </div>
+</body>
+</html>
