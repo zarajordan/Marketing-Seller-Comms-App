@@ -1051,7 +1051,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
 
     <!-- Footer -->
     <tr>
-      <td style="background: linear-gradient(135deg, #0f62fe 0%, #0043ce 100%); padding: 20px 15px; text-align: center; border-top: 3px solid ${currentColors.header};">
+      <td bgcolor="#0f62fe" style="background: linear-gradient(135deg, #0f62fe 0%, #0043ce 100%); padding: 20px 15px; text-align: center; border-top: 3px solid ${currentColors.header};">
         <p style="margin: 0 0 8px 0; font-size: 13px; color: #ffffff; font-weight: 600;">
           Questions? Contact the UKI Marketing Team
         </p>
