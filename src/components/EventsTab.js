@@ -1502,6 +1502,56 @@ const EventsTab = () => {
                 </div>
               </div>
             )}
+
+            {/* Post Event Follow-up */}
+            {previewEvent.postEventFollowUp && (
+              <div style={{ marginBottom: '24px' }}>
+                <h5 style={{ marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Post Event Follow-up</h5>
+                <div style={{
+                  padding: '12px',
+                  backgroundColor: '#e8f4ff',
+                  borderRadius: '4px',
+                  fontSize: '13px',
+                  lineHeight: '1.6',
+                  whiteSpace: 'pre-wrap',
+                  borderLeft: '4px solid #0f62fe'
+                }}>
+                  {previewEvent.postEventFollowUp}
+                </div>
+              </div>
+            )}
+
+            {/* Post Event Documents */}
+            {previewEvent.postEventDocuments && previewEvent.postEventDocuments.length > 0 && (
+              <div style={{ marginBottom: '24px' }}>
+                <h5 style={{ marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Post Event Documents</h5>
+                <p style={{ fontSize: '12px', color: '#525252', marginBottom: '12px' }}>
+                  Download resources and materials from this event
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {previewEvent.postEventDocuments.map((doc, index) => (
+                    <Button
+                      key={index}
+                      kind="tertiary"
+                      size="md"
+                      renderIcon={Document}
+                      onClick={() => {
+                        // Create a download link from the base64 data
+                        const link = document.createElement('a');
+                        link.href = doc.data;
+                        link.download = doc.name;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      }}
+                      style={{ justifyContent: 'flex-start' }}
+                    >
+                      {doc.name} ({(doc.size / 1024).toFixed(1)} KB)
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </Modal>
       )}

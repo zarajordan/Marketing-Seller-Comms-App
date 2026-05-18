@@ -62,6 +62,8 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
       header: '#8a3ffc',
       summaryBg: '#e8f4ff',
       summaryBorder: '#0f62fe',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
       featured: '#8a3ffc',
       ibmBg: '#e8f4ff',
       ibmBorder: '#0f62fe',
@@ -78,6 +80,8 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
       header: '#1e3a8a',
       summaryBg: '#dbeafe',
       summaryBorder: '#1e40af',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
       featured: '#1e3a8a',
       ibmBg: '#dbeafe',
       ibmBorder: '#1e40af',
@@ -94,6 +98,8 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
       header: '#4f46e5',
       summaryBg: '#e0e7ff',
       summaryBorder: '#4f46e5',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
       featured: '#4f46e5',
       ibmBg: '#e0e7ff',
       ibmBorder: '#4f46e5',
@@ -110,6 +116,8 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
       header: '#374151',
       summaryBg: '#fef3c7',
       summaryBorder: '#d97706',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
       featured: '#374151',
       ibmBg: '#f3f4f6',
       ibmBorder: '#1f2937',
@@ -126,6 +134,8 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
       header: '#0530AD',
       summaryBg: '#e6eeff',
       summaryBorder: '#0530AD',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
       featured: '#0530AD',
       ibmBg: '#e6eeff',
       ibmBorder: '#0530AD',
@@ -136,6 +146,24 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
       onDemandBg: '#e6eeff',
       onDemandBorder: '#0530AD',
       onDemandColor: '#0530AD',
+    },
+    'all-blue': {
+      name: 'All Blue',
+      header: '#0f62fe',
+      summaryBg: '#ffffff',
+      summaryBorder: '#0f62fe',
+      summaryLabelColor: '#0f62fe',
+      sectionHeaderColor: '#ffffff',
+      featured: '#0f62fe',
+      ibmBg: '#0f62fe',
+      ibmBorder: '#0043ce',
+      ibmColor: '#0f62fe',
+      thirdPartyBg: '#0f62fe',
+      thirdPartyBorder: '#0043ce',
+      thirdPartyColor: '#0f62fe',
+      onDemandBg: '#0f62fe',
+      onDemandBorder: '#0043ce',
+      onDemandColor: '#0f62fe',
     },
   };
 
@@ -736,24 +764,24 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                     <div style="font-size: 24px; font-weight: 700; color: ${currentColors.ibmColor}; line-height: 1; margin-bottom: 6px;">
                       ${ibmEvents.length}
                     </div>
-                    <div style="font-size: 10px; color: #525252; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                      IBM Events
+                    <div style="font-size: 10px; color: ${currentColors.summaryLabelColor}; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                      📅 IBM Events
                     </div>
                   </td>
                   <td width="33%" align="center" valign="top" style="padding: 8px 5px; border-left: 1px solid rgba(0,0,0,0.1); border-right: 1px solid rgba(0,0,0,0.1);">
                     <div style="font-size: 24px; font-weight: 700; color: ${currentColors.thirdPartyColor}; line-height: 1; margin-bottom: 6px;">
                       ${thirdPartyEvents.length}
                     </div>
-                    <div style="font-size: 10px; color: #525252; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                      3rd Party
+                    <div style="font-size: 10px; color: ${currentColors.summaryLabelColor}; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                      🤝 3rd Party
                     </div>
                   </td>
                   <td width="33%" align="center" valign="top" style="padding: 8px 5px;">
                     <div style="font-size: 24px; font-weight: 700; color: ${currentColors.onDemandColor}; line-height: 1; margin-bottom: 6px;">
                       ${onDemandEvents.length}
                     </div>
-                    <div style="font-size: 10px; color: #525252; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                      On-Demand
+                    <div style="font-size: 10px; color: ${currentColors.summaryLabelColor}; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                      💻 On-Demand
                     </div>
                   </td>
                 </tr>
@@ -796,7 +824,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
           <tr>
             <td style="padding: 10px; text-align: center;">
               <h2 style="margin: 0; font-size: 14px; color: #ffffff; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
-                ⭐ Featured Events
+                ⭐ Featured Events ⭐
               </h2>
             </td>
           </tr>
@@ -897,8 +925,8 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
         <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.ibmBg}" style="border-radius: 4px; border-left: 3px solid ${currentColors.ibmBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
           <tr>
             <td style="padding: 10px; text-align: center;">
-              <h2 style="margin: 0; font-size: 14px; color: #161616; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
-                📅 IBM Events
+              <h2 style="margin: 0; font-size: 14px; color: ${currentColors.sectionHeaderColor}; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
+                IBM Events
               </h2>
             </td>
           </tr>
@@ -924,8 +952,8 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
         <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.thirdPartyBg}" style="border-radius: 4px; border-left: 3px solid ${currentColors.thirdPartyBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
           <tr>
             <td style="padding: 10px; text-align: center;">
-              <h2 style="margin: 0; font-size: 14px; color: #161616; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
-                🤝 3rd Party Events
+              <h2 style="margin: 0; font-size: 14px; color: ${currentColors.sectionHeaderColor}; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
+                3rd Party Events
               </h2>
             </td>
           </tr>
@@ -951,8 +979,8 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
         <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.onDemandBg}" style="border-radius: 4px; border-left: 3px solid ${currentColors.onDemandBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
           <tr>
             <td style="padding: 10px; text-align: center;">
-              <h2 style="margin: 0; font-size: 14px; color: #161616; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
-                💻 On-Demand Webinars
+              <h2 style="margin: 0; font-size: 14px; color: ${currentColors.sectionHeaderColor}; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
+                On-Demand Webinars
               </h2>
             </td>
           </tr>
@@ -1051,13 +1079,19 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
 
     <!-- Footer -->
     <tr>
-      <td bgcolor="#0f62fe" style="background: linear-gradient(135deg, #0f62fe 0%, #0043ce 100%); padding: 20px 15px; text-align: center; border-top: 3px solid ${currentColors.header};">
-        <p style="margin: 0 0 8px 0; font-size: 13px; color: #ffffff; font-weight: 600;">
-          Questions? Contact the UKI Marketing Team
-        </p>
-        <p style="margin: 0; font-size: 11px; color: #d0e2ff; line-height: 1.4;">
-          © ${year} IBM Corporation. All rights reserved.
-        </p>
+      <td style="padding: 0; border-top: 3px solid ${currentColors.header};">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0f62fe" style="background-color: #0f62fe;">
+          <tr>
+            <td bgcolor="#0f62fe" style="background-color: #0f62fe; background: linear-gradient(135deg, #0f62fe 0%, #0043ce 100%); padding: 20px 15px; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 13px; color: #ffffff; font-weight: 600;">
+                Questions? Contact the UKI Marketing Team
+              </p>
+              <p style="margin: 0; font-size: 11px; color: #d0e2ff; line-height: 1.4;">
+                © ${year} IBM Corporation. All rights reserved.
+              </p>
+            </td>
+          </tr>
+        </table>
       </td>
     </tr>
 
@@ -1168,6 +1202,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                   <SelectItem value="indigo-coral" text="Modern Indigo & Coral" />
                   <SelectItem value="charcoal-gold" text="Executive Charcoal & Gold" />
                   <SelectItem value="ibm-official" text="Official IBM Brand Colors" />
+                  <SelectItem value="all-blue" text="All Blue" />
                 </Select>
               </Column>
               <Column lg={8} md={4} sm={4}>

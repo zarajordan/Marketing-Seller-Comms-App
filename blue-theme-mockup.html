@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blue Theme Mockup - IBM Blue Throughout</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: #ffffff;
+            padding: 20px;
+        }
+
+        .mockup-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .mockup-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #0f62fe 0%, #0043ce 100%);
+            color: white;
+            border-radius: 8px;
+        }
+
+        .mockup-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .mockup-header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .mockup-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .section-label {
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 1.1em;
+            text-align: center;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .section-label.original {
+            background: #0f62fe;
+            color: white;
+            border-bottom: none;
+        }
+
+        .section-label.gray {
+            background: #f8f9fa;
+            color: #161616;
+            border-bottom: 2px solid #d0d0d0;
+        }
+
+        .section-label.blue {
+            background: #0f62fe;
+            color: white;
+            border-bottom: none;
+        }
+
+        /* Original Styling */
+        .comm-preview.original {
+            background: white;
+        }
+
+        .comm-preview.original .container {
+            background: white;
+        }
+
+        .comm-preview.original header {
+            background: linear-gradient(135deg, #0f62fe 0%, #0043ce 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .comm-preview.original .tabs {
+            background: white;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .comm-preview.original .tab-btn {
+            background: white;
+            color: #161616;
+            border: none;
+            padding: 15px 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .comm-preview.original .tab-btn.active {
+            background: #0f62fe;
+            color: white;
+        }
+
+        .comm-preview.original main {
+            background: white;
+            padding: 30px;
+        }
+
+        .comm-preview.original footer {
+            background: #f8f9fa;
+            padding: 24px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        /* Gray Theme Styling */
+        .comm-preview.gray {
+            background: #f8f9fa;
+        }
+
+        .comm-preview.gray .container {
+            background: #f8f9fa;
+        }
+
+        .comm-preview.gray header {
+            background: #f8f9fa;
+            color: #161616;
+            padding: 40px 30px;
+            text-align: center;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .comm-preview.gray .header-title h1 {
+            color: #161616;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .comm-preview.gray .header-subtitle {
+            color: #525252;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .comm-preview.gray .header-description {
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .comm-preview.gray .tabs {
+            background: #f8f9fa;
+            border-bottom: 2px solid #d0d0d0;
+            display: flex;
+            gap: 5px;
+            padding: 10px 20px;
+        }
+
+        .comm-preview.gray .tab-btn {
+            background: #e8e9ea;
+            color: #161616;
+            border: 1px solid #d0d0d0;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .comm-preview.gray .tab-btn.active {
+            background: white;
+            color: #161616;
+            border-color: #a0a0a0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .comm-preview.gray main {
+            background: #f8f9fa;
+            padding: 30px;
+        }
+
+        .comm-preview.gray .form-group {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .comm-preview.gray footer {
+            background: #f8f9fa;
+            padding: 24px;
+            text-align: center;
+            color: #666;
+            border-top: 2px solid #d0d0d0;
+        }
+
+        /* Blue Theme Styling */
+        .comm-preview.blue {
+            background: #0f62fe;
+        }
+
+        .comm-preview.blue .container {
+            background: #0f62fe;
+        }
+
+        .comm-preview.blue header {
+            background: #0f62fe;
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .comm-preview.blue .header-title h1 {
+            color: white;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .comm-preview.blue .header-subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .comm-preview.blue .header-description {
+            color: rgba(255,255,255,0.85);
+            margin-top: 10px;
+        }
+
+        .comm-preview.blue .tabs {
+            background: #0f62fe;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            display: flex;
+            gap: 5px;
+            padding: 10px 20px;
+        }
+
+        .comm-preview.blue .tab-btn {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .comm-preview.blue .tab-btn.active {
+            background: white;
+            color: #0f62fe;
+            border-color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .comm-preview.blue main {
+            background: #0f62fe;
+            padding: 30px;
+        }
+
+        .comm-preview.blue .form-group {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .comm-preview.blue footer {
+            background: #0f62fe;
+            padding: 24px;
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            border-top: 2px solid rgba(255,255,255,0.2);
+        }
+
+        /* Common styles */
+        .comm-preview {
+            padding: 20px;
+            min-height: 600px;
+        }
+
+        .container {
+            max-width: 100%;
+        }
+
+        header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .header-subtitle {
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .header-description {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 10px 15px;
+        }
+
+        .tab-btn {
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+
+        main {
+            min-height: 300px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #161616;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        footer p {
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+
+        /* Color swatches */
+        .color-info {
+            margin-top: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .color-info h2 {
+            margin-bottom: 20px;
+            color: #161616;
+        }
+
+        .color-swatches {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .color-swatch {
+            text-align: center;
+        }
+
+        .color-box {
+            height: 100px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+
+        .color-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .color-code {
+            font-family: 'Courier New', monospace;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 1200px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-container">
+        <div class="mockup-header">
+            <h1>🎨 Blue Theme Mockup</h1>
+            <p>Comparing Original, Gray Footer Theme, and Full Blue Theme</p>
+        </div>
+
+        <div class="comparison-grid">
+            <!-- Original Design -->
+            <div class="mockup-section">
+                <div class="section-label original">
+                    ✨ Original Design
+                </div>
+                <div class="comm-preview original">
+                    <div class="container">
+                        <header>
+                            <div class="header-title">
+                                <h1>IBM Marketing Comms</h1>
+                                <div class="header-subtitle">United Kingdom & Ireland</div>
+                            </div>
+                            <p class="header-description">Professional Communication Builder</p>
+                        </header>
+
+                        <div class="tabs">
+                            <button class="tab-btn active">Create</button>
+                            <button class="tab-btn">📚 Templates</button>
+                            <button class="tab-btn">🎯 Events</button>
+                        </div>
+
+                        <main>
+                            <div class="form-group">
+                                <label>Main Title</label>
+                                <input type="text" value="Sample Communication">
+                            </div>
+                            <div class="form-group">
+                                <label>Content</label>
+                                <textarea rows="3">Original design with blue header and white background.</textarea>
+                            </div>
+                        </main>
+
+                        <footer>
+                            <p><strong>IBM Marketing Communications</strong></p>
+                            <p>United Kingdom & Ireland</p>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gray Footer Theme -->
+            <div class="mockup-section">
+                <div class="section-label gray">
+                    🎨 Gray Theme (#f8f9fa)
+                </div>
+                <div class="comm-preview gray">
+                    <div class="container">
+                        <header>
+                            <div class="header-title">
+                                <h1>IBM Marketing Comms</h1>
+                                <div class="header-subtitle">United Kingdom & Ireland</div>
+                            </div>
+                            <p class="header-description">Professional Communication Builder</p>
+                        </header>
+
+                        <div class="tabs">
+                            <button class="tab-btn active">Create</button>
+                            <button class="tab-btn">📚 Templates</button>
+                            <button class="tab-btn">🎯 Events</button>
+                        </div>
+
+                        <main>
+                            <div class="form-group">
+                                <label>Main Title</label>
+                                <input type="text" value="Sample Communication">
+                            </div>
+                            <div class="form-group">
+                                <label>Content</label>
+                                <textarea rows="3">Light gray background with white content cards for subtle contrast.</textarea>
+                            </div>
+                        </main>
+
+                        <footer>
+                            <p><strong>IBM Marketing Communications</strong></p>
+                            <p>United Kingdom & Ireland</p>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blue Theme -->
+            <div class="mockup-section">
+                <div class="section-label blue">
+                    🎨 Blue Theme (#0f62fe)
+                </div>
+                <div class="comm-preview blue">
+                    <div class="container">
+                        <header>
+                            <div class="header-title">
+                                <h1>IBM Marketing Comms</h1>
+                                <div class="header-subtitle">United Kingdom & Ireland</div>
+                            </div>
+                            <p class="header-description">Professional Communication Builder</p>
+                        </header>
+
+                        <div class="tabs">
+                            <button class="tab-btn active">Create</button>
+                            <button class="tab-btn">📚 Templates</button>
+                            <button class="tab-btn">🎯 Events</button>
+                        </div>
+
+                        <main>
+                            <div class="form-group">
+                                <label>Main Title</label>
+                                <input type="text" value="Sample Communication">
+                            </div>
+                            <div class="form-group">
+                                <label>Content</label>
+                                <textarea rows="3">Bold IBM Blue throughout with white content cards for maximum brand presence.</textarea>
+                            </div>
+                        </main>
+
+                        <footer>
+                            <p><strong>IBM Marketing Communications</strong></p>
+                            <p>United Kingdom & Ireland</p>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Information -->
+        <div class="color-info">
+            <h2>🎨 Blue Theme Color Scheme Details</h2>
+            <div class="color-swatches">
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #0f62fe; color: white;">
+                        #0f62fe
+                    </div>
+                    <div class="color-label">Primary Background</div>
+                    <div class="color-code">IBM Blue</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: white; color: #0f62fe; border: 2px solid #0f62fe;">
+                        #ffffff
+                    </div>
+                    <div class="color-label">Content Cards & Active Tab</div>
+                    <div class="color-code">White (for contrast)</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.3);">
+                        rgba(255,255,255,0.15)
+                    </div>
+                    <div class="color-label">Inactive Tabs</div>
+                    <div class="color-code">Semi-transparent White</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #0043ce; color: white;">
+                        #0043ce
+                    </div>
+                    <div class="color-label">Darker Blue Accent</div>
+                    <div class="color-code">IBM Blue Dark</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid rgba(255,255,255,0.3);">
+                        rgba(255,255,255,0.2)
+                    </div>
+                    <div class="color-label">Borders & Dividers</div>
+                    <div class="color-code">Semi-transparent White</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: rgba(255,255,255,0.9); color: #0f62fe;">
+                        rgba(255,255,255,0.9)
+                    </div>
+                    <div class="color-label">Footer Text</div>
+                    <div class="color-code">Near-White</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #0f62fe 0%, #0043ce 100%); border-radius: 8px; color: white;">
+                <h3 style="margin-bottom: 15px;">✨ Blue Theme Characteristics</h3>
+                <ul style="line-height: 1.8;">
+                    <li><strong>Bold Brand Presence:</strong> IBM Blue (#0f62fe) dominates the entire interface</li>
+                    <li><strong>High Contrast:</strong> White content cards pop dramatically against the blue background</li>
+                    <li><strong>Professional & Distinctive:</strong> Unmistakably IBM-branded appearance</li>
+                    <li><strong>Modern Card Design:</strong> Elevated white cards create clear content hierarchy</li>
+                    <li><strong>Cohesive Experience:</strong> Seamless blue throughout header, body, and footer</li>
+                    <li><strong>Strong Visual Impact:</strong> Eye-catching and memorable design</li>
+                    <li><strong>Semi-transparent Elements:</strong> Subtle inactive tabs blend with the blue background</li>
+                    <li><strong>Excellent Readability:</strong> White cards ensure content remains easy to read</li>
+                </ul>
+            </div>
+
+            <div style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #0f62fe;">
+                <h3 style="margin-bottom: 15px; color: #161616;">📊 Theme Comparison Summary</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                    <thead>
+                        <tr style="background: #e0e0e0;">
+                            <th style="padding: 12px; text-align: left; border: 1px solid #d0d0d0;">Aspect</th>
+                            <th style="padding: 12px; text-align: left; border: 1px solid #d0d0d0;">Original</th>
+                            <th style="padding: 12px; text-align: left; border: 1px solid #d0d0d0;">Gray Theme</th>
+                            <th style="padding: 12px; text-align: left; border: 1px solid #d0d0d0;">Blue Theme</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #d0d0d0;"><strong>Brand Impact</strong></td>
+                            <td style="padding: 10px; border: 1px solid #d0d0d0;">Strong (blue header)</td>
+                            <td style="padding: 10px; border: 1px solid #d0d0d0;">Subtle</td>
+                            <td style="padding: 10px; border: 1px solid #d0d0d0;">Very Strong</td>
+                        </tr>
+                        <tr style="background: #f9f9f9;">
+                            <td style="padding: 10px; border: 1px solid #d0d0d0;"><strong>Visual Weight</strong></td>
+                            <td style="padding: 10px; border: 1px solid #d0d0d0;">Medium</td>
+                            <td style="padding: 10px; border: 1px solid #d0d0d0;">Light</td>
+                            <td style="padding: 10px; border: 1px solid #d0d0d0;">Bold</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #d0d0d0;"><strong>Professionalism</strong></td>
+                            <td style="padding: 10px; border: 1px solid #d0d0d0;">High</td>
+                            <td style="padding: 10px; border: 1px solid #d0d0d0;">High</td>
+                            <td style="padding: 10px; border: 1px solid #d0d0d0;">Very High</td>
+                        </tr>
+                        <tr style="background: #f9f9f9;">
+                            <td style="padding: 10px; border: 1px solid #d0d0d0;"><strong>Best For</strong></td>
+                            <td style="padding: 10px; border: 1px solid #d0d0d0;">Balanced approach</td>
+                            <td style="padding: 10px; border: 1px solid #d0d0d0;">Subtle, modern look</td>
+                            <td style="padding: 10px; border: 1px solid #d0d0d0;">Maximum brand presence</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

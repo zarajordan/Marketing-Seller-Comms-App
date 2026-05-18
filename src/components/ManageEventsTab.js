@@ -138,6 +138,8 @@ const ManageEventsTab = () => {
     sellerInvite: null, // Will store { name: string, data: string (base64), type: string }
     agenda: '', // Seller-only field, not in client comms
     eventContacts: '', // Seller-only field, not in client comms
+    postEventFollowUp: '', // Post event follow-up notes
+    postEventDocuments: [], // Array of { name: string, data: string (base64), size: number }
     productAreas: [],
     eventType: 'Webinar',
     targetAudience: 'All',
@@ -371,6 +373,66 @@ const ManageEventsTab = () => {
       sellerInvite: null
     }));
     toast.info('Seller invite removed', { autoClose: 2000 });
+  };
+
+  const handlePostEventDocumentUpload = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    files.forEach(file => {
+      // Check file type - allow common document types
+      const validTypes = [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+        'application/msword', // .doc
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+        'application/vnd.ms-excel', // .xls
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+        'application/vnd.ms-powerpoint', // .ppt
+        'text/plain', // .txt
+      ];
+      
+      if (!validTypes.includes(file.type)) {
+        toast.error(`${file.name}: Please upload a valid document (PDF, Word, Excel, PowerPoint, or Text)`, { autoClose: 3000 });
+        return;
+      }
+
+      // Check file size (max 5MB per file)
+      if (file.size > 5000000) {
+        toast.error(`${file.name}: File size must be less than 5MB`, { autoClose: 3000 });
+        return;
+      }
+
+      // Convert file to base64 for storage
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const newDocument = {
+          name: file.name,
+          data: event.target.result,
+          size: file.size,
+          type: file.type
+        };
+        
+        setFormData(prev => ({
+          ...prev,
+          postEventDocuments: [...(prev.postEventDocuments || []), newDocument]
+        }));
+        
+        toast.success(`✅ ${file.name} uploaded successfully`, { autoClose: 2000 });
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Reset the input
+    e.target.value = '';
+  };
+
+  const handleRemovePostEventDocument = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      postEventDocuments: prev.postEventDocuments.filter((_, i) => i !== index)
+    }));
+    toast.info('Document removed', { autoClose: 2000 });
   };
 
   const handleSubmit = (e) => {
@@ -1017,6 +1079,107 @@ const ManageEventsTab = () => {
                 onChange={handleInputChange}
                 rows={3}
               />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontSize: '12px',
+                fontWeight: '600',
+                color: '#161616'
+              }}>
+                Post Event Follow-up (Optional)
+              </label>
+              <p style={{
+                fontSize: '12px',
+                color: '#525252',
+                marginBottom: '8px'
+              }}>
+                Add follow-up notes, resources, or action items after the event has concluded.
+              </p>
+              <TextArea
+                id="postEventFollowUp"
+                name="postEventFollowUp"
+                placeholder="e.g., Thank you for attending! Here are the key takeaways and next steps..."
+                value={formData.postEventFollowUp}
+                onChange={handleInputChange}
+                rows={4}
+              />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontSize: '12px',
+                fontWeight: '600',
+                color: '#161616'
+              }}>
+                Post Event Documents (Optional)
+              </label>
+              <p style={{
+                fontSize: '12px',
+                color: '#525252',
+                marginBottom: '12px'
+              }}>
+                Upload documents related to the event follow-up (presentations, recordings, resources, etc.)
+              </p>
+              
+              {formData.postEventDocuments && formData.postEventDocuments.length > 0 && (
+                <div style={{ marginBottom: '12px' }}>
+                  {formData.postEventDocuments.map((doc, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        padding: '12px',
+                        backgroundColor: '#f4f4f4',
+                        borderRadius: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: '8px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Document size={20} />
+                        <span style={{ fontSize: '14px' }}>{doc.name}</span>
+                        <span style={{ fontSize: '12px', color: '#525252' }}>
+                          ({(doc.size / 1024).toFixed(1)} KB)
+                        </span>
+                      </div>
+                      <Button
+                        kind="danger--ghost"
+                        size="sm"
+                        onClick={() => handleRemovePostEventDocument(index)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <input
+                type="file"
+                multiple
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                onChange={handlePostEventDocumentUpload}
+                style={{
+                  padding: '8px',
+                  border: '1px solid #8d8d8d',
+                  borderRadius: '4px',
+                  width: '100%',
+                  fontSize: '14px'
+                }}
+              />
+              <p style={{
+                fontSize: '11px',
+                color: '#525252',
+                marginTop: '4px'
+              }}>
+                Accepted formats: PDF, Word, Excel, PowerPoint, Text. Max 5MB per file.
+              </p>
             </div>
 
             <Select

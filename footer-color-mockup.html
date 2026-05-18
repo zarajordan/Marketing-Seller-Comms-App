@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footer Color Mockup - Light Gray Theme</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: #ffffff;
+            padding: 20px;
+        }
+
+        .mockup-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .mockup-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #161616;
+            color: white;
+            border-radius: 8px;
+        }
+
+        .mockup-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .mockup-header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .mockup-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .section-label {
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 1.1em;
+            text-align: center;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .section-label.original {
+            background: #0f62fe;
+            color: white;
+            border-bottom: none;
+        }
+
+        .section-label.new {
+            background: #f8f9fa;
+            color: #161616;
+            border-bottom: 2px solid #d0d0d0;
+        }
+
+        /* Original Styling */
+        .comm-preview.original {
+            background: white;
+        }
+
+        .comm-preview.original .container {
+            background: white;
+        }
+
+        .comm-preview.original header {
+            background: linear-gradient(135deg, #0f62fe 0%, #0043ce 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .comm-preview.original .tabs {
+            background: white;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .comm-preview.original .tab-btn {
+            background: white;
+            color: #161616;
+            border: none;
+            padding: 15px 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .comm-preview.original .tab-btn.active {
+            background: #0f62fe;
+            color: white;
+        }
+
+        .comm-preview.original main {
+            background: white;
+            padding: 30px;
+        }
+
+        .comm-preview.original footer {
+            background: #f8f9fa;
+            padding: 24px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        /* New Footer-Color Styling */
+        .comm-preview.new {
+            background: #f8f9fa;
+        }
+
+        .comm-preview.new .container {
+            background: #f8f9fa;
+        }
+
+        .comm-preview.new header {
+            background: #f8f9fa;
+            color: #161616;
+            padding: 40px 30px;
+            text-align: center;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .comm-preview.new .header-title h1 {
+            color: #161616;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .comm-preview.new .header-subtitle {
+            color: #525252;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .comm-preview.new .header-description {
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .comm-preview.new .tabs {
+            background: #f8f9fa;
+            border-bottom: 2px solid #d0d0d0;
+            display: flex;
+            gap: 5px;
+            padding: 10px 20px;
+        }
+
+        .comm-preview.new .tab-btn {
+            background: #e8e9ea;
+            color: #161616;
+            border: 1px solid #d0d0d0;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .comm-preview.new .tab-btn.active {
+            background: white;
+            color: #161616;
+            border-color: #a0a0a0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .comm-preview.new main {
+            background: #f8f9fa;
+            padding: 30px;
+        }
+
+        .comm-preview.new .form-group {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .comm-preview.new footer {
+            background: #f8f9fa;
+            padding: 24px;
+            text-align: center;
+            color: #666;
+            border-top: 2px solid #d0d0d0;
+        }
+
+        /* Common styles */
+        .comm-preview {
+            padding: 20px;
+            min-height: 600px;
+        }
+
+        .container {
+            max-width: 100%;
+        }
+
+        header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .header-subtitle {
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .header-description {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 10px 15px;
+        }
+
+        .tab-btn {
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+
+        main {
+            min-height: 300px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #161616;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        footer p {
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+
+        /* Color swatches */
+        .color-info {
+            margin-top: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .color-info h2 {
+            margin-bottom: 20px;
+            color: #161616;
+        }
+
+        .color-swatches {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .color-swatch {
+            text-align: center;
+        }
+
+        .color-box {
+            height: 100px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+
+        .color-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .color-code {
+            font-family: 'Courier New', monospace;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 1200px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-container">
+        <div class="mockup-header">
+            <h1>🎨 Footer Color Theme Mockup</h1>
+            <p>Comparing Original Design vs. Footer Color (#f8f9fa) Applied Throughout</p>
+        </div>
+
+        <div class="comparison-grid">
+            <!-- Original Design -->
+            <div class="mockup-section">
+                <div class="section-label original">
+                    ✨ Original Design
+                </div>
+                <div class="comm-preview original">
+                    <div class="container">
+                        <header>
+                            <div class="header-title">
+                                <h1>IBM Marketing Comms</h1>
+                                <div class="header-subtitle">United Kingdom & Ireland</div>
+                            </div>
+                            <p class="header-description">Professional Communication Builder for Outlook</p>
+                        </header>
+
+                        <div class="tabs">
+                            <button class="tab-btn active">Create Comm</button>
+                            <button class="tab-btn">📚 Templates</button>
+                            <button class="tab-btn">🎯 Event Library</button>
+                            <button class="tab-btn">My Drafts</button>
+                        </div>
+
+                        <main>
+                            <div class="form-group">
+                                <label>Main Title</label>
+                                <input type="text" placeholder="e.g., UKI Marketing Spotlight" value="Sample Communication">
+                            </div>
+                            <div class="form-group">
+                                <label>Subtitle</label>
+                                <input type="text" placeholder="Optional subtitle" value="Monthly Update">
+                            </div>
+                            <div class="form-group">
+                                <label>Content</label>
+                                <textarea rows="4" placeholder="Your content here...">This is a sample communication with the original blue header design and white background throughout the application.</textarea>
+                            </div>
+                        </main>
+
+                        <footer>
+                            <p><strong>IBM Marketing Communications</strong></p>
+                            <p>United Kingdom & Ireland</p>
+                            <p style="font-size: 0.85em; margin-top: 10px;">© 2026 IBM Corporation</p>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Footer Color Design -->
+            <div class="mockup-section">
+                <div class="section-label new">
+                    🎨 Footer Color Theme (#f8f9fa)
+                </div>
+                <div class="comm-preview new">
+                    <div class="container">
+                        <header>
+                            <div class="header-title">
+                                <h1>IBM Marketing Comms</h1>
+                                <div class="header-subtitle">United Kingdom & Ireland</div>
+                            </div>
+                            <p class="header-description">Professional Communication Builder for Outlook</p>
+                        </header>
+
+                        <div class="tabs">
+                            <button class="tab-btn active">Create Comm</button>
+                            <button class="tab-btn">📚 Templates</button>
+                            <button class="tab-btn">🎯 Event Library</button>
+                            <button class="tab-btn">My Drafts</button>
+                        </div>
+
+                        <main>
+                            <div class="form-group">
+                                <label>Main Title</label>
+                                <input type="text" placeholder="e.g., UKI Marketing Spotlight" value="Sample Communication">
+                            </div>
+                            <div class="form-group">
+                                <label>Subtitle</label>
+                                <input type="text" placeholder="Optional subtitle" value="Monthly Update">
+                            </div>
+                            <div class="form-group">
+                                <label>Content</label>
+                                <textarea rows="4" placeholder="Your content here...">This is a sample communication with the light gray (#f8f9fa) color scheme applied throughout - creating a softer, more subtle appearance with better visual hierarchy through white content cards.</textarea>
+                            </div>
+                        </main>
+
+                        <footer>
+                            <p><strong>IBM Marketing Communications</strong></p>
+                            <p>United Kingdom & Ireland</p>
+                            <p style="font-size: 0.85em; margin-top: 10px;">© 2026 IBM Corporation</p>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Information -->
+        <div class="color-info">
+            <h2>🎨 Color Scheme Details</h2>
+            <div class="color-swatches">
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #f8f9fa; color: #161616; border: 2px solid #d0d0d0;">
+                        #f8f9fa
+                    </div>
+                    <div class="color-label">Primary Background</div>
+                    <div class="color-code">Light Gray (Footer Color)</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: white; color: #161616; border: 2px solid #e0e0e0;">
+                        #ffffff
+                    </div>
+                    <div class="color-label">Content Cards</div>
+                    <div class="color-code">White (for contrast)</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #e8e9ea; color: #161616;">
+                        #e8e9ea
+                    </div>
+                    <div class="color-label">Inactive Tabs</div>
+                    <div class="color-code">Slightly Darker Gray</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #161616; color: white;">
+                        #161616
+                    </div>
+                    <div class="color-label">Text & Accents</div>
+                    <div class="color-code">IBM Carbon Black</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #d0d0d0; color: #161616;">
+                        #d0d0d0
+                    </div>
+                    <div class="color-label">Borders</div>
+                    <div class="color-code">Medium Gray</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #666666; color: white;">
+                        #666666
+                    </div>
+                    <div class="color-label">Secondary Text</div>
+                    <div class="color-code">Dark Gray</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #0f62fe;">
+                <h3 style="margin-bottom: 15px;">✨ Key Design Changes</h3>
+                <ul style="line-height: 1.8; color: #161616;">
+                    <li><strong>Softer Overall Appearance:</strong> The light gray background (#f8f9fa) creates a more subtle, professional look</li>
+                    <li><strong>Better Visual Hierarchy:</strong> White content cards stand out against the gray background</li>
+                    <li><strong>Reduced Visual Weight:</strong> Removes the bold blue header for a more understated design</li>
+                    <li><strong>Consistent Footer Integration:</strong> The footer now blends seamlessly with the overall design</li>
+                    <li><strong>Modern Card-Based Layout:</strong> Form elements appear as elevated white cards</li>
+                    <li><strong>Improved Readability:</strong> Better contrast between content areas and background</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
