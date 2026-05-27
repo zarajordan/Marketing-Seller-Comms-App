@@ -14,7 +14,7 @@ import {
   Tag,
   Button,
 } from '@carbon/react';
-import { ColorPalette, UserAvatar, Switcher } from '@carbon/icons-react';
+import { ColorPalette, UserAvatar, Switcher, Logout } from '@carbon/icons-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CreateCommTab from './components/CreateCommTab';
@@ -27,6 +27,7 @@ import AIAssistantTab from './components/AIAssistantTab';
 import MarketingSpotlightTab from './components/MarketingSpotlightTab';
 import UserAccessTab from './components/UserAccessTab';
 import ThemeSelector from './components/ThemeSelector';
+import LoginPage from './components/LoginPage';
 import { UserProvider, useUser } from './contexts/UserContext';
 
 // Tab configuration with IDs for permission checking
@@ -41,12 +42,60 @@ const TAB_CONFIG = [
 ];
 
 function AppContent() {
-  const { currentUser, hasPermission, hasRole, switchUser, logout } = useUser();
+  const { currentUser, isAuthenticated, login, logout } = useUser();
+  const [showLogin, setShowLogin] = useState(false);
+
+  // Check if we should show login page
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (!loggedIn && !isAuthenticated) {
+      setShowLogin(true);
+    } else {
+      setShowLogin(false);
+    }
+  }, [isAuthenticated]);
+
+  const handleLogin = (userData) => {
+    // Use the UserContext login function
+    const result = login(userData.email, 'password');
+    if (result.success) {
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userEmail', userData.email);
+      setShowLogin(false);
+      toast.success(`Welcome back, ${result.user.name}!`);
+    } else {
+      toast.error('Login failed');
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userEmail');
+    setShowLogin(true);
+    toast.info('You have been logged out');
+  };
+
+  // Show login page if not authenticated
+  if (showLogin || !isAuthenticated || !currentUser) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  // Render main app content after login
+  return <MainAppContent onLogout={handleLogout} />;
+}
+
+function MainAppContent({ onLogout }) {
+  const { currentUser, hasPermission, hasRole, switchUser } = useUser();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [themeModalOpen, setThemeModalOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const createCommRef = useRef(null);
   const marketingSpotlightRef = useRef(null);
+
+  const handleLogout = () => {
+    onLogout();
+  };
 
   // Get accessible tabs based on user permissions
   const accessibleTabs = TAB_CONFIG.filter((tab) => hasPermission(tab.id));
@@ -172,6 +221,13 @@ function AppContent() {
             onClick={() => setThemeModalOpen(true)}
           >
             <ColorPalette size={20} />
+          </HeaderGlobalAction>
+          <HeaderGlobalAction
+            aria-label="Logout"
+            tooltipAlignment="end"
+            onClick={handleLogout}
+          >
+            <Logout size={20} />
           </HeaderGlobalAction>
         </HeaderGlobalBar>
       </Header>

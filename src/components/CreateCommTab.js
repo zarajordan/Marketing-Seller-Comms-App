@@ -1049,16 +1049,16 @@ const CreateCommTab = forwardRef((props, ref) => {
       <tr>
         <td style="padding: 20px 20px 0 20px; border-top: 2px solid #e0e0e0;">
           <table width="560" cellpadding="0" cellspacing="0" border="0" style="width: 560px;">
+            ${section.image ? `
+            <tr>
+              <td style="padding: 0 0 16px 0;">
+                <img src="${section.image}" alt="Event image" width="560" style="display: block; width: 560px; max-width: 560px; height: auto; border-radius: 4px;">
+              </td>
+            </tr>` : ''}
             ${section.title ? `
             <tr>
               <td style="color: ${formData.titleColor}; font-size: ${section.titleFontSize || '24px'}; line-height: 1.3; font-weight: bold; padding-bottom: 16px;">
                 ${sectionTitle}
-              </td>
-            </tr>` : ''}
-            ${section.image ? `
-            <tr>
-              <td style="padding: 16px 0;">
-                <img src="${section.image}" alt="Event image" width="560" style="display: block; width: 560px; max-width: 560px; height: auto; border-radius: 4px;">
               </td>
             </tr>` : ''}
             ${section.body ? `

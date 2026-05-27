@@ -26,6 +26,11 @@ import {
   Filter,
   Close,
   Document,
+  Grid as GridIcon,
+  List as ListIcon,
+  CalendarHeatMap,
+  ChevronLeft,
+  ChevronRight,
 } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
 
@@ -106,6 +111,25 @@ const EventsTab = () => {
   const [customBannerColor, setCustomBannerColor] = useState('#0f62fe');
   const [customAccentColor, setCustomAccentColor] = useState('#0f62fe');
   const [profilePicture, setProfilePicture] = useState('');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid', 'list', or 'calendar'
+  const [calendarDate, setCalendarDate] = useState(new Date());
+  
+  // Expandable section states for preview modal
+  const [expandedSections, setExpandedSections] = useState({
+    sellerResources: false,
+    eventAgenda: false,
+    eventContacts: false,
+    ibmObjectives: false,
+    postEventFollowUp: true,
+    postEventDocuments: true
+  });
+
+  const toggleSection = (section) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   useEffect(() => {
     loadEvents();
@@ -608,6 +632,48 @@ const EventsTab = () => {
     return new Date(dateString) >= new Date();
   };
 
+  // Calendar helper functions
+  const getDaysInMonth = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    return new Date(year, month + 1, 0).getDate();
+  };
+
+  const getFirstDayOfMonth = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    return new Date(year, month, 1).getDay();
+  };
+
+  const getEventsForDate = (date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    return filteredEvents.filter(event => event.date === dateStr);
+  };
+
+  const changeMonth = (direction) => {
+    const newDate = new Date(calendarDate);
+    newDate.setMonth(newDate.getMonth() + direction);
+    setCalendarDate(newDate);
+  };
+
+  const generateCalendarDays = () => {
+    const daysInMonth = getDaysInMonth(calendarDate);
+    const firstDay = getFirstDayOfMonth(calendarDate);
+    const days = [];
+    
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < firstDay; i++) {
+      days.push(null);
+    }
+    
+    // Add all days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(day);
+    }
+    
+    return days;
+  };
+
   return (
     <div className="events-tab" style={{ padding: '0' }}>
       {/* Header */}
@@ -634,6 +700,44 @@ const EventsTab = () => {
                 {selectedEvents.length} selected
               </Tag>
             )}
+            
+            {/* View Mode Toggle */}
+            <div style={{
+              display: 'flex',
+              gap: '4px',
+              padding: '4px',
+              backgroundColor: '#f4f4f4',
+              borderRadius: '4px'
+            }}>
+              <Button
+                kind={viewMode === 'grid' ? 'primary' : 'ghost'}
+                size="sm"
+                renderIcon={GridIcon}
+                iconDescription="Grid view"
+                hasIconOnly
+                onClick={() => setViewMode('grid')}
+                tooltipPosition="bottom"
+              />
+              <Button
+                kind={viewMode === 'list' ? 'primary' : 'ghost'}
+                size="sm"
+                renderIcon={ListIcon}
+                iconDescription="List view"
+                hasIconOnly
+                onClick={() => setViewMode('list')}
+                tooltipPosition="bottom"
+              />
+              <Button
+                kind={viewMode === 'calendar' ? 'primary' : 'ghost'}
+                size="sm"
+                renderIcon={CalendarHeatMap}
+                iconDescription="Calendar view"
+                hasIconOnly
+                onClick={() => setViewMode('calendar')}
+                tooltipPosition="bottom"
+              />
+            </div>
+            
             <Button
               kind="ghost"
               size="sm"
@@ -796,7 +900,7 @@ const EventsTab = () => {
               </Button>
             )}
           </div>
-        ) : (
+        ) : viewMode === 'grid' ? (
           <div>
             {Object.entries(eventsByMonth).map(([month, monthEvents]) => (
               <div key={month} style={{ marginBottom: '32px' }}>
@@ -834,15 +938,31 @@ const EventsTab = () => {
                             padding: '20px',
                             marginBottom: '16px',
                             cursor: 'pointer',
-                            border: selectedEvents.includes(event.id) ? '2px solid #0f62fe' : '1px solid #e0e0e0',
+                            border: selectedEvents.includes(event.id) ? '3px solid #0f62fe' : '2px solid #0f62fe',
                             backgroundColor: selectedEvents.includes(event.id) ? '#f0f7ff' : '#ffffff',
                             transition: 'all 0.2s ease',
                             position: 'relative',
                             height: '100%',
                             display: 'flex',
-                            flexDirection: 'column'
+                            flexDirection: 'column',
+                            boxShadow: selectedEvents.includes(event.id)
+                              ? '0 4px 12px rgba(15, 98, 254, 0.3)'
+                              : '0 2px 8px rgba(15, 98, 254, 0.15)',
+                            borderRadius: '8px'
                           }}
                           onClick={() => handleEventSelection(event.id)}
+                          onMouseEnter={(e) => {
+                            if (!selectedEvents.includes(event.id)) {
+                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(15, 98, 254, 0.25)';
+                              e.currentTarget.style.transform = 'translateY(-2px)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!selectedEvents.includes(event.id)) {
+                              e.currentTarget.style.boxShadow = '0 2px 8px rgba(15, 98, 254, 0.15)';
+                              e.currentTarget.style.transform = 'translateY(0)';
+                            }
+                          }}
                         >
                   {/* Selection Checkbox */}
                   <div
@@ -862,9 +982,32 @@ const EventsTab = () => {
                   </div>
 
                   {/* Event Header */}
-                  <div style={{ marginBottom: '12px', paddingRight: '40px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                      <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>
+                  <div style={{ marginBottom: '16px', paddingRight: '40px' }}>
+                    {/* Date - Prominent Display */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginBottom: '12px',
+                      padding: '8px 12px',
+                      backgroundColor: '#e8f4ff',
+                      borderRadius: '4px',
+                      borderLeft: '4px solid #0f62fe'
+                    }}>
+                      <Calendar size={20} style={{ color: '#0f62fe', flexShrink: 0 }} />
+                      <span style={{
+                        fontSize: '16px',
+                        fontWeight: 700,
+                        color: '#0f62fe',
+                        letterSpacing: '0.3px'
+                      }}>
+                        {formatDate(event.date)}{event.endDate && ` - ${formatDate(event.endDate)}`}
+                      </span>
+                    </div>
+
+                    {/* Title and Tags */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                      <h4 style={{ margin: 0, fontSize: '22px', fontWeight: 700, color: '#161616' }}>
                         {event.title}
                       </h4>
                       {event.featured && (
@@ -887,18 +1030,14 @@ const EventsTab = () => {
                   </div>
 
                   {/* Event Details */}
-                  <div style={{ 
-                    display: 'flex', 
+                  <div style={{
+                    display: 'flex',
                     flexWrap: 'wrap',
                     gap: '16px',
                     marginBottom: '12px',
                     fontSize: '14px',
                     color: '#525252'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Calendar size={16} />
-                      <span>{formatDate(event.date)}{event.endDate && ` - ${formatDate(event.endDate)}`}</span>
-                    </div>
                     {event.time && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <Time size={16} />
@@ -913,7 +1052,7 @@ const EventsTab = () => {
                     )}
                   </div>
 
-                  {/* Event Type and Industry */}
+                  {/* Event Type, Industry, and Marketing Audience */}
                   <div style={{ marginBottom: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     {event.eventType && (
                       <Tag type="cool-gray" size="sm">
@@ -925,13 +1064,18 @@ const EventsTab = () => {
                         {event.industry}
                       </Tag>
                     )}
+                    {event.marketingAudience && (
+                      <Tag type="purple" size="sm">
+                        🎯 {event.marketingAudience}
+                      </Tag>
+                    )}
                   </div>
 
                   {/* Product Areas */}
                   {event.productAreas && event.productAreas.length > 0 && (
-                    <div style={{ 
-                      display: 'flex', 
-                      flexWrap: 'wrap', 
+                    <div style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
                       gap: '8px',
                       marginTop: '12px'
                     }}>
@@ -943,6 +1087,104 @@ const EventsTab = () => {
                           </Tag>
                         ) : null;
                       })}
+                    </div>
+                  )}
+
+                  {/* Event Contacts - Quick View */}
+                  {event.eventContacts && Array.isArray(event.eventContacts) && event.eventContacts.length > 0 && (
+                    <div style={{
+                      marginTop: '16px',
+                      padding: '12px',
+                      backgroundColor: '#f4f4f4',
+                      borderRadius: '8px',
+                      border: '1px solid #e0e0e0'
+                    }}>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        marginBottom: '8px'
+                      }}>
+                        <span style={{ fontSize: '16px' }}>👥</span>
+                        <h6 style={{
+                          margin: 0,
+                          fontSize: '13px',
+                          fontWeight: 600,
+                          color: '#161616'
+                        }}>
+                          Event Contacts
+                        </h6>
+                      </div>
+                      <div style={{
+                        display: 'flex',
+                        gap: '8px',
+                        flexWrap: 'wrap'
+                      }}>
+                        {event.eventContacts.slice(0, 3).map((contact, index) => (
+                          <div
+                            key={contact.id || index}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              padding: '6px 10px',
+                              backgroundColor: '#ffffff',
+                              borderRadius: '20px',
+                              border: '1px solid #d0d0d0',
+                              fontSize: '12px'
+                            }}
+                          >
+                            <div style={{
+                              width: '24px',
+                              height: '24px',
+                              borderRadius: '50%',
+                              overflow: 'hidden',
+                              backgroundColor: '#e0e0e0',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              border: '2px solid #0f62fe',
+                              flexShrink: 0
+                            }}>
+                              {contact.image ? (
+                                <img
+                                  src={contact.image}
+                                  alt={contact.name || 'Contact'}
+                                  style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover'
+                                  }}
+                                />
+                              ) : (
+                                <span style={{ fontSize: '12px', color: '#525252' }}>👤</span>
+                              )}
+                            </div>
+                            <span style={{
+                              fontWeight: 500,
+                              color: '#161616',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              maxWidth: '120px'
+                            }}>
+                              {contact.name || 'No name'}
+                            </span>
+                          </div>
+                        ))}
+                        {event.eventContacts.length > 3 && (
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '6px 10px',
+                            fontSize: '12px',
+                            color: '#525252',
+                            fontWeight: 500
+                          }}>
+                            +{event.eventContacts.length - 3} more
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
@@ -966,6 +1208,433 @@ const EventsTab = () => {
                 )}
               </div>
             ))}
+          </div>
+        ) : viewMode === 'list' ? (
+          <div>
+            {Object.entries(eventsByMonth).map(([month, monthEvents]) => (
+              <div key={month} style={{ marginBottom: '32px' }}>
+                {/* Month Header */}
+                <div
+                  onClick={() => toggleMonth(month)}
+                  style={{
+                    backgroundColor: '#0f62fe',
+                    color: 'white',
+                    padding: '12px 20px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '16px',
+                    userSelect: 'none'
+                  }}
+                >
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>
+                    📅 {month} ({monthEvents.length} event{monthEvents.length !== 1 ? 's' : ''})
+                  </h3>
+                  <span style={{ fontSize: '20px' }}>
+                    {expandedMonths[month] ? '▼' : '▶'}
+                  </span>
+                </div>
+
+                {/* List View Events */}
+                {expandedMonths[month] && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {monthEvents.map((event) => (
+                      <div
+                        key={event.id}
+                        onClick={() => handleEventSelection(event.id)}
+                        style={{
+                          padding: '20px',
+                          cursor: 'pointer',
+                          border: selectedEvents.includes(event.id) ? '3px solid #0f62fe' : '2px solid #0f62fe',
+                          backgroundColor: selectedEvents.includes(event.id) ? '#f0f7ff' : '#ffffff',
+                          transition: 'all 0.2s ease',
+                          borderRadius: '8px',
+                          boxShadow: selectedEvents.includes(event.id)
+                            ? '0 4px 12px rgba(15, 98, 254, 0.3)'
+                            : '0 2px 8px rgba(15, 98, 254, 0.15)',
+                          display: 'flex',
+                          gap: '20px',
+                          alignItems: 'flex-start'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!selectedEvents.includes(event.id)) {
+                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(15, 98, 254, 0.25)';
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!selectedEvents.includes(event.id)) {
+                            e.currentTarget.style.boxShadow = '0 2px 8px rgba(15, 98, 254, 0.15)';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                          }
+                        }}
+                      >
+                        {/* Checkbox */}
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <Checkbox
+                            id={`event-list-${event.id}`}
+                            labelText=""
+                            hideLabel
+                            checked={selectedEvents.includes(event.id)}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              handleEventSelection(event.id);
+                            }}
+                          />
+                        </div>
+
+                        {/* Event Content */}
+                        <div style={{ flex: 1 }}>
+                          {/* Date Badge */}
+                          <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            marginBottom: '12px',
+                            padding: '8px 12px',
+                            backgroundColor: '#e8f4ff',
+                            borderRadius: '4px',
+                            borderLeft: '4px solid #0f62fe'
+                          }}>
+                            <Calendar size={20} style={{ color: '#0f62fe', flexShrink: 0 }} />
+                            <span style={{
+                              fontSize: '16px',
+                              fontWeight: 700,
+                              color: '#0f62fe',
+                              letterSpacing: '0.3px'
+                            }}>
+                              {formatDate(event.date)}{event.endDate && ` - ${formatDate(event.endDate)}`}
+                            </span>
+                          </div>
+
+                          {/* Title and Tags */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                            <h4 style={{ margin: 0, fontSize: '22px', fontWeight: 700, color: '#161616' }}>
+                              {event.title}
+                            </h4>
+                            {event.featured && (
+                              <Tag type="purple" size="sm">⭐ Featured</Tag>
+                            )}
+                            {isEventUpcoming(event.date) && (
+                              <Tag type="green" size="sm">Upcoming</Tag>
+                            )}
+                          </div>
+
+                          {/* Summary */}
+                          <div
+                            className="event-summary-preview"
+                            style={{
+                              color: '#525252',
+                              fontSize: '14px',
+                              margin: '8px 0',
+                              lineHeight: '1.5'
+                            }}
+                            dangerouslySetInnerHTML={{ __html: event.summary }}
+                          />
+
+                          {/* Details Row */}
+                          <div style={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: '16px',
+                            marginTop: '12px',
+                            fontSize: '14px',
+                            color: '#525252'
+                          }}>
+                            {event.time && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <Time size={16} />
+                                <span>{formatTime(event.time)}</span>
+                              </div>
+                            )}
+                            {event.location && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <Location size={16} />
+                                <span>{event.location}</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Tags */}
+                          <div style={{ marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            {event.eventType && (
+                              <Tag type="gray" size="sm">{event.eventType}</Tag>
+                            )}
+                            {event.industry && (
+                              <Tag type="green" size="sm">{event.industry}</Tag>
+                            )}
+                            {event.marketingAudience && (
+                              <Tag type="purple" size="sm">🎯 {event.marketingAudience}</Tag>
+                            )}
+                          </div>
+
+                          {/* View Details Button */}
+                          <div style={{ marginTop: '12px' }}>
+                            <Button
+                              kind="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setPreviewEvent(event);
+                              }}
+                            >
+                              View full details
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div>
+            {/* Calendar Header */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '24px',
+              padding: '16px 20px',
+              backgroundColor: '#0f62fe',
+              borderRadius: '8px',
+              color: 'white'
+            }}>
+              <Button
+                kind="ghost"
+                size="sm"
+                renderIcon={ChevronLeft}
+                iconDescription="Previous month"
+                hasIconOnly
+                onClick={() => changeMonth(-1)}
+                style={{ color: 'white' }}
+              />
+              <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 600 }}>
+                {calendarDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              </h2>
+              <Button
+                kind="ghost"
+                size="sm"
+                renderIcon={ChevronRight}
+                iconDescription="Next month"
+                hasIconOnly
+                onClick={() => changeMonth(1)}
+                style={{ color: 'white' }}
+              />
+            </div>
+
+            {/* Calendar Grid */}
+            <div style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '8px',
+              border: '2px solid #0f62fe',
+              overflow: 'hidden'
+            }}>
+              {/* Day Headers */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(7, 1fr)',
+                backgroundColor: '#e8f4ff',
+                borderBottom: '2px solid #0f62fe'
+              }}>
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                  <div
+                    key={day}
+                    style={{
+                      padding: '12px',
+                      textAlign: 'center',
+                      fontWeight: 700,
+                      fontSize: '14px',
+                      color: '#0f62fe',
+                      borderRight: '1px solid #d0e2ff'
+                    }}
+                  >
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              {/* Calendar Days */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(7, 1fr)',
+                gap: '0'
+              }}>
+                {generateCalendarDays().map((day, index) => {
+                  if (!day) {
+                    return (
+                      <div
+                        key={`empty-${index}`}
+                        style={{
+                          minHeight: '120px',
+                          backgroundColor: '#f4f4f4',
+                          borderRight: '1px solid #e0e0e0',
+                          borderBottom: '1px solid #e0e0e0'
+                        }}
+                      />
+                    );
+                  }
+
+                  const currentDate = new Date(
+                    calendarDate.getFullYear(),
+                    calendarDate.getMonth(),
+                    day
+                  );
+                  const dayEvents = getEventsForDate(currentDate);
+                  const isToday = currentDate.toDateString() === new Date().toDateString();
+
+                  return (
+                    <div
+                      key={day}
+                      style={{
+                        minHeight: '120px',
+                        padding: '8px',
+                        borderRight: '1px solid #e0e0e0',
+                        borderBottom: '1px solid #e0e0e0',
+                        backgroundColor: isToday ? '#f0f7ff' : '#ffffff',
+                        position: 'relative',
+                        overflow: 'hidden'
+                      }}
+                    >
+                      {/* Day Number */}
+                      <div style={{
+                        fontSize: '14px',
+                        fontWeight: isToday ? 700 : 600,
+                        color: isToday ? '#0f62fe' : '#161616',
+                        marginBottom: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
+                      }}>
+                        <span>{day}</span>
+                        {dayEvents.length > 0 && (
+                          <span style={{
+                            backgroundColor: '#0f62fe',
+                            color: 'white',
+                            borderRadius: '50%',
+                            width: '20px',
+                            height: '20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '11px',
+                            fontWeight: 700
+                          }}>
+                            {dayEvents.length}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Events for this day */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        {dayEvents.slice(0, 3).map(event => (
+                          <div
+                            key={event.id}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPreviewEvent(event);
+                            }}
+                            style={{
+                              padding: '4px 6px',
+                              backgroundColor: selectedEvents.includes(event.id) ? '#0f62fe' : '#d0e2ff',
+                              color: selectedEvents.includes(event.id) ? 'white' : '#161616',
+                              borderRadius: '4px',
+                              fontSize: '11px',
+                              fontWeight: 500,
+                              cursor: 'pointer',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              transition: 'all 0.2s ease',
+                              border: selectedEvents.includes(event.id) ? '1px solid #0f62fe' : '1px solid #a6c8ff'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!selectedEvents.includes(event.id)) {
+                                e.currentTarget.style.backgroundColor = '#a6c8ff';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!selectedEvents.includes(event.id)) {
+                                e.currentTarget.style.backgroundColor = '#d0e2ff';
+                              }
+                            }}
+                            title={event.title}
+                          >
+                            {event.time && (
+                              <span style={{ marginRight: '4px', opacity: 0.8 }}>
+                                {event.time.split(' ')[0]}
+                              </span>
+                            )}
+                            {event.title}
+                          </div>
+                        ))}
+                        {dayEvents.length > 3 && (
+                          <div style={{
+                            padding: '4px 6px',
+                            fontSize: '11px',
+                            color: '#525252',
+                            fontWeight: 600,
+                            textAlign: 'center'
+                          }}>
+                            +{dayEvents.length - 3} more
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Calendar Legend */}
+            <div style={{
+              marginTop: '16px',
+              padding: '16px',
+              backgroundColor: '#f4f4f4',
+              borderRadius: '8px',
+              display: 'flex',
+              gap: '24px',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              fontSize: '14px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{
+                  width: '16px',
+                  height: '16px',
+                  backgroundColor: '#f0f7ff',
+                  border: '2px solid #0f62fe',
+                  borderRadius: '4px'
+                }} />
+                <span>Today</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{
+                  width: '16px',
+                  height: '16px',
+                  backgroundColor: '#0f62fe',
+                  borderRadius: '4px'
+                }} />
+                <span>Selected Event</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{
+                  width: '16px',
+                  height: '16px',
+                  backgroundColor: '#d0e2ff',
+                  border: '1px solid #a6c8ff',
+                  borderRadius: '4px'
+                }} />
+                <span>Event</span>
+              </div>
+              <div style={{ marginLeft: 'auto', color: '#525252' }}>
+                Click on an event to view details
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -1445,111 +2114,412 @@ const EventsTab = () => {
 
             {/* Seller Invite Download */}
             {previewEvent.sellerInvite && (
-              <div style={{ marginBottom: '24px' }}>
-                <h5 style={{ marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Seller Resources</h5>
-                <p style={{ fontSize: '12px', color: '#525252', marginBottom: '12px' }}>
-                  Download the client invitation document to share with your clients
-                </p>
-                <Button
-                  kind="tertiary"
-                  size="md"
-                  renderIcon={Document}
-                  onClick={() => {
-                    // Create a download link from the base64 data
-                    const link = document.createElement('a');
-                    link.href = previewEvent.sellerInvite.data;
-                    link.download = previewEvent.sellerInvite.name;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+              <div style={{ marginBottom: '16px' }}>
+                <div
+                  onClick={() => toggleSection('sellerResources')}
+                  style={{
+                    backgroundColor: '#525252',
+                    color: 'white',
+                    padding: '12px 16px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    userSelect: 'none',
+                    marginBottom: '8px'
                   }}
                 >
-                  Download Seller Invite ({previewEvent.sellerInvite.name})
-                </Button>
-              </div>
-            )}
-
-            {/* Event Agenda */}
-            {previewEvent.agenda && (
-              <div style={{ marginBottom: '24px' }}>
-                <h5 style={{ marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Event Agenda</h5>
-                <div style={{
-                  padding: '12px',
-                  backgroundColor: '#f4f4f4',
-                  borderRadius: '4px',
-                  fontSize: '13px',
-                  lineHeight: '1.6',
-                  whiteSpace: 'pre-wrap'
-                }}>
-                  {previewEvent.agenda}
+                  <h5 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>Seller Resources</h5>
+                  <span style={{ fontSize: '16px' }}>{expandedSections.sellerResources ? '▼' : '▶'}</span>
                 </div>
-              </div>
-            )}
-
-            {/* Event Contacts */}
-            {previewEvent.eventContacts && (
-              <div style={{ marginBottom: '24px' }}>
-                <h5 style={{ marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Event Contacts</h5>
-                <div style={{
-                  padding: '12px',
-                  backgroundColor: '#f4f4f4',
-                  borderRadius: '4px',
-                  fontSize: '13px',
-                  lineHeight: '1.6',
-                  whiteSpace: 'pre-wrap'
-                }}>
-                  {previewEvent.eventContacts}
-                </div>
-              </div>
-            )}
-
-            {/* Post Event Follow-up */}
-            {previewEvent.postEventFollowUp && (
-              <div style={{ marginBottom: '24px' }}>
-                <h5 style={{ marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Post Event Follow-up</h5>
-                <div style={{
-                  padding: '12px',
-                  backgroundColor: '#e8f4ff',
-                  borderRadius: '4px',
-                  fontSize: '13px',
-                  lineHeight: '1.6',
-                  whiteSpace: 'pre-wrap',
-                  borderLeft: '4px solid #0f62fe'
-                }}>
-                  {previewEvent.postEventFollowUp}
-                </div>
-              </div>
-            )}
-
-            {/* Post Event Documents */}
-            {previewEvent.postEventDocuments && previewEvent.postEventDocuments.length > 0 && (
-              <div style={{ marginBottom: '24px' }}>
-                <h5 style={{ marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Post Event Documents</h5>
-                <p style={{ fontSize: '12px', color: '#525252', marginBottom: '12px' }}>
-                  Download resources and materials from this event
-                </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {previewEvent.postEventDocuments.map((doc, index) => (
+                {expandedSections.sellerResources && (
+                  <div>
+                    <p style={{ fontSize: '12px', color: '#525252', marginBottom: '12px' }}>
+                      Download the client invitation document to share with your clients
+                    </p>
                     <Button
-                      key={index}
                       kind="tertiary"
                       size="md"
                       renderIcon={Document}
                       onClick={() => {
                         // Create a download link from the base64 data
                         const link = document.createElement('a');
-                        link.href = doc.data;
-                        link.download = doc.name;
+                        link.href = previewEvent.sellerInvite.data;
+                        link.download = previewEvent.sellerInvite.name;
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
                       }}
-                      style={{ justifyContent: 'flex-start' }}
                     >
-                      {doc.name} ({(doc.size / 1024).toFixed(1)} KB)
+                      Download Seller Invite ({previewEvent.sellerInvite.name})
                     </Button>
-                  ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Event Agenda */}
+            {previewEvent.agenda && (
+              <div style={{ marginBottom: '16px' }}>
+                <div
+                  onClick={() => toggleSection('eventAgenda')}
+                  style={{
+                    backgroundColor: '#525252',
+                    color: 'white',
+                    padding: '12px 16px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    userSelect: 'none',
+                    marginBottom: '8px'
+                  }}
+                >
+                  <h5 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>Event Agenda</h5>
+                  <span style={{ fontSize: '16px' }}>{expandedSections.eventAgenda ? '▼' : '▶'}</span>
                 </div>
+                {expandedSections.eventAgenda && (
+                  <div
+                    style={{
+                      padding: '12px',
+                      backgroundColor: '#f4f4f4',
+                      borderRadius: '4px',
+                      fontSize: '13px',
+                      lineHeight: '1.6'
+                    }}
+                    dangerouslySetInnerHTML={{ __html: previewEvent.agenda }}
+                  />
+                )}
+              </div>
+            )}
+
+            {/* Event Contacts */}
+            {previewEvent.eventContacts && previewEvent.eventContacts.length > 0 && (
+              <div style={{ marginBottom: '20px' }}>
+                <div
+                  onClick={() => toggleSection('eventContacts')}
+                  style={{
+                    background: 'linear-gradient(135deg, #0f62fe 0%, #0043ce 100%)',
+                    color: 'white',
+                    padding: '12px 16px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    userSelect: 'none',
+                    marginBottom: '8px',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = '0.9';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = '1';
+                  }}
+                >
+                  <h5 style={{ margin: 0, fontSize: '14px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>👥</span>
+                    <span>Event Contacts</span>
+                  </h5>
+                  <span style={{ fontSize: '16px' }}>{expandedSections.eventContacts ? '▼' : '▶'}</span>
+                </div>
+                {expandedSections.eventContacts && (
+                  <div style={{
+                    padding: '20px',
+                    backgroundColor: '#ffffff',
+                    borderRadius: '8px',
+                    border: '2px solid #e0e0e0',
+                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
+                    fontFamily: 'IBM Plex Sans, system-ui, -apple-system, sans-serif'
+                  }}>
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                      gap: '16px'
+                    }}>
+                      {Array.isArray(previewEvent.eventContacts) && previewEvent.eventContacts.map((contact, index) => (
+                        <div
+                          key={contact.id || index}
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            padding: '16px',
+                            backgroundColor: '#f4f4f4',
+                            borderRadius: '8px',
+                            border: '1px solid #e0e0e0'
+                          }}
+                        >
+                          <div style={{
+                            width: '80px',
+                            height: '80px',
+                            borderRadius: '50%',
+                            overflow: 'hidden',
+                            backgroundColor: '#e0e0e0',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: '3px solid #0f62fe',
+                            marginBottom: '12px'
+                          }}>
+                            {contact.image ? (
+                              <img
+                                src={contact.image}
+                                alt={contact.name || 'Contact'}
+                                style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  objectFit: 'cover'
+                                }}
+                              />
+                            ) : (
+                              <span style={{ fontSize: '32px', color: '#525252' }}>👤</span>
+                            )}
+                          </div>
+                          <div style={{ textAlign: 'center', width: '100%' }}>
+                            <h6 style={{
+                              margin: '0 0 4px 0',
+                              fontSize: '16px',
+                              fontWeight: 600,
+                              color: '#161616'
+                            }}>
+                              {contact.name || 'No name'}
+                            </h6>
+                            <p style={{
+                              margin: 0,
+                              fontSize: '13px',
+                              color: '#525252',
+                              wordBreak: 'break-word'
+                            }}>
+                              {contact.email || 'No email'}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* IBM Objectives */}
+            {previewEvent.ibmObjectives && (
+              <div style={{ marginBottom: '20px' }}>
+                <div
+                  onClick={() => toggleSection('ibmObjectives')}
+                  style={{
+                    background: 'linear-gradient(135deg, #ff832b 0%, #d65d0e 100%)',
+                    color: 'white',
+                    padding: '12px 16px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    userSelect: 'none',
+                    marginBottom: '8px',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = '0.9';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = '1';
+                  }}
+                >
+                  <h5 style={{ margin: 0, fontSize: '14px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>🎯</span>
+                    <span>IBM Objectives</span>
+                  </h5>
+                  <span style={{ fontSize: '16px' }}>{expandedSections.ibmObjectives ? '▼' : '▶'}</span>
+                </div>
+                {expandedSections.ibmObjectives && (
+                  <div style={{
+                    padding: '20px',
+                    backgroundColor: '#ffffff',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    lineHeight: '1.8',
+                    whiteSpace: 'pre-wrap',
+                    border: '2px solid #e0e0e0',
+                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
+                    color: '#161616',
+                    fontFamily: 'IBM Plex Sans, system-ui, -apple-system, sans-serif'
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '12px'
+                    }}>
+                      <span style={{
+                        fontSize: '18px',
+                        marginTop: '2px',
+                        flexShrink: 0
+                      }}>💡</span>
+                      <div style={{ flex: 1 }} dangerouslySetInnerHTML={{ __html: previewEvent.ibmObjectives }} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Post Event Follow-up */}
+            {previewEvent.postEventFollowUp && (
+              <div style={{ marginBottom: '16px' }}>
+                <div
+                  onClick={() => toggleSection('postEventFollowUp')}
+                  style={{
+                    backgroundColor: '#0f62fe',
+                    color: 'white',
+                    padding: '12px 16px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    userSelect: 'none',
+                    marginBottom: '8px'
+                  }}
+                >
+                  <h5 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>📝 Post Event Follow-up</h5>
+                  <span style={{ fontSize: '16px' }}>{expandedSections.postEventFollowUp ? '▼' : '▶'}</span>
+                </div>
+                {expandedSections.postEventFollowUp && (
+                  <div
+                    style={{
+                      padding: '12px',
+                      backgroundColor: '#e8f4ff',
+                      borderRadius: '4px',
+                      fontSize: '13px',
+                      lineHeight: '1.6',
+                      borderLeft: '4px solid #0f62fe'
+                    }}
+                    dangerouslySetInnerHTML={{ __html: previewEvent.postEventFollowUp }}
+                  />
+                )}
+              </div>
+            )}
+
+            {/* Custom Sections */}
+            {previewEvent.customSections && previewEvent.customSections.length > 0 && (
+              <>
+                {previewEvent.customSections.map((section, index) => (
+                  <div key={section.id || index} style={{ marginBottom: '20px' }}>
+                    <div
+                      onClick={() => toggleSection(`customSection_${section.id || index}`)}
+                      style={{
+                        background: 'linear-gradient(135deg, #8a3ffc 0%, #6929c4 100%)',
+                        color: 'white',
+                        padding: '12px 16px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        userSelect: 'none',
+                        marginBottom: '8px',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.opacity = '0.9';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.opacity = '1';
+                      }}
+                    >
+                      <h5 style={{ margin: 0, fontSize: '14px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span>✨</span>
+                        <span>{section.title || `Custom Section ${index + 1}`}</span>
+                      </h5>
+                      <span style={{ fontSize: '16px' }}>
+                        {expandedSections[`customSection_${section.id || index}`] ? '▼' : '▶'}
+                      </span>
+                    </div>
+                    {expandedSections[`customSection_${section.id || index}`] && (
+                      <div style={{
+                        padding: '20px',
+                        backgroundColor: '#ffffff',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        lineHeight: '1.8',
+                        whiteSpace: 'pre-wrap',
+                        border: '2px solid #e0e0e0',
+                        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
+                        color: '#161616',
+                        fontFamily: 'IBM Plex Sans, system-ui, -apple-system, sans-serif'
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '12px'
+                        }}>
+                          <span style={{
+                            fontSize: '18px',
+                            marginTop: '2px',
+                            flexShrink: 0
+                          }}>📄</span>
+                          <div style={{ flex: 1 }} dangerouslySetInnerHTML={{ __html: section.content }} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </>
+            )}
+
+            {/* Post Event Documents */}
+            {previewEvent.postEventDocuments && previewEvent.postEventDocuments.length > 0 && (
+              <div style={{ marginBottom: '16px' }}>
+                <div
+                  onClick={() => toggleSection('postEventDocuments')}
+                  style={{
+                    backgroundColor: '#0f62fe',
+                    color: 'white',
+                    padding: '12px 16px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    userSelect: 'none',
+                    marginBottom: '8px'
+                  }}
+                >
+                  <h5 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>📎 Post Event Documents ({previewEvent.postEventDocuments.length})</h5>
+                  <span style={{ fontSize: '16px' }}>{expandedSections.postEventDocuments ? '▼' : '▶'}</span>
+                </div>
+                {expandedSections.postEventDocuments && (
+                  <div>
+                    <p style={{ fontSize: '12px', color: '#525252', marginBottom: '12px' }}>
+                      Download resources and materials from this event
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {previewEvent.postEventDocuments.map((doc, index) => (
+                        <Button
+                          key={index}
+                          kind="tertiary"
+                          size="md"
+                          renderIcon={Document}
+                          onClick={() => {
+                            // Create a download link from the base64 data
+                            const link = document.createElement('a');
+                            link.href = doc.data;
+                            link.download = doc.name;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          }}
+                          style={{ justifyContent: 'flex-start' }}
+                        >
+                          {doc.name} ({(doc.size / 1024).toFixed(1)} KB)
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

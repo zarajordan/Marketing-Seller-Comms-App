@@ -42,6 +42,7 @@ import {
   List,
   Copy,
   Document,
+  User,
 } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -50,6 +51,7 @@ import Bold from '@tiptap/extension-bold';
 import Italic from '@tiptap/extension-italic';
 import Underline from '@tiptap/extension-underline';
 import { useUser } from '../contexts/UserContext';
+import RichTextEditor from './RichTextEditor';
 
 const PRODUCT_AREAS = [
   { id: 'hybrid-cloud', label: '☁️ Hybrid Cloud & Infrastructure Management', icon: '☁️' },
@@ -427,6 +429,67 @@ const ManageEventsTab = () => {
     e.target.value = '';
   };
 
+  // Event contacts handlers
+  const handleAddContact = () => {
+    const newContact = {
+      id: Date.now(),
+      name: '',
+      email: '',
+      image: null
+    };
+    setFormData(prev => ({
+      ...prev,
+      eventContacts: [...(prev.eventContacts || []), newContact]
+    }));
+  };
+
+  const handleRemoveContact = (contactId) => {
+    setFormData(prev => ({
+      ...prev,
+      eventContacts: prev.eventContacts.filter(c => c.id !== contactId)
+    }));
+    toast.info('Contact removed', { autoClose: 2000 });
+  };
+
+  const handleContactFieldChange = (contactId, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      eventContacts: prev.eventContacts.map(contact =>
+        contact.id === contactId ? { ...contact, [field]: value } : contact
+      )
+    }));
+  };
+
+  const handleContactImageUpload = (e, contactId) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check if it's an image
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file', { autoClose: 3000 });
+      return;
+    }
+
+    // Check file size (max 2MB)
+    if (file.size > 2000000) {
+      toast.error('Image size must be less than 2MB', { autoClose: 3000 });
+      return;
+    }
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setFormData(prev => ({
+        ...prev,
+        eventContacts: prev.eventContacts.map(contact =>
+          contact.id === contactId ? { ...contact, image: event.target.result } : contact
+        )
+      }));
+      toast.success('✅ Image uploaded successfully', { autoClose: 2000 });
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleRemovePostEventDocument = (index) => {
     setFormData(prev => ({
       ...prev,
@@ -624,6 +687,23 @@ const ManageEventsTab = () => {
       >
         <Form onSubmit={handleSubmit}>
           <Stack gap={6}>
+            {/* Section Header: Basic Info */}
+            <div style={{
+              padding: '12px 16px',
+              backgroundColor: '#0f62fe',
+              borderRadius: '4px',
+              marginBottom: '8px'
+            }}>
+              <h5 style={{
+                margin: 0,
+                fontSize: '16px',
+                fontWeight: 600,
+                color: '#ffffff'
+              }}>
+                📋 Basic Information
+              </h5>
+            </div>
+
             <TextInput
               id="title"
               name="title"
@@ -694,6 +774,163 @@ const ManageEventsTab = () => {
                 />
               </Column>
             </Grid>
+
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '12px'
+              }}>
+                <label style={{
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#161616'
+                }}>
+                  <span style={{ marginRight: '8px' }}>👥</span>
+                  Event Contacts (Optional - Seller Reference Only)
+                </label>
+                <Button
+                  kind="tertiary"
+                  size="sm"
+                  renderIcon={Add}
+                  onClick={handleAddContact}
+                >
+                  Add Contact
+                </Button>
+              </div>
+              <div style={{
+                backgroundColor: '#e8f4ff',
+                border: '2px solid #0f62fe',
+                borderRadius: '8px',
+                padding: '12px 16px',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '10px'
+              }}>
+                <span style={{ fontSize: '18px', marginTop: '2px' }}>ℹ️</span>
+                <p style={{
+                  fontSize: '13px',
+                  color: '#0043ce',
+                  margin: 0,
+                  lineHeight: '1.5',
+                  fontWeight: 500
+                }}>
+                  Add key contacts for this event with their name, email, and profile image. This information is for <strong>seller reference only</strong> and will NOT appear in client communications.
+                </p>
+              </div>
+
+              {formData.eventContacts && formData.eventContacts.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {formData.eventContacts.map((contact) => (
+                    <div
+                      key={contact.id}
+                      style={{
+                        border: '2px solid #0f62fe',
+                        borderRadius: '8px',
+                        padding: '16px',
+                        backgroundColor: '#ffffff',
+                        display: 'flex',
+                        gap: '16px',
+                        alignItems: 'flex-start'
+                      }}
+                    >
+                      {/* Profile Image */}
+                      <div style={{ flexShrink: 0 }}>
+                        <div style={{
+                          width: '80px',
+                          height: '80px',
+                          borderRadius: '50%',
+                          overflow: 'hidden',
+                          backgroundColor: '#f4f4f4',
+                          border: '2px solid #0f62fe',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}>
+                          {contact.image ? (
+                            <img
+                              src={contact.image}
+                              alt={contact.name}
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover'
+                              }}
+                            />
+                          ) : (
+                            <User size={40} style={{ color: '#0f62fe' }} />
+                          )}
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleContactImageUpload(e, contact.id)}
+                          style={{ display: 'none' }}
+                          id={`contact-image-${contact.id}`}
+                        />
+                        <Button
+                          kind="ghost"
+                          size="sm"
+                          style={{ marginTop: '8px', width: '80px' }}
+                          onClick={() => document.getElementById(`contact-image-${contact.id}`).click()}
+                        >
+                          {contact.image ? 'Change' : 'Upload'}
+                        </Button>
+                      </div>
+
+                      {/* Contact Details */}
+                      <div style={{ flex: 1 }}>
+                        <TextInput
+                          id={`contact-name-${contact.id}`}
+                          labelText="Name"
+                          placeholder="e.g., John Smith"
+                          value={contact.name}
+                          onChange={(e) => handleContactFieldChange(contact.id, 'name', e.target.value)}
+                          style={{ marginBottom: '12px' }}
+                        />
+                        <TextInput
+                          id={`contact-email-${contact.id}`}
+                          labelText="Email"
+                          placeholder="e.g., john.smith@ibm.com"
+                          value={contact.email}
+                          onChange={(e) => handleContactFieldChange(contact.id, 'email', e.target.value)}
+                        />
+                      </div>
+
+                      {/* Remove Button */}
+                      <Button
+                        kind="danger--ghost"
+                        size="sm"
+                        hasIconOnly
+                        renderIcon={TrashCan}
+                        iconDescription="Remove contact"
+                        onClick={() => handleRemoveContact(contact.id)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Section Header: Content */}
+            <div style={{
+              padding: '12px 16px',
+              backgroundColor: '#0f62fe',
+              borderRadius: '4px',
+              marginTop: '24px',
+              marginBottom: '8px'
+            }}>
+              <h5 style={{
+                margin: 0,
+                fontSize: '16px',
+                fontWeight: 600,
+                color: '#ffffff'
+              }}>
+                📝 Content & Description
+              </h5>
+            </div>
 
             <div style={{ marginBottom: '16px' }}>
               <label style={{
@@ -875,13 +1112,14 @@ const ManageEventsTab = () => {
               }}>
                 Provide agenda details for sellers. This will NOT appear in client communications.
               </p>
-              <TextArea
-                id="agenda"
-                name="agenda"
-                placeholder="e.g., 9:00 AM - Registration, 10:00 AM - Keynote, 11:00 AM - Breakout Sessions..."
+              <RichTextEditor
                 value={formData.agenda}
-                onChange={handleInputChange}
-                rows={4}
+                onChange={(html) => {
+                  const event = { target: { name: 'agenda', value: html } };
+                  handleInputChange(event);
+                }}
+                placeholder="e.g., 9:00 AM - Registration, 10:00 AM - Keynote, 11:00 AM - Breakout Sessions..."
+                minHeight="150px"
               />
             </div>
 
@@ -960,6 +1198,24 @@ const ManageEventsTab = () => {
                   }}
                 />
               )}
+            </div>
+
+            {/* Section Header: Targeting */}
+            <div style={{
+              padding: '12px 16px',
+              backgroundColor: '#0f62fe',
+              borderRadius: '4px',
+              marginTop: '24px',
+              marginBottom: '8px'
+            }}>
+              <h5 style={{
+                margin: 0,
+                fontSize: '16px',
+                fontWeight: 600,
+                color: '#ffffff'
+              }}>
+                🎯 Targeting & Audience
+              </h5>
             </div>
 
             <MultiSelect
@@ -1062,33 +1318,6 @@ const ManageEventsTab = () => {
                 fontWeight: '600',
                 color: '#161616'
               }}>
-                Event Contacts (Optional - Seller Reference Only)
-              </label>
-              <p style={{
-                fontSize: '12px',
-                color: '#525252',
-                marginBottom: '8px'
-              }}>
-                List key contacts for this event. This will NOT appear in client communications.
-              </p>
-              <TextArea
-                id="eventContacts"
-                name="eventContacts"
-                placeholder="e.g., Event Manager: John Smith (john.smith@ibm.com), Technical Lead: Jane Doe (jane.doe@ibm.com)"
-                value={formData.eventContacts}
-                onChange={handleInputChange}
-                rows={3}
-              />
-            </div>
-
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{
-                display: 'block',
-                marginBottom: '8px',
-                fontSize: '12px',
-                fontWeight: '600',
-                color: '#161616'
-              }}>
                 Post Event Follow-up (Optional)
               </label>
               <p style={{
@@ -1098,13 +1327,14 @@ const ManageEventsTab = () => {
               }}>
                 Add follow-up notes, resources, or action items after the event has concluded.
               </p>
-              <TextArea
-                id="postEventFollowUp"
-                name="postEventFollowUp"
-                placeholder="e.g., Thank you for attending! Here are the key takeaways and next steps..."
+              <RichTextEditor
                 value={formData.postEventFollowUp}
-                onChange={handleInputChange}
-                rows={4}
+                onChange={(html) => {
+                  const event = { target: { name: 'postEventFollowUp', value: html } };
+                  handleInputChange(event);
+                }}
+                placeholder="e.g., Thank you for attending! Here are the key takeaways and next steps..."
+                minHeight="150px"
               />
             </div>
 
@@ -1180,6 +1410,24 @@ const ManageEventsTab = () => {
               }}>
                 Accepted formats: PDF, Word, Excel, PowerPoint, Text. Max 5MB per file.
               </p>
+            </div>
+
+            {/* Section Header: Marketing & Status */}
+            <div style={{
+              padding: '12px 16px',
+              backgroundColor: '#0f62fe',
+              borderRadius: '4px',
+              marginTop: '24px',
+              marginBottom: '8px'
+            }}>
+              <h5 style={{
+                margin: 0,
+                fontSize: '16px',
+                fontWeight: 600,
+                color: '#ffffff'
+              }}>
+                📊 Marketing & Status
+              </h5>
             </div>
 
             <Select
