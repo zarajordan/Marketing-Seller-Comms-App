@@ -1846,29 +1846,25 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
               onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
             />
 
-            <Grid>
-              <Column lg={8} md={4} sm={4}>
-                <TextInput
-                  id="event-date"
-                  labelText="Date *"
-                  placeholder="e.g., 3 June or 16-17 June"
-                  value={eventForm.date}
-                  onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })}
-                />
-              </Column>
-              <Column lg={8} md={4} sm={4}>
-                <Select
-                  id="event-category"
-                  labelText="Category *"
-                  value={eventForm.category}
-                  onChange={(e) => setEventForm({ ...eventForm, category: e.target.value })}
-                >
-                  <SelectItem value="ibm" text="IBM Event" />
-                  <SelectItem value="thirdParty" text="3rd Party Event" />
-                  <SelectItem value="onDemand" text="On-Demand/Webinar" />
-                </Select>
-              </Column>
-            </Grid>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              <TextInput
+                id="event-date"
+                labelText="Date *"
+                placeholder="e.g., 3 June or 16-17 June"
+                value={eventForm.date}
+                onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })}
+              />
+              <Select
+                id="event-category"
+                labelText="Category *"
+                value={eventForm.category}
+                onChange={(e) => setEventForm({ ...eventForm, category: e.target.value })}
+              >
+                <SelectItem value="ibm" text="IBM Event" />
+                <SelectItem value="thirdParty" text="3rd Party Event" />
+                <SelectItem value="onDemand" text="On-Demand/Webinar" />
+              </Select>
+            </div>
 
             <TextInput
               id="event-location"
