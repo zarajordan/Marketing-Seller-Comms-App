@@ -1143,14 +1143,14 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     ` : ''}
 
     ${newsLinks.length > 0 ? `
-    <!-- News & Thought Leadership Section -->
+    <!-- Thought Leadership & On Demand Assets Section -->
     <tr>
       <td style="padding: 15px 15px 10px 15px;">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#e8f4ff" style="border-radius: 4px; border-left: 3px solid ${currentColors.ibmBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
           <tr>
             <td style="padding: 10px; text-align: center;">
               <h2 style="margin: 0; font-size: 14px; color: #161616; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
-                📰 News & Thought Leadership
+                📰 Thought Leadership & On Demand Assets
               </h2>
             </td>
           </tr>
@@ -1544,11 +1544,11 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
           </Tile>
         </Column>
 
-        {/* News & Thought Leadership Links */}
+        {/* Thought Leadership & On Demand Assets Links */}
         <Column lg={16}>
           <Tile style={{ marginBottom: '1rem', padding: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ margin: 0 }}>📰 News & Thought Leadership ({newsLinks.length})</h3>
+              <h3 style={{ margin: 0 }}>📰 Thought Leadership & On Demand Assets ({newsLinks.length})</h3>
               <Button
                 kind="primary"
                 size="sm"
