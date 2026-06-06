@@ -1404,98 +1404,78 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
               </div>
               
               {useCustomColors && (
-                <Grid>
-                  <Column lg={8} md={4} sm={4}>
-                    <TextInput
-                      id="headerColor"
-                      labelText="Header Background"
-                      value={customColors.header}
-                      onChange={(e) => setCustomColors({...customColors, header: e.target.value})}
-                      placeholder="#8a3ffc"
-                    />
-                  </Column>
-                  <Column lg={8} md={4} sm={4}>
-                    <TextInput
-                      id="featuredColor"
-                      labelText="Featured Event Color"
-                      value={customColors.featured}
-                      onChange={(e) => setCustomColors({...customColors, featured: e.target.value})}
-                      placeholder="#8a3ffc"
-                    />
-                  </Column>
-                  <Column lg={8} md={4} sm={4}>
-                    <TextInput
-                      id="summaryBgColor"
-                      labelText="Summary Background"
-                      value={customColors.summaryBg}
-                      onChange={(e) => setCustomColors({...customColors, summaryBg: e.target.value})}
-                      placeholder="#e8f4ff"
-                    />
-                  </Column>
-                  <Column lg={8} md={4} sm={4}>
-                    <TextInput
-                      id="summaryBorderColor"
-                      labelText="Summary Border"
-                      value={customColors.summaryBorder}
-                      onChange={(e) => setCustomColors({...customColors, summaryBorder: e.target.value})}
-                      placeholder="#0f62fe"
-                    />
-                  </Column>
-                  <Column lg={8} md={4} sm={4}>
-                    <TextInput
-                      id="ibmBorderColor"
-                      labelText="IBM Events Border"
-                      value={customColors.ibmBorder}
-                      onChange={(e) => setCustomColors({...customColors, ibmBorder: e.target.value})}
-                      placeholder="#0f62fe"
-                    />
-                  </Column>
-                  <Column lg={8} md={4} sm={4}>
-                    <TextInput
-                      id="ibmColorText"
-                      labelText="IBM Events Text"
-                      value={customColors.ibmColor}
-                      onChange={(e) => setCustomColors({...customColors, ibmColor: e.target.value})}
-                      placeholder="#0f62fe"
-                    />
-                  </Column>
-                  <Column lg={8} md={4} sm={4}>
-                    <TextInput
-                      id="thirdPartyBorderColor"
-                      labelText="3rd Party Border"
-                      value={customColors.thirdPartyBorder}
-                      onChange={(e) => setCustomColors({...customColors, thirdPartyBorder: e.target.value})}
-                      placeholder="#198038"
-                    />
-                  </Column>
-                  <Column lg={8} md={4} sm={4}>
-                    <TextInput
-                      id="thirdPartyColorText"
-                      labelText="3rd Party Text"
-                      value={customColors.thirdPartyColor}
-                      onChange={(e) => setCustomColors({...customColors, thirdPartyColor: e.target.value})}
-                      placeholder="#8a3ffc"
-                    />
-                  </Column>
-                  <Column lg={8} md={4} sm={4}>
-                    <TextInput
-                      id="onDemandBorderColor"
-                      labelText="On-Demand Border"
-                      value={customColors.onDemandBorder}
-                      onChange={(e) => setCustomColors({...customColors, onDemandBorder: e.target.value})}
-                      placeholder="#8a3ffc"
-                    />
-                  </Column>
-                  <Column lg={8} md={4} sm={4}>
-                    <TextInput
-                      id="onDemandColorText"
-                      labelText="On-Demand Text"
-                      value={customColors.onDemandColor}
-                      onChange={(e) => setCustomColors({...customColors, onDemandColor: e.target.value})}
-                      placeholder="#0072c3"
-                    />
-                  </Column>
-                </Grid>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+                  <TextInput
+                    id="headerColor"
+                    labelText="Header Background"
+                    value={customColors.header}
+                    onChange={(e) => setCustomColors({...customColors, header: e.target.value})}
+                    placeholder="#8a3ffc"
+                  />
+                  <TextInput
+                    id="featuredColor"
+                    labelText="Featured Event Color"
+                    value={customColors.featured}
+                    onChange={(e) => setCustomColors({...customColors, featured: e.target.value})}
+                    placeholder="#8a3ffc"
+                  />
+                  <TextInput
+                    id="summaryBgColor"
+                    labelText="Summary Background"
+                    value={customColors.summaryBg}
+                    onChange={(e) => setCustomColors({...customColors, summaryBg: e.target.value})}
+                    placeholder="#e8f4ff"
+                  />
+                  <TextInput
+                    id="summaryBorderColor"
+                    labelText="Summary Border"
+                    value={customColors.summaryBorder}
+                    onChange={(e) => setCustomColors({...customColors, summaryBorder: e.target.value})}
+                    placeholder="#0f62fe"
+                  />
+                  <TextInput
+                    id="ibmBorderColor"
+                    labelText="IBM Events Border"
+                    value={customColors.ibmBorder}
+                    onChange={(e) => setCustomColors({...customColors, ibmBorder: e.target.value})}
+                    placeholder="#0f62fe"
+                  />
+                  <TextInput
+                    id="ibmColorText"
+                    labelText="IBM Events Text"
+                    value={customColors.ibmColor}
+                    onChange={(e) => setCustomColors({...customColors, ibmColor: e.target.value})}
+                    placeholder="#0f62fe"
+                  />
+                  <TextInput
+                    id="thirdPartyBorderColor"
+                    labelText="3rd Party Border"
+                    value={customColors.thirdPartyBorder}
+                    onChange={(e) => setCustomColors({...customColors, thirdPartyBorder: e.target.value})}
+                    placeholder="#198038"
+                  />
+                  <TextInput
+                    id="thirdPartyColorText"
+                    labelText="3rd Party Text"
+                    value={customColors.thirdPartyColor}
+                    onChange={(e) => setCustomColors({...customColors, thirdPartyColor: e.target.value})}
+                    placeholder="#8a3ffc"
+                  />
+                  <TextInput
+                    id="onDemandBorderColor"
+                    labelText="On-Demand Border"
+                    value={customColors.onDemandBorder}
+                    onChange={(e) => setCustomColors({...customColors, onDemandBorder: e.target.value})}
+                    placeholder="#8a3ffc"
+                  />
+                  <TextInput
+                    id="onDemandColorText"
+                    labelText="On-Demand Text"
+                    value={customColors.onDemandColor}
+                    onChange={(e) => setCustomColors({...customColors, onDemandColor: e.target.value})}
+                    placeholder="#0072c3"
+                  />
+                </div>
               )}
             </div>
           </Tile>
