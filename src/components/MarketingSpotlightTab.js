@@ -1332,64 +1332,56 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                 </Select>
               </Column>
             </Grid>
-            <Grid style={{ marginTop: '1rem' }}>
-              <Column lg={8} md={4} sm={4}>
-                <Select
-                  id="colorScheme"
-                  labelText="🎨 Color Scheme"
-                  value={colorScheme}
-                  onChange={(e) => setColorScheme(e.target.value)}
-                >
-                  <SelectItem value="ibm-current" text="IBM Brand Colors (Current)" />
-                  <SelectItem value="navy-teal" text="Professional Navy & Teal" />
-                  <SelectItem value="indigo-coral" text="Modern Indigo & Coral" />
-                  <SelectItem value="charcoal-gold" text="Executive Charcoal & Gold" />
-                  <SelectItem value="ibm-official" text="Official IBM Brand Colors" />
-                  <SelectItem value="all-blue" text="All Blue" />
-                  <SelectItem value="pastel-spring" text="🌸 Pastel Spring" />
-                  <SelectItem value="pastel-ocean" text="🌊 Pastel Ocean" />
-                  <SelectItem value="pastel-sunset" text="🌅 Pastel Sunset" />
-                  <SelectItem value="pastel-lavender" text="💜 Pastel Lavender" />
-                  <SelectItem value="pastel-mint" text="🍃 Pastel Mint" />
-                  <SelectItem value="pastel-peach" text="🍑 Pastel Peach" />
-                </Select>
-              </Column>
-              <Column lg={8} md={4} sm={4}>
-                <Select
-                  id="fontFamily"
-                  labelText="✍️ Font Family"
-                  value={fontFamily}
-                  onChange={(e) => setFontFamily(e.target.value)}
-                >
-                  <SelectItem value="ibm-plex" text="IBM Plex Sans" />
-                  <SelectItem value="inter" text="Inter" />
-                  <SelectItem value="roboto" text="Roboto" />
-                  <SelectItem value="open-sans" text="Open Sans" />
-                  <SelectItem value="lato" text="Lato" />
-                  <SelectItem value="montserrat" text="Montserrat" />
-                </Select>
-              </Column>
-            </Grid>
-            <Grid style={{ marginTop: '1rem' }}>
-              <Column lg={8} md={4} sm={4}>
-                <TextInput
-                  id="bannerTitle"
-                  labelText="📝 Banner Title"
-                  value={bannerTitle}
-                  onChange={(e) => setBannerTitle(e.target.value)}
-                  placeholder="UKI Marketing Spotlight"
-                />
-              </Column>
-              <Column lg={8} md={4} sm={4}>
-                <TextInput
-                  id="bannerSubtitle"
-                  labelText="📝 Banner Subtitle"
-                  value={bannerSubtitle}
-                  onChange={(e) => setBannerSubtitle(e.target.value)}
-                  placeholder="Don't miss what's coming up in"
-                />
-              </Column>
-            </Grid>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+              <Select
+                id="colorScheme"
+                labelText="🎨 Color Scheme"
+                value={colorScheme}
+                onChange={(e) => setColorScheme(e.target.value)}
+              >
+                <SelectItem value="ibm-current" text="IBM Brand Colors (Current)" />
+                <SelectItem value="navy-teal" text="Professional Navy & Teal" />
+                <SelectItem value="indigo-coral" text="Modern Indigo & Coral" />
+                <SelectItem value="charcoal-gold" text="Executive Charcoal & Gold" />
+                <SelectItem value="ibm-official" text="Official IBM Brand Colors" />
+                <SelectItem value="all-blue" text="All Blue" />
+                <SelectItem value="pastel-spring" text="🌸 Pastel Spring" />
+                <SelectItem value="pastel-ocean" text="🌊 Pastel Ocean" />
+                <SelectItem value="pastel-sunset" text="🌅 Pastel Sunset" />
+                <SelectItem value="pastel-lavender" text="💜 Pastel Lavender" />
+                <SelectItem value="pastel-mint" text="🍃 Pastel Mint" />
+                <SelectItem value="pastel-peach" text="🍑 Pastel Peach" />
+              </Select>
+              <Select
+                id="fontFamily"
+                labelText="✍️ Font Family"
+                value={fontFamily}
+                onChange={(e) => setFontFamily(e.target.value)}
+              >
+                <SelectItem value="ibm-plex" text="IBM Plex Sans" />
+                <SelectItem value="inter" text="Inter" />
+                <SelectItem value="roboto" text="Roboto" />
+                <SelectItem value="open-sans" text="Open Sans" />
+                <SelectItem value="lato" text="Lato" />
+                <SelectItem value="montserrat" text="Montserrat" />
+              </Select>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+              <TextInput
+                id="bannerTitle"
+                labelText="📝 Banner Title"
+                value={bannerTitle}
+                onChange={(e) => setBannerTitle(e.target.value)}
+                placeholder="UKI Marketing Spotlight"
+              />
+              <TextInput
+                id="bannerSubtitle"
+                labelText="📝 Banner Subtitle"
+                value={bannerSubtitle}
+                onChange={(e) => setBannerSubtitle(e.target.value)}
+                placeholder="Don't miss what's coming up in"
+              />
+            </div>
             
             {/* Custom Color Overrides */}
             <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid #e0e0e0' }}>
