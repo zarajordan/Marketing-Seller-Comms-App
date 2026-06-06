@@ -1834,7 +1834,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
         primaryButtonText={editingEvent !== null ? 'Update Event' : 'Add Event'}
         secondaryButtonText="Cancel"
         onRequestSubmit={handleAddEvent}
-        size="lg"
+        size="sm"
       >
         <Form>
           <Stack gap={6}>
@@ -1921,7 +1921,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
         primaryButtonText={editingNewsLink !== null ? 'Update Link' : 'Add Link'}
         secondaryButtonText="Cancel"
         onRequestSubmit={handleAddNewsLink}
-        size="md"
+        size="sm"
       >
         <Form>
           <Stack gap={5}>
@@ -1965,7 +1965,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
         primaryButtonText={editingPodcastLink !== null ? 'Update Link' : 'Add Link'}
         secondaryButtonText="Cancel"
         onRequestSubmit={handleAddPodcastLink}
-        size="md"
+        size="sm"
       >
         <Form>
           <Stack gap={5}>
