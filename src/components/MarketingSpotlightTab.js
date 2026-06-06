@@ -1396,77 +1396,47 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
               </div>
               
               {useCustomColors && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
-                  <TextInput
-                    id="headerColor"
-                    labelText="Header Background"
-                    value={customColors.header}
-                    onChange={(e) => setCustomColors({...customColors, header: e.target.value})}
-                    placeholder="#8a3ffc"
-                  />
-                  <TextInput
-                    id="featuredColor"
-                    labelText="Featured Event Color"
-                    value={customColors.featured}
-                    onChange={(e) => setCustomColors({...customColors, featured: e.target.value})}
-                    placeholder="#8a3ffc"
-                  />
-                  <TextInput
-                    id="summaryBgColor"
-                    labelText="Summary Background"
-                    value={customColors.summaryBg}
-                    onChange={(e) => setCustomColors({...customColors, summaryBg: e.target.value})}
-                    placeholder="#e8f4ff"
-                  />
-                  <TextInput
-                    id="summaryBorderColor"
-                    labelText="Summary Border"
-                    value={customColors.summaryBorder}
-                    onChange={(e) => setCustomColors({...customColors, summaryBorder: e.target.value})}
-                    placeholder="#0f62fe"
-                  />
-                  <TextInput
-                    id="ibmBorderColor"
-                    labelText="IBM Events Border"
-                    value={customColors.ibmBorder}
-                    onChange={(e) => setCustomColors({...customColors, ibmBorder: e.target.value})}
-                    placeholder="#0f62fe"
-                  />
-                  <TextInput
-                    id="ibmColorText"
-                    labelText="IBM Events Text"
-                    value={customColors.ibmColor}
-                    onChange={(e) => setCustomColors({...customColors, ibmColor: e.target.value})}
-                    placeholder="#0f62fe"
-                  />
-                  <TextInput
-                    id="thirdPartyBorderColor"
-                    labelText="3rd Party Border"
-                    value={customColors.thirdPartyBorder}
-                    onChange={(e) => setCustomColors({...customColors, thirdPartyBorder: e.target.value})}
-                    placeholder="#198038"
-                  />
-                  <TextInput
-                    id="thirdPartyColorText"
-                    labelText="3rd Party Text"
-                    value={customColors.thirdPartyColor}
-                    onChange={(e) => setCustomColors({...customColors, thirdPartyColor: e.target.value})}
-                    placeholder="#8a3ffc"
-                  />
-                  <TextInput
-                    id="onDemandBorderColor"
-                    labelText="On-Demand Border"
-                    value={customColors.onDemandBorder}
-                    onChange={(e) => setCustomColors({...customColors, onDemandBorder: e.target.value})}
-                    placeholder="#8a3ffc"
-                  />
-                  <TextInput
-                    id="onDemandColorText"
-                    labelText="On-Demand Text"
-                    value={customColors.onDemandColor}
-                    onChange={(e) => setCustomColors({...customColors, onDemandColor: e.target.value})}
-                    placeholder="#0072c3"
-                  />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+                  {[
+                    { key: 'header', label: 'Header Background', placeholder: '#8a3ffc' },
+                    { key: 'featured', label: 'Featured Event Color', placeholder: '#8a3ffc' },
+                    { key: 'summaryBg', label: 'Summary Background', placeholder: '#e8f4ff' },
+                    { key: 'summaryBorder', label: 'Summary Border', placeholder: '#0f62fe' },
+                    { key: 'ibmBorder', label: 'IBM Events Border', placeholder: '#0f62fe' },
+                    { key: 'ibmColor', label: 'IBM Events Text', placeholder: '#0f62fe' },
+                    { key: 'thirdPartyBorder', label: '3rd Party Border', placeholder: '#198038' },
+                    { key: 'thirdPartyColor', label: '3rd Party Text', placeholder: '#8a3ffc' },
+                    { key: 'onDemandBorder', label: 'On-Demand Border', placeholder: '#8a3ffc' },
+                    { key: 'onDemandColor', label: 'On-Demand Text', placeholder: '#0072c3' },
+                  ].map(({ key, label, placeholder }) => (
+                    <div key={key}>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '12px', fontWeight: '600', color: '#525252' }}>
+                        {label}
+                      </label>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <input
+                          type="color"
+                          value={customColors[key]}
+                          onChange={(e) => setCustomColors({...customColors, [key]: e.target.value})}
+                          style={{
+                            width: '50px',
+                            height: '40px',
+                            border: '1px solid #8d8d8d',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                        />
+                        <TextInput
+                          id={`${key}Color`}
+                          labelText=""
+                          value={customColors[key]}
+                          onChange={(e) => setCustomColors({...customColors, [key]: e.target.value})}
+                          placeholder={placeholder}
+                          style={{ flex: 1 }}
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
