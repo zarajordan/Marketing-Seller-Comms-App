@@ -45,6 +45,10 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
   const [colorScheme, setColorScheme] = useState('ibm-current'); // Color scheme selector
   const [fontFamily, setFontFamily] = useState('ibm-plex'); // Font family selector
   
+  // Custom banner headings
+  const [bannerTitle, setBannerTitle] = useState('UKI Marketing Spotlight');
+  const [bannerSubtitle, setBannerSubtitle] = useState("Don't miss what's coming up in");
+  
   // Resource links state
   const [newsLinks, setNewsLinks] = useState([]);
   const [podcastLinks, setPodcastLinks] = useState([]);
@@ -164,6 +168,114 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
       onDemandBg: '#0f62fe',
       onDemandBorder: '#0043ce',
       onDemandColor: '#0f62fe',
+    },
+    'pastel-spring': {
+      name: 'Pastel Spring',
+      header: '#a8d5ba',
+      summaryBg: '#fef9e7',
+      summaryBorder: '#a8d5ba',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
+      featured: '#a8d5ba',
+      ibmBg: '#e8f5e9',
+      ibmBorder: '#81c784',
+      ibmColor: '#4caf50',
+      thirdPartyBg: '#fff3e0',
+      thirdPartyBorder: '#ffb74d',
+      thirdPartyColor: '#ff9800',
+      onDemandBg: '#f3e5f5',
+      onDemandBorder: '#ba68c8',
+      onDemandColor: '#9c27b0',
+    },
+    'pastel-ocean': {
+      name: 'Pastel Ocean',
+      header: '#b3e5fc',
+      summaryBg: '#e1f5fe',
+      summaryBorder: '#4fc3f7',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
+      featured: '#4fc3f7',
+      ibmBg: '#e1f5fe',
+      ibmBorder: '#4fc3f7',
+      ibmColor: '#0288d1',
+      thirdPartyBg: '#e0f2f1',
+      thirdPartyBorder: '#4db6ac',
+      thirdPartyColor: '#00897b',
+      onDemandBg: '#f1f8e9',
+      onDemandBorder: '#aed581',
+      onDemandColor: '#689f38',
+    },
+    'pastel-sunset': {
+      name: 'Pastel Sunset',
+      header: '#ffccbc',
+      summaryBg: '#fff3e0',
+      summaryBorder: '#ff8a65',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
+      featured: '#ff8a65',
+      ibmBg: '#ffe0b2',
+      ibmBorder: '#ffb74d',
+      ibmColor: '#f57c00',
+      thirdPartyBg: '#f8bbd0',
+      thirdPartyBorder: '#f06292',
+      thirdPartyColor: '#c2185b',
+      onDemandBg: '#e1bee7',
+      onDemandBorder: '#ba68c8',
+      onDemandColor: '#8e24aa',
+    },
+    'pastel-lavender': {
+      name: 'Pastel Lavender',
+      header: '#d1c4e9',
+      summaryBg: '#f3e5f5',
+      summaryBorder: '#9575cd',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
+      featured: '#9575cd',
+      ibmBg: '#ede7f6',
+      ibmBorder: '#9575cd',
+      ibmColor: '#673ab7',
+      thirdPartyBg: '#e8eaf6',
+      thirdPartyBorder: '#7986cb',
+      thirdPartyColor: '#3f51b5',
+      onDemandBg: '#e0f2f1',
+      onDemandBorder: '#4db6ac',
+      onDemandColor: '#00897b',
+    },
+    'pastel-mint': {
+      name: 'Pastel Mint',
+      header: '#b2dfdb',
+      summaryBg: '#e0f2f1',
+      summaryBorder: '#4db6ac',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
+      featured: '#4db6ac',
+      ibmBg: '#e0f2f1',
+      ibmBorder: '#4db6ac',
+      ibmColor: '#00897b',
+      thirdPartyBg: '#f1f8e9',
+      thirdPartyBorder: '#aed581',
+      thirdPartyColor: '#689f38',
+      onDemandBg: '#fff9c4',
+      onDemandBorder: '#ffd54f',
+      onDemandColor: '#f9a825',
+    },
+    'pastel-peach': {
+      name: 'Pastel Peach',
+      header: '#ffccbc',
+      summaryBg: '#fff3e0',
+      summaryBorder: '#ffab91',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
+      featured: '#ffab91',
+      ibmBg: '#ffe0b2',
+      ibmBorder: '#ffb74d',
+      ibmColor: '#fb8c00',
+      thirdPartyBg: '#fff9c4',
+      thirdPartyBorder: '#fff176',
+      thirdPartyColor: '#fbc02d',
+      onDemandBg: '#f0f4c3',
+      onDemandBorder: '#dce775',
+      onDemandColor: '#afb42b',
     },
   };
 
@@ -399,6 +511,8 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
         eventCount: events.length,
         newsLinks,
         podcastLinks,
+        bannerTitle,
+        bannerSubtitle,
         content: generateEmailHTML(),
       }
     };
@@ -459,6 +573,8 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
         eventCount: events.length,
         newsLinks,
         podcastLinks,
+        bannerTitle,
+        bannerSubtitle,
         content: generateEmailHTML(),
       }
     };
@@ -534,6 +650,8 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
       setEvents(draftData.events || []);
       setNewsLinks(draftData.newsLinks || []);
       setPodcastLinks(draftData.podcastLinks || []);
+      setBannerTitle(draftData.bannerTitle || 'UKI Marketing Spotlight');
+      setBannerSubtitle(draftData.bannerSubtitle || "Don't miss what's coming up in");
       setCurrentDraftId(draftId || null); // Track the draft ID for updates
       toast.success('Draft loaded successfully!');
     }
@@ -744,10 +862,10 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                       ${month} ${year}
                     </div>
                     <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1.2; font-family: ${currentFont.family}, Arial, sans-serif;">
-                      UKI Marketing Spotlight
+                      ${bannerTitle}
                     </h1>
                     <p style="margin: 8px 0 0 0; font-size: 13px; color: rgba(255,255,255,0.95); font-weight: 400; line-height: 1.3;">
-                      Don't miss what's coming up in ${quarter}
+                      ${bannerSubtitle} ${quarter}
                     </p>
                   </td>
                 </tr>
@@ -1203,6 +1321,12 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                   <SelectItem value="charcoal-gold" text="Executive Charcoal & Gold" />
                   <SelectItem value="ibm-official" text="Official IBM Brand Colors" />
                   <SelectItem value="all-blue" text="All Blue" />
+                  <SelectItem value="pastel-spring" text="🌸 Pastel Spring" />
+                  <SelectItem value="pastel-ocean" text="🌊 Pastel Ocean" />
+                  <SelectItem value="pastel-sunset" text="🌅 Pastel Sunset" />
+                  <SelectItem value="pastel-lavender" text="💜 Pastel Lavender" />
+                  <SelectItem value="pastel-mint" text="🍃 Pastel Mint" />
+                  <SelectItem value="pastel-peach" text="🍑 Pastel Peach" />
                 </Select>
               </Column>
               <Column lg={8} md={4} sm={4}>
@@ -1219,6 +1343,26 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                   <SelectItem value="lato" text="Lato" />
                   <SelectItem value="montserrat" text="Montserrat" />
                 </Select>
+              </Column>
+            </Grid>
+            <Grid style={{ marginTop: '1rem' }}>
+              <Column lg={8} md={4} sm={4}>
+                <TextInput
+                  id="bannerTitle"
+                  labelText="📝 Banner Title"
+                  value={bannerTitle}
+                  onChange={(e) => setBannerTitle(e.target.value)}
+                  placeholder="UKI Marketing Spotlight"
+                />
+              </Column>
+              <Column lg={8} md={4} sm={4}>
+                <TextInput
+                  id="bannerSubtitle"
+                  labelText="📝 Banner Subtitle"
+                  value={bannerSubtitle}
+                  onChange={(e) => setBannerSubtitle(e.target.value)}
+                  placeholder="Don't miss what's coming up in"
+                />
               </Column>
             </Grid>
           </Tile>
