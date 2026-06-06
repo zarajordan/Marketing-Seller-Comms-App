@@ -49,6 +49,21 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
   const [bannerTitle, setBannerTitle] = useState('UKI Marketing Spotlight');
   const [bannerSubtitle, setBannerSubtitle] = useState("Don't miss what's coming up in");
   
+  // Custom color overrides
+  const [useCustomColors, setUseCustomColors] = useState(false);
+  const [customColors, setCustomColors] = useState({
+    header: '#8a3ffc',
+    summaryBg: '#e8f4ff',
+    summaryBorder: '#0f62fe',
+    featured: '#8a3ffc',
+    ibmBorder: '#0f62fe',
+    ibmColor: '#0f62fe',
+    thirdPartyBorder: '#198038',
+    thirdPartyColor: '#8a3ffc',
+    onDemandBorder: '#8a3ffc',
+    onDemandColor: '#0072c3',
+  });
+  
   // Resource links state
   const [newsLinks, setNewsLinks] = useState([]);
   const [podcastLinks, setPodcastLinks] = useState([]);
@@ -313,7 +328,9 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     },
   };
 
-  const currentColors = colorSchemes[colorScheme];
+  const currentColors = useCustomColors
+    ? { ...colorSchemes[colorScheme], ...customColors }
+    : colorSchemes[colorScheme];
   const currentFont = fontFamilies[fontFamily];
 
   // Form state for adding/editing events
@@ -513,6 +530,8 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
         podcastLinks,
         bannerTitle,
         bannerSubtitle,
+        useCustomColors,
+        customColors,
         content: generateEmailHTML(),
       }
     };
@@ -575,6 +594,8 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
         podcastLinks,
         bannerTitle,
         bannerSubtitle,
+        useCustomColors,
+        customColors,
         content: generateEmailHTML(),
       }
     };
@@ -652,6 +673,10 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
       setPodcastLinks(draftData.podcastLinks || []);
       setBannerTitle(draftData.bannerTitle || 'UKI Marketing Spotlight');
       setBannerSubtitle(draftData.bannerSubtitle || "Don't miss what's coming up in");
+      setUseCustomColors(draftData.useCustomColors || false);
+      if (draftData.customColors) {
+        setCustomColors(draftData.customColors);
+      }
       setCurrentDraftId(draftId || null); // Track the draft ID for updates
       toast.success('Draft loaded successfully!');
     }
@@ -1365,6 +1390,114 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                 />
               </Column>
             </Grid>
+            
+            {/* Custom Color Overrides */}
+            <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid #e0e0e0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '600' }}>🎨 Custom Color Overrides</h4>
+                <Checkbox
+                  id="useCustomColors"
+                  labelText="Enable Custom Colors"
+                  checked={useCustomColors}
+                  onChange={(e) => setUseCustomColors(e.target.checked)}
+                />
+              </div>
+              
+              {useCustomColors && (
+                <Grid>
+                  <Column lg={8} md={4} sm={4}>
+                    <TextInput
+                      id="headerColor"
+                      labelText="Header Background"
+                      value={customColors.header}
+                      onChange={(e) => setCustomColors({...customColors, header: e.target.value})}
+                      placeholder="#8a3ffc"
+                    />
+                  </Column>
+                  <Column lg={8} md={4} sm={4}>
+                    <TextInput
+                      id="featuredColor"
+                      labelText="Featured Event Color"
+                      value={customColors.featured}
+                      onChange={(e) => setCustomColors({...customColors, featured: e.target.value})}
+                      placeholder="#8a3ffc"
+                    />
+                  </Column>
+                  <Column lg={8} md={4} sm={4}>
+                    <TextInput
+                      id="summaryBgColor"
+                      labelText="Summary Background"
+                      value={customColors.summaryBg}
+                      onChange={(e) => setCustomColors({...customColors, summaryBg: e.target.value})}
+                      placeholder="#e8f4ff"
+                    />
+                  </Column>
+                  <Column lg={8} md={4} sm={4}>
+                    <TextInput
+                      id="summaryBorderColor"
+                      labelText="Summary Border"
+                      value={customColors.summaryBorder}
+                      onChange={(e) => setCustomColors({...customColors, summaryBorder: e.target.value})}
+                      placeholder="#0f62fe"
+                    />
+                  </Column>
+                  <Column lg={8} md={4} sm={4}>
+                    <TextInput
+                      id="ibmBorderColor"
+                      labelText="IBM Events Border"
+                      value={customColors.ibmBorder}
+                      onChange={(e) => setCustomColors({...customColors, ibmBorder: e.target.value})}
+                      placeholder="#0f62fe"
+                    />
+                  </Column>
+                  <Column lg={8} md={4} sm={4}>
+                    <TextInput
+                      id="ibmColorText"
+                      labelText="IBM Events Text"
+                      value={customColors.ibmColor}
+                      onChange={(e) => setCustomColors({...customColors, ibmColor: e.target.value})}
+                      placeholder="#0f62fe"
+                    />
+                  </Column>
+                  <Column lg={8} md={4} sm={4}>
+                    <TextInput
+                      id="thirdPartyBorderColor"
+                      labelText="3rd Party Border"
+                      value={customColors.thirdPartyBorder}
+                      onChange={(e) => setCustomColors({...customColors, thirdPartyBorder: e.target.value})}
+                      placeholder="#198038"
+                    />
+                  </Column>
+                  <Column lg={8} md={4} sm={4}>
+                    <TextInput
+                      id="thirdPartyColorText"
+                      labelText="3rd Party Text"
+                      value={customColors.thirdPartyColor}
+                      onChange={(e) => setCustomColors({...customColors, thirdPartyColor: e.target.value})}
+                      placeholder="#8a3ffc"
+                    />
+                  </Column>
+                  <Column lg={8} md={4} sm={4}>
+                    <TextInput
+                      id="onDemandBorderColor"
+                      labelText="On-Demand Border"
+                      value={customColors.onDemandBorder}
+                      onChange={(e) => setCustomColors({...customColors, onDemandBorder: e.target.value})}
+                      placeholder="#8a3ffc"
+                    />
+                  </Column>
+                  <Column lg={8} md={4} sm={4}>
+                    <TextInput
+                      id="onDemandColorText"
+                      labelText="On-Demand Text"
+                      value={customColors.onDemandColor}
+                      onChange={(e) => setCustomColors({...customColors, onDemandColor: e.target.value})}
+                      placeholder="#0072c3"
+                    />
+                  </Column>
+                </Grid>
+              )}
+            </div>
           </Tile>
         </Column>
 
