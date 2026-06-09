@@ -1,6 +1,8 @@
 import React from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import Link from '@tiptap/extension-link';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import { Select, SelectItem } from '@carbon/react';
@@ -8,14 +10,16 @@ import {
   TextBold,
   TextItalic,
   TextUnderline,
+  TextStrikethrough,
   TextAlignLeft,
   TextAlignCenter,
   TextAlignRight,
   List,
-  ListNumbered
+  ListNumbered,
+  Link as LinkIcon
 } from '@carbon/icons-react';
 
-const RichTextEditor = ({ value, onChange, placeholder, minHeight = '120px' }) => {
+const RichTextEditor = ({ value, onChange, placeholder, minHeight = '120px', label }) => {
   // Custom FontSize extension
   const FontSize = TextStyle.extend({
     addAttributes() {
@@ -40,6 +44,14 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = '120px' }) =
   const editor = useEditor({
     extensions: [
       StarterKit,
+      Underline,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        },
+      }),
       FontSize,
       Color,
     ],
@@ -148,13 +160,45 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = '120px' }) =
     editor.chain().focus().insertContent(emoji).run();
   };
 
+  const setLink = () => {
+    const previousUrl = editor.getAttributes('link').href || '';
+    const url = window.prompt('Enter the URL:', previousUrl || 'https://');
+    
+    if (url === null) {
+      return; // User cancelled
+    }
+    
+    if (url === '') {
+      // Remove link
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+    
+    // Set link
+    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+  };
+
   return (
-    <div style={{
-      border: '2px solid #e0e0e0',
-      borderRadius: '4px',
-      backgroundColor: 'white',
-      overflow: 'hidden'
-    }}>
+    <div>
+      {label && (
+        <label
+          style={{
+            display: 'block',
+            marginBottom: '8px',
+            fontSize: '12px',
+            fontWeight: '600',
+            color: '#525252'
+          }}
+        >
+          {label}
+        </label>
+      )}
+      <div style={{
+        border: '2px solid #e0e0e0',
+        borderRadius: '4px',
+        backgroundColor: 'white',
+        overflow: 'hidden'
+      }}>
       {/* Toolbar */}
       <div style={{
         display: 'flex',
@@ -182,11 +226,25 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = '120px' }) =
             <TextItalic size={16} />
           </ToolbarButton>
           <ToolbarButton
+            onClick={() => editor.chain().focus().toggleUnderline().run()}
+            active={editor.isActive('underline')}
+            title="Underline (Ctrl+U)"
+          >
+            <TextUnderline size={16} />
+          </ToolbarButton>
+          <ToolbarButton
             onClick={() => editor.chain().focus().toggleStrike().run()}
             active={editor.isActive('strike')}
             title="Strikethrough"
           >
-            <TextUnderline size={16} />
+            <TextStrikethrough size={16} />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={setLink}
+            active={editor.isActive('link')}
+            title="Add/Edit Link (Ctrl+K)"
+          >
+            <LinkIcon size={16} />
           </ToolbarButton>
         </div>
 
@@ -285,8 +343,17 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = '120px' }) =
           margin: 8px 0;
         }
         
+        .ProseMirror ul {
+          list-style-type: disc;
+        }
+        
+        .ProseMirror ol {
+          list-style-type: decimal;
+        }
+        
         .ProseMirror li {
           margin: 4px 0;
+          display: list-item;
         }
         
         .ProseMirror strong {
@@ -297,8 +364,22 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = '120px' }) =
           font-style: italic;
         }
         
+        .ProseMirror u {
+          text-decoration: underline;
+        }
+        
         .ProseMirror s {
           text-decoration: line-through;
+        }
+        
+        .ProseMirror a {
+          color: #0f62fe;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+        
+        .ProseMirror a:hover {
+          color: #0043ce;
         }
         
         .ProseMirror:focus {
@@ -313,6 +394,7 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = '120px' }) =
           height: 0;
         }
       `}</style>
+      </div>
     </div>
   );
 };

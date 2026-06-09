@@ -1927,7 +1927,7 @@ const EventsTab = () => {
               borderRadius: '4px',
               borderLeft: '4px solid #0f62fe'
             }}>
-              <p style={{ margin: 0, fontSize: '14px', color: '#161616' }}>
+              <div style={{ margin: 0, fontSize: '14px', color: '#161616' }}>
                 <strong>Preview:</strong><br/>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
                   {!useGenericSignOff && profilePicture && (
@@ -1951,7 +1951,7 @@ const EventsTab = () => {
                     {!useGenericSignOff && senderTitle.trim() && <><br/>{senderTitle.trim()}</>}
                   </div>
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -2135,9 +2135,9 @@ const EventsTab = () => {
                 </div>
                 {expandedSections.sellerResources && (
                   <div>
-                    <p style={{ fontSize: '12px', color: '#525252', marginBottom: '12px' }}>
+                    <div style={{ fontSize: '12px', color: '#525252', marginBottom: '12px' }}>
                       Download the client invitation document to share with your clients
-                    </p>
+                    </div>
                     <Button
                       kind="tertiary"
                       size="md"
@@ -2493,9 +2493,9 @@ const EventsTab = () => {
                 </div>
                 {expandedSections.postEventDocuments && (
                   <div>
-                    <p style={{ fontSize: '12px', color: '#525252', marginBottom: '12px' }}>
+                    <div style={{ fontSize: '12px', color: '#525252', marginBottom: '12px' }}>
                       Download resources and materials from this event
-                    </p>
+                    </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {previewEvent.postEventDocuments.map((doc, index) => (
                         <Button
