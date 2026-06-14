@@ -78,7 +78,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
   // Custom sections state
   const [customSections, setCustomSections] = useState([]);
   
-  // Rev Tech Enablement and Results state
+  // RevTech Enablement and Results state
   const [revTechContent, setRevTechContent] = useState('');
   const [revTechLinks, setRevTechLinks] = useState([]);
   const [revTechEvents, setRevTechEvents] = useState([]);
@@ -627,7 +627,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     setPodcastLinks(newLinks);
   };
 
-  // Rev Tech Enablement and Results Handlers
+  // RevTech Enablement and Results Handlers
   const handleAddRevTechLink = () => {
     if (!revTechLinkForm.title || !revTechLinkForm.url) {
       toast.error('Please enter both title and URL');
@@ -1660,14 +1660,14 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     ` : ''}
 
     ${(revTechContent || revTechLinks.length > 0 || revTechEvents.length > 0) ? `
-    <!-- Rev Tech Enablement and Results Section -->
+    <!-- RevTech Enablement and Results Section -->
     <tr>
       <td style="padding: 15px 15px 10px 15px;">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.sectionHeaderBg}" style="border-radius: 4px; border-left: 3px solid ${currentColors.sectionHeaderBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
           <tr>
             <td style="padding: 10px; text-align: center;">
               <h2 style="margin: 0; font-size: 14px; color: ${currentColors.sectionHeaderColor}; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
-                🚀 Rev Tech Enablement and Results
+                🚀 RevTech Enablement and Results
               </h2>
             </td>
           </tr>
@@ -2346,11 +2346,11 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
           </Tile>
         </Column>
 
-        {/* Rev Tech Enablement and Results */}
+        {/* RevTech Enablement and Results */}
         <Column lg={16}>
           <Tile style={{ marginBottom: '1rem', padding: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ margin: 0 }}>🚀 Rev Tech Enablement and Results</h3>
+              <h3 style={{ margin: 0 }}>🚀 RevTech Enablement and Results</h3>
               <Button
                 kind="primary"
                 size="sm"
