@@ -2807,24 +2807,39 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
               <div>
                 <DatePicker
-                  datePickerType="single"
+                  datePickerType="range"
                   onChange={(dates) => {
-                    if (dates && dates.length > 0) {
-                      const date = new Date(dates[0]);
-                      const day = date.getDate();
-                      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                                         'July', 'August', 'September', 'October', 'November', 'December'];
-                      const monthName = monthNames[date.getMonth()];
-                      const formattedDate = `${day} ${monthName}`;
+                    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                                       'July', 'August', 'September', 'October', 'November', 'December'];
+                    if (dates && dates.length === 2 && dates[1]) {
+                      // Range selected: format as "10–12 June" or "30 June–2 July"
+                      const start = new Date(dates[0]);
+                      const end = new Date(dates[1]);
+                      const startDay = start.getDate();
+                      const endDay = end.getDate();
+                      const startMonth = monthNames[start.getMonth()];
+                      const endMonth = monthNames[end.getMonth()];
+                      const formattedDate = startMonth === endMonth
+                        ? `${startDay}–${endDay} ${startMonth}`
+                        : `${startDay} ${startMonth}–${endDay} ${endMonth}`;
+                      setEventForm({ ...eventForm, date: formattedDate });
+                    } else if (dates && dates.length >= 1 && dates[0]) {
+                      // Only start date picked so far
+                      const start = new Date(dates[0]);
+                      const formattedDate = `${start.getDate()} ${monthNames[start.getMonth()]}`;
                       setEventForm({ ...eventForm, date: formattedDate });
                     }
                   }}
                 >
                   <DatePickerInput
-                    id="event-date"
+                    id="event-date-start"
                     labelText="Date *"
-                    placeholder="mm/dd/yyyy"
-                    value={eventForm.date}
+                    placeholder="Start date"
+                  />
+                  <DatePickerInput
+                    id="event-date-end"
+                    labelText="End Date (optional)"
+                    placeholder="End date"
                   />
                 </DatePicker>
               </div>

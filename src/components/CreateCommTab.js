@@ -225,7 +225,7 @@ const RichTextEditor = ({
 }) => {
   const editorId = useId();
   const inlineImageInputRef = useRef(null);
-  const [inlineImageSize, setInlineImageSize] = useState('48');
+  const [inlineImageSize, setInlineImageSize] = useState('300');
   const editor = useEditor({
     immediatelyRender: false,
     extensions: createEditorExtensions(),
@@ -272,7 +272,7 @@ const RichTextEditor = ({
 
   const insertInlineImage = (imageUrl, options = {}) => {
     if (!imageUrl) return;
-    const width = String(options.width || inlineImageSize || '48').replace(/[^\d]/g, '') || '48';
+    const width = String(options.width || inlineImageSize || '300').replace(/[^\d]/g, '') || '300';
     const alt = String(options.alt || 'Inline image');
 
     editor
@@ -283,10 +283,38 @@ const RichTextEditor = ({
         src: String(imageUrl),
         alt,
         width,
-        style: `width: ${width}px; max-width: ${width}px; height: auto; display: inline-block; vertical-align: middle; margin: 0 6px; border-radius: 4px;`,
+        style: `width: ${width}px; max-width: 100%; height: auto; display: block; margin: 6px 0; border-radius: 4px;`,
       })
       .insertContent({ type: 'text', text: ' ' })
       .run();
+  };
+
+  // Resize an already-inserted image that is currently selected in the editor
+  const resizeSelectedImage = () => {
+    const width = String(inlineImageSize).replace(/[^\d]/g, '') || '300';
+    const { state } = editor;
+    const { from } = state.selection;
+    // Walk backwards/forwards to find the nearest image node
+    let found = false;
+    state.doc.nodesBetween(0, state.doc.content.size, (node, pos) => {
+      if (node.type.name === 'image') {
+        // Check if the cursor sits on this node
+        if (pos <= from && from <= pos + node.nodeSize) {
+          editor
+            .chain()
+            .focus()
+            .updateAttributes('image', {
+              width,
+              style: `width: ${width}px; max-width: 100%; height: auto; display: block; margin: 6px 0; border-radius: 4px;`,
+            })
+            .run();
+          found = true;
+        }
+      }
+    });
+    if (!found) {
+      toast.info('Click on an image first, then use Resize to change its size.', { autoClose: 3000 });
+    }
   };
 
   const handleInlineImageUpload = () => {
@@ -373,11 +401,23 @@ const RichTextEditor = ({
               value={inlineImageSize}
               onChange={(e) => setInlineImageSize(e.target.value)}
             >
-              <SelectItem value="24" text="24px" />
-              <SelectItem value="32" text="32px" />
-              <SelectItem value="48" text="48px" />
-              <SelectItem value="64" text="64px" />
+              <SelectItem value="100" text="100px" />
+              <SelectItem value="150" text="150px" />
+              <SelectItem value="200" text="200px" />
+              <SelectItem value="300" text="300px" />
+              <SelectItem value="400" text="400px" />
+              <SelectItem value="500" text="500px" />
+              <SelectItem value="560" text="560px (full)" />
             </Select>
+            <Button
+              kind="ghost"
+              size="sm"
+              iconDescription="Resize selected image"
+              onClick={resizeSelectedImage}
+              title="Click an image in the editor, then click Resize"
+            >
+              Resize
+            </Button>
             <Button
               kind="ghost"
               size="sm"
