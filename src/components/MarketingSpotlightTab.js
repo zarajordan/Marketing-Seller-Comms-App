@@ -30,6 +30,7 @@ import {
   DocumentAdd,
 } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
+import RichTextEditor from './RichTextEditor';
 
 const MarketingSpotlightTab = forwardRef((props, ref) => {
   const [month, setMonth] = useState('May');
@@ -42,8 +43,27 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
   const [currentDraftId, setCurrentDraftId] = useState(null); // Track which draft is being edited
   const [showSaveDraftModal, setShowSaveDraftModal] = useState(false);
   const [draftName, setDraftName] = useState('');
-  const [colorScheme, setColorScheme] = useState('ibm-current'); // Color scheme selector
+  const [colorScheme, setColorScheme] = useState('navy-teal'); // Color scheme selector
   const [fontFamily, setFontFamily] = useState('ibm-plex'); // Font family selector
+  
+  // Custom banner headings
+  const [bannerTitle, setBannerTitle] = useState('UKI Marketing Spotlight');
+  const [bannerSubtitle, setBannerSubtitle] = useState("Don't miss what's coming up in");
+  
+  // Custom color overrides
+  const [useCustomColors, setUseCustomColors] = useState(false);
+  const [customColors, setCustomColors] = useState({
+    header: '#8a3ffc',
+    summaryBg: '#e8f4ff',
+    summaryBorder: '#0f62fe',
+    featured: '#8a3ffc',
+    ibmBorder: '#0f62fe',
+    ibmColor: '#0f62fe',
+    thirdPartyBorder: '#198038',
+    thirdPartyColor: '#8a3ffc',
+    onDemandBorder: '#8a3ffc',
+    onDemandColor: '#0072c3',
+  });
   
   // Resource links state
   const [newsLinks, setNewsLinks] = useState([]);
@@ -54,34 +74,113 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
   const [editingPodcastLink, setEditingPodcastLink] = useState(null);
   const [newsLinkForm, setNewsLinkForm] = useState({ title: '', url: '', description: '' });
   const [podcastLinkForm, setPodcastLinkForm] = useState({ title: '', url: '', description: '' });
+  
+  // Custom sections state
+  const [customSections, setCustomSections] = useState([]);
+  
+  // RevTech Enablement and Results state
+  const [revTechContent, setRevTechContent] = useState('');
+  const [revTechLinks, setRevTechLinks] = useState([]);
+  const [revTechEvents, setRevTechEvents] = useState([]);
+  const [showRevTechModal, setShowRevTechModal] = useState(false);
+  const [showRevTechContentModal, setShowRevTechContentModal] = useState(false);
+  const [showRevTechEventModal, setShowRevTechEventModal] = useState(false);
+  const [editingRevTechLink, setEditingRevTechLink] = useState(null);
+  const [revTechLinkForm, setRevTechLinkForm] = useState({ title: '', url: '', description: '' });
+  const [revTechEventForm, setRevTechEventForm] = useState({
+    title: '',
+    date: '',
+    category: 'ibm',
+    location: '',
+    audience: '',
+    registrationLink: '',
+    contactEmail: '',
+    seismicLink: '',
+    featured: false
+  });
+  const [showCustomSectionModal, setShowCustomSectionModal] = useState(false);
+  const [editingCustomSection, setEditingCustomSection] = useState(null);
+  const [customSectionForm, setCustomSectionForm] = useState({ title: '', content: '', links: [], events: [] });
+  const [showCustomSectionLinkModal, setShowCustomSectionLinkModal] = useState(false);
+  const [showCustomSectionEventModal, setShowCustomSectionEventModal] = useState(false);
+  const [editingCustomSectionForLink, setEditingCustomSectionForLink] = useState(null);
+  const [customSectionEventForm, setCustomSectionEventForm] = useState({
+    title: '',
+    date: '',
+    category: 'ibm',
+    location: '',
+    audience: '',
+    registrationLink: '',
+    contactEmail: '',
+    seismicLink: '',
+    featured: false
+  });
+  const [customSectionLinkForm, setCustomSectionLinkForm] = useState({ title: '', url: '', description: '' });
+  
+  // Emoji suggestions based on keywords
+  const getEmojiSuggestion = (title) => {
+    const lowerTitle = title.toLowerCase();
+    const emojiMap = {
+      'news': '📰',
+      'article': '📄',
+      'blog': '✍️',
+      'podcast': '🎙️',
+      'video': '🎥',
+      'webinar': '💻',
+      'event': '📅',
+      'resource': '📚',
+      'tool': '🔧',
+      'guide': '📖',
+      'report': '📊',
+      'case': '💼',
+      'study': '🔬',
+      'research': '🔍',
+      'insight': '💡',
+      'trend': '📈',
+      'update': '🔔',
+      'announcement': '📢',
+      'launch': '🚀',
+      'product': '📦',
+      'service': '⚙️',
+      'solution': '✅',
+      'training': '🎓',
+      'certification': '🏆',
+      'award': '🥇',
+      'partner': '🤝',
+      'community': '👥',
+      'social': '💬',
+      'media': '📱',
+      'download': '⬇️',
+      'link': '🔗',
+      'external': '🌐',
+      'internal': '🏢',
+      'demo': '🎬',
+      'tutorial': '📺',
+      'tip': '💭',
+      'best': '⭐',
+      'practice': '✨',
+    };
+    
+    for (const [keyword, emoji] of Object.entries(emojiMap)) {
+      if (lowerTitle.includes(keyword)) {
+        return emoji;
+      }
+    }
+    return '📌'; // Default emoji
+  };
 
   // Color scheme configurations
   const colorSchemes = {
-    'ibm-current': {
-      name: 'IBM Brand Colors (Current)',
-      header: '#8a3ffc',
-      summaryBg: '#e8f4ff',
-      summaryBorder: '#0f62fe',
-      summaryLabelColor: '#525252',
-      sectionHeaderColor: '#161616',
-      featured: '#8a3ffc',
-      ibmBg: '#e8f4ff',
-      ibmBorder: '#0f62fe',
-      ibmColor: '#0f62fe',
-      thirdPartyBg: '#f0f7f0',
-      thirdPartyBorder: '#198038',
-      thirdPartyColor: '#8a3ffc',
-      onDemandBg: '#f6f2ff',
-      onDemandBorder: '#8a3ffc',
-      onDemandColor: '#0072c3',
-    },
     'navy-teal': {
       name: 'Professional Navy & Teal',
       header: '#1e3a8a',
+      footer: '#1e3a8a',
       summaryBg: '#dbeafe',
       summaryBorder: '#1e40af',
       summaryLabelColor: '#525252',
       sectionHeaderColor: '#161616',
+      sectionHeaderBg: '#dbeafe',
+      sectionHeaderBorder: '#1e3a8a',
       featured: '#1e3a8a',
       ibmBg: '#dbeafe',
       ibmBorder: '#1e40af',
@@ -96,10 +195,13 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     'indigo-coral': {
       name: 'Modern Indigo & Coral',
       header: '#4f46e5',
+      footer: '#4f46e5',
       summaryBg: '#e0e7ff',
       summaryBorder: '#4f46e5',
       summaryLabelColor: '#525252',
       sectionHeaderColor: '#161616',
+      sectionHeaderBg: '#e0e7ff',
+      sectionHeaderBorder: '#4f46e5',
       featured: '#4f46e5',
       ibmBg: '#e0e7ff',
       ibmBorder: '#4f46e5',
@@ -114,10 +216,13 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     'charcoal-gold': {
       name: 'Executive Charcoal & Gold',
       header: '#374151',
+      footer: '#374151',
       summaryBg: '#fef3c7',
       summaryBorder: '#d97706',
       summaryLabelColor: '#525252',
       sectionHeaderColor: '#161616',
+      sectionHeaderBg: '#f3f4f6',
+      sectionHeaderBorder: '#374151',
       featured: '#374151',
       ibmBg: '#f3f4f6',
       ibmBorder: '#1f2937',
@@ -132,10 +237,13 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     'ibm-official': {
       name: 'Official IBM Brand Colors',
       header: '#0530AD',
+      footer: '#0530AD',
       summaryBg: '#e6eeff',
       summaryBorder: '#0530AD',
       summaryLabelColor: '#525252',
       sectionHeaderColor: '#161616',
+      sectionHeaderBg: '#e6eeff',
+      sectionHeaderBorder: '#0530AD',
       featured: '#0530AD',
       ibmBg: '#e6eeff',
       ibmBorder: '#0530AD',
@@ -150,10 +258,13 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     'all-blue': {
       name: 'All Blue',
       header: '#0f62fe',
+      footer: '#0f62fe',
       summaryBg: '#ffffff',
       summaryBorder: '#0f62fe',
       summaryLabelColor: '#0f62fe',
       sectionHeaderColor: '#ffffff',
+      sectionHeaderBg: '#0f62fe',
+      sectionHeaderBorder: '#0043ce',
       featured: '#0f62fe',
       ibmBg: '#0f62fe',
       ibmBorder: '#0043ce',
@@ -164,6 +275,153 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
       onDemandBg: '#0f62fe',
       onDemandBorder: '#0043ce',
       onDemandColor: '#0f62fe',
+    },
+    'pastel-spring': {
+      name: 'Pastel Spring',
+      header: '#4caf50',
+      footer: '#4caf50',
+      summaryBg: '#fef9e7',
+      summaryBorder: '#a8d5ba',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
+      sectionHeaderBg: '#e8f5e9',
+      sectionHeaderBorder: '#4caf50',
+      featured: '#a8d5ba',
+      ibmBg: '#e8f5e9',
+      ibmBorder: '#81c784',
+      ibmColor: '#4caf50',
+      thirdPartyBg: '#fff3e0',
+      thirdPartyBorder: '#ffb74d',
+      thirdPartyColor: '#ff9800',
+      onDemandBg: '#f3e5f5',
+      onDemandBorder: '#ba68c8',
+      onDemandColor: '#9c27b0',
+    },
+    'pastel-ocean': {
+      name: 'Pastel Ocean',
+      header: '#0288d1',
+      footer: '#0288d1',
+      summaryBg: '#e1f5fe',
+      summaryBorder: '#4fc3f7',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
+      sectionHeaderBg: '#e1f5fe',
+      sectionHeaderBorder: '#0288d1',
+      featured: '#4fc3f7',
+      ibmBg: '#e1f5fe',
+      ibmBorder: '#4fc3f7',
+      ibmColor: '#0288d1',
+      thirdPartyBg: '#e0f2f1',
+      thirdPartyBorder: '#4db6ac',
+      thirdPartyColor: '#00897b',
+      onDemandBg: '#f1f8e9',
+      onDemandBorder: '#aed581',
+      onDemandColor: '#689f38',
+    },
+    'pastel-sunset': {
+      name: 'Pastel Sunset',
+      header: '#c2185b',
+      footer: '#c2185b',
+      summaryBg: '#fff3e0',
+      summaryBorder: '#ff8a65',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
+      sectionHeaderBg: '#f8bbd0',
+      sectionHeaderBorder: '#c2185b',
+      featured: '#ff8a65',
+      ibmBg: '#ffe0b2',
+      ibmBorder: '#ffb74d',
+      ibmColor: '#f57c00',
+      thirdPartyBg: '#f8bbd0',
+      thirdPartyBorder: '#f06292',
+      thirdPartyColor: '#c2185b',
+      onDemandBg: '#e1bee7',
+      onDemandBorder: '#ba68c8',
+      onDemandColor: '#8e24aa',
+    },
+    'pastel-lavender': {
+      name: 'Pastel Lavender',
+      header: '#673ab7',
+      footer: '#673ab7',
+      summaryBg: '#f3e5f5',
+      summaryBorder: '#9575cd',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
+      sectionHeaderBg: '#ede7f6',
+      sectionHeaderBorder: '#673ab7',
+      featured: '#9575cd',
+      ibmBg: '#ede7f6',
+      ibmBorder: '#9575cd',
+      ibmColor: '#673ab7',
+      thirdPartyBg: '#e8eaf6',
+      thirdPartyBorder: '#7986cb',
+      thirdPartyColor: '#3f51b5',
+      onDemandBg: '#e0f2f1',
+      onDemandBorder: '#4db6ac',
+      onDemandColor: '#00897b',
+    },
+    'pastel-mint': {
+      name: 'Pastel Mint',
+      header: '#00897b',
+      footer: '#00897b',
+      summaryBg: '#e0f2f1',
+      summaryBorder: '#4db6ac',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
+      sectionHeaderBg: '#e0f2f1',
+      sectionHeaderBorder: '#00897b',
+      featured: '#4db6ac',
+      ibmBg: '#e0f2f1',
+      ibmBorder: '#4db6ac',
+      ibmColor: '#00897b',
+      thirdPartyBg: '#f1f8e9',
+      thirdPartyBorder: '#aed581',
+      thirdPartyColor: '#689f38',
+      onDemandBg: '#fff9c4',
+      onDemandBorder: '#ffd54f',
+      onDemandColor: '#f9a825',
+    },
+    'pastel-peach': {
+      name: 'Pastel Peach',
+      header: '#fb8c00',
+      footer: '#fb8c00',
+      summaryBg: '#fff3e0',
+      summaryBorder: '#ffab91',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#161616',
+      sectionHeaderBg: '#ffe0b2',
+      sectionHeaderBorder: '#fb8c00',
+      featured: '#ffab91',
+      ibmBg: '#ffe0b2',
+      ibmBorder: '#ffb74d',
+      ibmColor: '#fb8c00',
+      thirdPartyBg: '#fff9c4',
+      thirdPartyBorder: '#fff176',
+      thirdPartyColor: '#fbc02d',
+      onDemandBg: '#f0f4c3',
+      onDemandBorder: '#dce775',
+      onDemandColor: '#afb42b',
+    },
+    'summer-sports': {
+      name: 'Summer of Sports (Wimbledon)',
+      header: '#582C83',
+      footer: '#582C83',
+      summaryBg: '#f0f4f0',
+      summaryBorder: '#00843D',
+      summaryLabelColor: '#525252',
+      sectionHeaderColor: '#ffffff',
+      sectionHeaderBg: '#582C83',
+      sectionHeaderBorder: '#3d1f5c',
+      featured: '#582C83',
+      ibmBg: '#e8f0e8',
+      ibmBorder: '#00843D',
+      ibmColor: '#00843D',
+      thirdPartyBg: '#e8f0e8',
+      thirdPartyBorder: '#00843D',
+      thirdPartyColor: '#00843D',
+      onDemandBg: '#e8f0e8',
+      onDemandBorder: '#00843D',
+      onDemandColor: '#00843D',
     },
   };
 
@@ -201,7 +459,9 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     },
   };
 
-  const currentColors = colorSchemes[colorScheme];
+  const currentColors = useCustomColors
+    ? { ...colorSchemes[colorScheme], ...customColors }
+    : colorSchemes[colorScheme];
   const currentFont = fontFamilies[fontFamily];
 
   // Form state for adding/editing events
@@ -213,6 +473,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     category: 'ibm',
     featured: false,
     registrationLink: '',
+    contactEmail: '',
     seismicLink: '',
   });
 
@@ -225,6 +486,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
       category: 'ibm',
       featured: false,
       registrationLink: '',
+      contactEmail: '',
       seismicLink: '',
     });
     setEditingEvent(null);
@@ -365,6 +627,236 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     setPodcastLinks(newLinks);
   };
 
+  // RevTech Enablement and Results Handlers
+  const handleAddRevTechLink = () => {
+    if (!revTechLinkForm.title || !revTechLinkForm.url) {
+      toast.error('Please enter both title and URL');
+      return;
+    }
+
+    if (editingRevTechLink !== null) {
+      // Update existing link
+      const updatedLinks = [...revTechLinks];
+      updatedLinks[editingRevTechLink] = {
+        id: revTechLinks[editingRevTechLink].id,
+        ...revTechLinkForm
+      };
+      setRevTechLinks(updatedLinks);
+      toast.success('Rev Tech link updated');
+    } else {
+      // Add new link
+      const newLink = {
+        id: Date.now(),
+        ...revTechLinkForm
+      };
+      setRevTechLinks([...revTechLinks, newLink]);
+      toast.success('Rev Tech link added');
+    }
+
+    setRevTechLinkForm({ title: '', url: '', description: '' });
+    setEditingRevTechLink(null);
+    setShowRevTechModal(false);
+  };
+
+  const handleEditRevTechLink = (index) => {
+    setRevTechLinkForm(revTechLinks[index]);
+    setEditingRevTechLink(index);
+    setShowRevTechModal(true);
+  };
+
+  const handleDeleteRevTechLink = (index) => {
+    const updatedLinks = revTechLinks.filter((_, i) => i !== index);
+    setRevTechLinks(updatedLinks);
+    toast.success('Rev Tech link deleted');
+  };
+
+  const handleMoveRevTechLink = (index, direction) => {
+    const newLinks = [...revTechLinks];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= newLinks.length) return;
+    [newLinks[index], newLinks[targetIndex]] = [newLinks[targetIndex], newLinks[index]];
+    setRevTechLinks(newLinks);
+  };
+
+  const handleAddRevTechEvent = () => {
+    if (!revTechEventForm.title || !revTechEventForm.date) {
+      toast.error('Please enter event title and date');
+      return;
+    }
+
+    const newEvent = {
+      id: Date.now(),
+      ...revTechEventForm,
+      category: revTechEventForm.category === 'thirdParty' ? 'third-party' :
+                revTechEventForm.category === 'onDemand' ? 'on-demand' : 'ibm'
+    };
+
+    setRevTechEvents([...revTechEvents, newEvent]);
+    
+    setRevTechEventForm({
+      title: '',
+      date: '',
+      category: 'ibm',
+      location: '',
+      audience: '',
+      registrationLink: '',
+      contactEmail: '',
+      seismicLink: '',
+      featured: false
+    });
+    setShowRevTechEventModal(false);
+    toast.success('Event added to Rev Tech section!');
+  };
+
+  const handleDeleteRevTechEvent = (eventId) => {
+    setRevTechEvents(revTechEvents.filter(e => e.id !== eventId));
+    toast.success('Event removed from Rev Tech section');
+  };
+
+  // Custom Section Handlers
+  const handleAddCustomSection = () => {
+    if (!customSectionForm.title) {
+      toast.error('Please enter a section title');
+      return;
+    }
+
+    console.log('Adding/Updating custom section:', customSectionForm);
+    
+    if (editingCustomSection !== null) {
+      const updatedSections = [...customSections];
+      updatedSections[editingCustomSection] = {
+        ...customSections[editingCustomSection],
+        title: customSectionForm.title,
+        content: customSectionForm.content,
+      };
+      console.log('Updated sections:', updatedSections);
+      setCustomSections(updatedSections);
+      toast.success('Section updated!');
+    } else {
+      const newSection = {
+        id: Date.now(),
+        title: customSectionForm.title,
+        content: customSectionForm.content,
+        links: [],
+        events: []
+      };
+      console.log('New section:', newSection);
+      setCustomSections([...customSections, newSection]);
+      toast.success('Section added!');
+    }
+
+    setCustomSectionForm({ title: '', content: '', links: [], events: [] });
+    setEditingCustomSection(null);
+    setShowCustomSectionModal(false);
+  };
+
+  const handleEditCustomSection = (index) => {
+    setCustomSectionForm({
+      title: customSections[index].title,
+      content: customSections[index].content || '',
+      links: customSections[index].links,
+      events: customSections[index].events || []
+    });
+    setEditingCustomSection(index);
+    setShowCustomSectionModal(true);
+  };
+
+  const handleDeleteCustomSection = (index) => {
+    const updatedSections = customSections.filter((_, i) => i !== index);
+    setCustomSections(updatedSections);
+    toast.success('Section deleted');
+  };
+
+  const handleMoveCustomSection = (index, direction) => {
+    const newSections = [...customSections];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= newSections.length) return;
+    [newSections[index], newSections[targetIndex]] = [newSections[targetIndex], newSections[index]];
+    setCustomSections(newSections);
+  };
+
+  const handleAddLinkToCustomSection = () => {
+    if (!customSectionLinkForm.title || !customSectionLinkForm.url) {
+      toast.error('Please enter both title and URL');
+      return;
+    }
+
+    if (editingCustomSectionForLink === null) {
+      toast.error('No section selected');
+      return;
+    }
+
+    const updatedSections = [...customSections];
+    const newLink = {
+      id: Date.now(),
+      ...customSectionLinkForm
+    };
+    updatedSections[editingCustomSectionForLink].links.push(newLink);
+    setCustomSections(updatedSections);
+    
+    setCustomSectionLinkForm({ title: '', url: '', description: '' });
+    setShowCustomSectionLinkModal(false);
+    setEditingCustomSectionForLink(null);
+    toast.success('Link added to section');
+  };
+
+  const handleDeleteLinkFromCustomSection = (sectionIndex, linkIndex) => {
+    const updatedSections = [...customSections];
+    updatedSections[sectionIndex].links = updatedSections[sectionIndex].links.filter((_, i) => i !== linkIndex);
+    setCustomSections(updatedSections);
+    toast.success('Link deleted');
+  };
+
+  const handleAddEventToCustomSection = () => {
+    if (!customSectionEventForm.title || !customSectionEventForm.date) {
+      toast.error('Please enter event title and date');
+      return;
+    }
+
+    if (editingCustomSectionForLink === null) {
+      toast.error('No section selected');
+      return;
+    }
+
+    const updatedSections = [...customSections];
+    if (!updatedSections[editingCustomSectionForLink].events) {
+      updatedSections[editingCustomSectionForLink].events = [];
+    }
+
+    // Create new event for this custom section only
+    const newEvent = {
+      id: Date.now(),
+      ...customSectionEventForm,
+      category: customSectionEventForm.category === 'thirdParty' ? 'third-party' :
+                customSectionEventForm.category === 'onDemand' ? 'on-demand' : 'ibm'
+    };
+
+    updatedSections[editingCustomSectionForLink].events.push(newEvent);
+    setCustomSections(updatedSections);
+    
+    setCustomSectionEventForm({
+      title: '',
+      date: '',
+      category: 'ibm',
+      location: '',
+      audience: '',
+      registrationLink: '',
+      contactEmail: '',
+      seismicLink: '',
+      featured: false
+    });
+    setShowCustomSectionEventModal(false);
+    setEditingCustomSectionForLink(null);
+    toast.success('Event added to section!');
+  };
+
+  const handleDeleteEventFromCustomSection = (sectionIndex, eventId) => {
+    const updatedSections = [...customSections];
+    updatedSections[sectionIndex].events = updatedSections[sectionIndex].events.filter(e => e.id !== eventId);
+    setCustomSections(updatedSections);
+    toast.success('Event removed from section');
+  };
+
   const handleOpenSaveDraftModal = () => {
     if (events.length === 0) {
       toast.error('Please add at least one event before saving');
@@ -381,41 +873,75 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
       return;
     }
 
-    // Get existing drafts
-    const existingDrafts = JSON.parse(localStorage.getItem('comms_drafts') || '[]');
-    
-    // Create new draft matching DraftsTab expected structure
-    const newDraft = {
-      id: Date.now(),
-      name: draftName.trim(),
-      date: new Date().toISOString(),
-      data: {
-        title: draftName.trim(),
-        type: 'Marketing Spotlight',
-        month,
-        year,
-        quarter,
-        events,
-        eventCount: events.length,
-        newsLinks,
-        podcastLinks,
-        content: generateEmailHTML(),
+    try {
+      // Get existing drafts
+      const existingDrafts = JSON.parse(localStorage.getItem('comms_drafts') || '[]');
+      
+      // Helper function to strip HTML and keep only plain text
+      const stripHTML = (html) => {
+        if (!html) return '';
+        const tmp = document.createElement('DIV');
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || '';
+      };
+      
+      // Strip HTML from rich text content to save space
+      const strippedCustomSections = customSections.map(section => ({
+        ...section,
+        content: stripHTML(section.content) // Store plain text only
+      }));
+      
+      // Create new draft matching DraftsTab expected structure
+      // Note: We strip HTML formatting to save localStorage space
+      const newDraft = {
+        id: Date.now(),
+        name: draftName.trim(),
+        date: new Date().toISOString(),
+        data: {
+          title: draftName.trim(),
+          type: 'Marketing Spotlight',
+          month,
+          year,
+          quarter,
+          events,
+          eventCount: events.length,
+          newsLinks,
+          podcastLinks,
+          revTechContent: stripHTML(revTechContent), // Store plain text only
+          revTechLinks,
+          revTechEvents,
+          bannerTitle,
+          bannerSubtitle,
+          useCustomColors,
+          customColors,
+          customSections: strippedCustomSections,
+          colorScheme,
+          fontFamily,
+          // HTML content will be regenerated when draft is loaded
+        }
+      };
+      
+      // Add to drafts
+      existingDrafts.push(newDraft);
+      localStorage.setItem('comms_drafts', JSON.stringify(existingDrafts));
+      
+      // Set current draft ID so we can update it later
+      setCurrentDraftId(newDraft.id);
+      
+      // Dispatch custom event to notify DraftsTab
+      window.dispatchEvent(new Event('draftsUpdated'));
+      
+      setShowSaveDraftModal(false);
+      setDraftName('');
+      toast.success(`✅ Saved to Drafts: ${newDraft.name}`);
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      if (error.name === 'QuotaExceededError') {
+        toast.error('❌ Storage quota exceeded. Please delete some old drafts to free up space.');
+      } else {
+        toast.error('❌ Failed to save draft. Please try again.');
       }
-    };
-    
-    // Add to drafts
-    existingDrafts.push(newDraft);
-    localStorage.setItem('comms_drafts', JSON.stringify(existingDrafts));
-    
-    // Set current draft ID so we can update it later
-    setCurrentDraftId(newDraft.id);
-    
-    // Dispatch custom event to notify DraftsTab
-    window.dispatchEvent(new Event('draftsUpdated'));
-    
-    setShowSaveDraftModal(false);
-    setDraftName('');
-    toast.success(`✅ Saved to Drafts: ${newDraft.name}`);
+    }
   };
 
   const handleUpdateDraft = () => {
@@ -429,46 +955,79 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
       return;
     }
 
-    // Get existing drafts
-    const existingDrafts = JSON.parse(localStorage.getItem('comms_drafts') || '[]');
-    
-    // Find and update the current draft
-    const draftIndex = existingDrafts.findIndex(d => d.id === currentDraftId);
-    
-    if (draftIndex === -1) {
-      toast.error('Draft not found. Saving as new draft instead.');
-      handleSaveToDrafts();
-      return;
-    }
-
-    // Get the existing draft to preserve its name
-    const existingDraft = existingDrafts[draftIndex];
-
-    // Update the draft, preserving the original name
-    existingDrafts[draftIndex] = {
-      id: currentDraftId,
-      name: existingDraft.name, // Preserve original name
-      date: new Date().toISOString(),
-      data: {
-        title: existingDraft.name, // Use the preserved name
-        type: 'Marketing Spotlight',
-        month,
-        year,
-        quarter,
-        events,
-        eventCount: events.length,
-        newsLinks,
-        podcastLinks,
-        content: generateEmailHTML(),
+    try {
+      // Get existing drafts
+      const existingDrafts = JSON.parse(localStorage.getItem('comms_drafts') || '[]');
+      
+      // Find and update the current draft
+      const draftIndex = existingDrafts.findIndex(d => d.id === currentDraftId);
+      
+      if (draftIndex === -1) {
+        toast.error('Draft not found. Saving as new draft instead.');
+        handleSaveToDrafts();
+        return;
       }
-    };
-    
-    localStorage.setItem('comms_drafts', JSON.stringify(existingDrafts));
-    
-    // Dispatch custom event to notify DraftsTab
-    window.dispatchEvent(new Event('draftsUpdated'));
-    
-    toast.success(`✅ Updated Draft: ${existingDraft.name}`);
+
+      // Get the existing draft to preserve its name
+      const existingDraft = existingDrafts[draftIndex];
+
+      // Helper function to strip HTML and keep only plain text
+      const stripHTML = (html) => {
+        if (!html) return '';
+        const tmp = document.createElement('DIV');
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || '';
+      };
+      
+      // Strip HTML from rich text content to save space
+      const strippedCustomSections = customSections.map(section => ({
+        ...section,
+        content: stripHTML(section.content) // Store plain text only
+      }));
+
+      // Update the draft, preserving the original name
+      existingDrafts[draftIndex] = {
+        id: currentDraftId,
+        name: existingDraft.name, // Preserve original name
+        date: new Date().toISOString(),
+        data: {
+          title: existingDraft.name, // Use the preserved name
+          type: 'Marketing Spotlight',
+          month,
+          year,
+          quarter,
+          events,
+          eventCount: events.length,
+          newsLinks,
+          podcastLinks,
+          revTechContent: stripHTML(revTechContent), // Store plain text only
+          revTechLinks,
+          revTechEvents,
+          bannerTitle,
+          bannerSubtitle,
+          useCustomColors,
+          customColors,
+          customSections: strippedCustomSections,
+          colorScheme,
+          fontFamily,
+          // HTML content will be regenerated when draft is loaded
+        }
+      };
+      
+      localStorage.setItem('comms_drafts', JSON.stringify(existingDrafts));
+      
+      // Dispatch custom event to notify DraftsTab
+      window.dispatchEvent(new Event('draftsUpdated'));
+      
+      toast.success(`✅ Updated Draft: ${existingDraft.name}`);
+    } catch (error) {
+      console.error('Error updating draft:', error);
+      if (error.name === 'QuotaExceededError') {
+        toast.error('❌ Storage quota exceeded. Please delete some old drafts to free up space.');
+      } else {
+        toast.error('❌ Failed to update draft. Please try again.');
+      }
+    }
   };
 
   const handleSaveQuickDraft = () => {
@@ -534,6 +1093,14 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
       setEvents(draftData.events || []);
       setNewsLinks(draftData.newsLinks || []);
       setPodcastLinks(draftData.podcastLinks || []);
+      setRevTechLinks(draftData.revTechLinks || []);
+      setBannerTitle(draftData.bannerTitle || 'UKI Marketing Spotlight');
+      setBannerSubtitle(draftData.bannerSubtitle || "Don't miss what's coming up in");
+      setUseCustomColors(draftData.useCustomColors || false);
+      if (draftData.customColors) {
+        setCustomColors(draftData.customColors);
+      }
+      setCustomSections(draftData.customSections || []);
       setCurrentDraftId(draftId || null); // Track the draft ID for updates
       toast.success('Draft loaded successfully!');
     }
@@ -543,10 +1110,10 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     // Get featured events from ALL categories first
     const featuredEvents = events.filter(e => e.featured).slice(0, 3); // Show up to 3 featured events
     
-    // Filter by category - featured events will appear in BOTH featured section AND their category section
-    const ibmEvents = events.filter(e => e.category === 'ibm');
-    const thirdPartyEvents = events.filter(e => e.category === 'thirdParty');
-    const onDemandEvents = events.filter(e => e.category === 'onDemand');
+    // Filter by category and SORT by date - featured events will appear in BOTH featured section AND their category section
+    const ibmEvents = sortEventsByDate(events.filter(e => e.category === 'ibm'));
+    const thirdPartyEvents = sortEventsByDate(events.filter(e => e.category === 'thirdParty'));
+    const onDemandEvents = sortEventsByDate(events.filter(e => e.category === 'onDemand'));
 
     // Helper function to generate two-column event grid
     const generateTwoColumnGrid = (eventsList, borderColor, categoryLabel, categoryColor) => {
@@ -562,10 +1129,10 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
         
         // First column
         html += `
-          <td width="48%" valign="top" style="padding-right: 8px; padding-bottom: 10px;" class="column-cell">
-            <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="border-left: 3px solid ${borderColor}; border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);" class="event-card">
+          <td width="48%" valign="top" style="padding-right: 8px; padding-bottom: 10px; height: 100%;" class="column-cell">
+            <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="border-left: 3px solid ${borderColor}; border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); height: 100%;" class="event-card">
               <tr>
-                <td style="padding: 10px;">
+                <td style="padding: 10px;" valign="top">
                   <h4 style="margin: 0 0 6px 0; font-size: 13px; color: #161616; font-family: ${currentFont.family}, Arial, sans-serif; line-height: 1.3; font-weight: 700;">
                     ${event1.title}
                   </h4>
@@ -578,6 +1145,11 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                   ${event1.audience ? `
                   <p style="margin: 0 0 8px 0; font-size: 11px; color: #393939; line-height: 1.3; border-top: 1px solid #e0e0e0; padding-top: 8px;">
                     ${event1.audience}
+                  </p>
+                  ` : ''}
+                  ${event1.contactEmail && !event1.registrationLink ? `
+                  <p style="margin: 0 0 8px 0; font-size: 10px; color: #525252; font-style: italic;">
+                    Invite only, contact: <a href="mailto:${event1.contactEmail}" style="color: ${currentColors.ibmBorder}; text-decoration: none;">${event1.contactEmail}</a>
                   </p>
                   ` : ''}
                   ${(event1.registrationLink || event1.seismicLink) ? `
@@ -621,10 +1193,10 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
         // Second column (if exists)
         if (event2) {
           html += `
-            <td width="48%" valign="top" style="padding-left: 8px; padding-bottom: 10px;" class="column-cell">
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="border-left: 3px solid ${borderColor}; border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);" class="event-card">
+            <td width="48%" valign="top" style="padding-left: 8px; padding-bottom: 10px; height: 100%;" class="column-cell">
+              <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="border-left: 3px solid ${borderColor}; border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); height: 100%;" class="event-card">
                 <tr>
-                  <td style="padding: 10px;">
+                  <td style="padding: 10px;" valign="top">
                     <h4 style="margin: 0 0 6px 0; font-size: 13px; color: #161616; font-family: ${currentFont.family}, Arial, sans-serif; line-height: 1.3; font-weight: 700;">
                       ${event2.title}
                     </h4>
@@ -637,6 +1209,11 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                     ${event2.audience ? `
                     <p style="margin: 0 0 8px 0; font-size: 11px; color: #393939; line-height: 1.3; border-top: 1px solid #e0e0e0; padding-top: 8px;">
                       ${event2.audience}
+                    </p>
+                    ` : ''}
+                    ${event2.contactEmail && !event2.registrationLink ? `
+                    <p style="margin: 0 0 8px 0; font-size: 10px; color: #525252; font-style: italic;">
+                      Invite only, contact: <a href="mailto:${event2.contactEmail}" style="color: ${currentColors.ibmBorder}; text-decoration: none;">${event2.contactEmail}</a>
                     </p>
                     ` : ''}
                     ${(event2.registrationLink || event2.seismicLink) ? `
@@ -744,10 +1321,10 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                       ${month} ${year}
                     </div>
                     <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1.2; font-family: ${currentFont.family}, Arial, sans-serif;">
-                      UKI Marketing Spotlight
+                      ${bannerTitle}
                     </h1>
                     <p style="margin: 8px 0 0 0; font-size: 13px; color: rgba(255,255,255,0.95); font-weight: 400; line-height: 1.3;">
-                      Don't miss what's coming up in ${quarter}
+                      ${bannerSubtitle} ${quarter}
                     </p>
                   </td>
                 </tr>
@@ -824,7 +1401,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
           <tr>
             <td style="padding: 10px; text-align: center;">
               <h2 style="margin: 0; font-size: 14px; color: #ffffff; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
-                ⭐ Featured Events ⭐
+                🎾 Featured Events 🏆
               </h2>
             </td>
           </tr>
@@ -856,10 +1433,10 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                                    'padding-left: 5px; padding-bottom: 10px;';
               
               return `
-            <td width="33%" valign="top" style="${paddingStyle}" class="column-cell">
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="border-left: 3px solid ${borderColor}; border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);" class="event-card">
+            <td width="33%" valign="top" style="${paddingStyle}; height: 100%;" class="column-cell">
+              <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="border-left: 3px solid ${borderColor}; border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); height: 100%;" class="event-card">
                 <tr>
-                  <td style="padding: 10px;">
+                  <td style="padding: 10px;" valign="top">
                     <h4 style="margin: 0 0 6px 0; font-size: 13px; color: #161616; font-family: ${currentFont.family}, Arial, sans-serif; line-height: 1.3; font-weight: 700;">
                       ${event.title}
                     </h4>
@@ -872,6 +1449,11 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                     ${event.audience ? `
                     <p style="margin: 0 0 8px 0; font-size: 11px; color: #393939; line-height: 1.3; border-top: 1px solid #e0e0e0; padding-top: 8px;">
                       ${event.audience}
+                    </p>
+                    ` : ''}
+                    ${event.contactEmail && !event.registrationLink ? `
+                    <p style="margin: 0 0 8px 0; font-size: 10px; color: #525252; font-style: italic;">
+                      Invite only, contact: <a href="mailto:${event.contactEmail}" style="color: ${currentColors.ibmBorder}; text-decoration: none;">${event.contactEmail}</a>
                     </p>
                     ` : ''}
                     ${(event.registrationLink || event.seismicLink) ? `
@@ -922,7 +1504,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     <!-- IBM Events Section -->
     <tr>
       <td style="padding: 15px 15px 10px 15px;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.ibmBg}" style="border-radius: 4px; border-left: 3px solid ${currentColors.ibmBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.sectionHeaderBg}" style="border-radius: 4px; border-left: 3px solid ${currentColors.sectionHeaderBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
           <tr>
             <td style="padding: 10px; text-align: center;">
               <h2 style="margin: 0; font-size: 14px; color: ${currentColors.sectionHeaderColor}; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
@@ -945,11 +1527,11 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     </tr>
     ` : ''}
 
-    ${thirdPartyEvents.length > 0 ? `
+    ${thirdPartyEvents.filter(e => !e.featured).length > 0 ? `
     <!-- 3rd Party Events Section -->
     <tr>
       <td style="padding: 15px 15px 10px 15px;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.thirdPartyBg}" style="border-radius: 4px; border-left: 3px solid ${currentColors.thirdPartyBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.sectionHeaderBg}" style="border-radius: 4px; border-left: 3px solid ${currentColors.sectionHeaderBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
           <tr>
             <td style="padding: 10px; text-align: center;">
               <h2 style="margin: 0; font-size: 14px; color: ${currentColors.sectionHeaderColor}; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
@@ -963,7 +1545,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     <tr>
       <td style="padding: 0 15px 15px 15px;">
         ${generateTwoColumnGrid(
-          thirdPartyEvents,
+          thirdPartyEvents.filter(e => !e.featured),
           currentColors.thirdPartyBorder,
           '3rd Party',
           currentColors.thirdPartyBorder
@@ -972,11 +1554,11 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     </tr>
     ` : ''}
 
-    ${onDemandEvents.length > 0 ? `
+    ${onDemandEvents.filter(e => !e.featured).length > 0 ? `
     <!-- On-Demand Section -->
     <tr>
       <td style="padding: 15px 15px 10px 15px;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.onDemandBg}" style="border-radius: 4px; border-left: 3px solid ${currentColors.onDemandBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.sectionHeaderBg}" style="border-radius: 4px; border-left: 3px solid ${currentColors.sectionHeaderBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
           <tr>
             <td style="padding: 10px; text-align: center;">
               <h2 style="margin: 0; font-size: 14px; color: ${currentColors.sectionHeaderColor}; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
@@ -990,7 +1572,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     <tr>
       <td style="padding: 0 15px 15px 15px;">
         ${generateTwoColumnGrid(
-          onDemandEvents,
+          onDemandEvents.filter(e => !e.featured),
           currentColors.onDemandBorder,
           'Webinar',
           currentColors.onDemandBorder
@@ -1000,14 +1582,14 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     ` : ''}
 
     ${newsLinks.length > 0 ? `
-    <!-- News & Thought Leadership Section -->
+    <!-- Thought Leadership & On Demand Assets Section -->
     <tr>
       <td style="padding: 15px 15px 10px 15px;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#e8f4ff" style="border-radius: 4px; border-left: 3px solid ${currentColors.ibmBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.sectionHeaderBg}" style="border-radius: 4px; border-left: 3px solid ${currentColors.sectionHeaderBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
           <tr>
             <td style="padding: 10px; text-align: center;">
-              <h2 style="margin: 0; font-size: 14px; color: #161616; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
-                📰 News & Thought Leadership
+              <h2 style="margin: 0; font-size: 14px; color: ${currentColors.sectionHeaderColor}; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
+                📰 Thought Leadership & On Demand Assets
               </h2>
             </td>
           </tr>
@@ -1042,10 +1624,10 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     <!-- Podcasts & Webinars Section -->
     <tr>
       <td style="padding: 15px 15px 10px 15px;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f6f2ff" style="border-radius: 4px; border-left: 3px solid ${currentColors.featured}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.sectionHeaderBg}" style="border-radius: 4px; border-left: 3px solid ${currentColors.sectionHeaderBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
           <tr>
             <td style="padding: 10px; text-align: center;">
-              <h2 style="margin: 0; font-size: 14px; color: #161616; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
+              <h2 style="margin: 0; font-size: 14px; color: ${currentColors.sectionHeaderColor}; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
                 🎙️ Podcasts & Webinars
               </h2>
             </td>
@@ -1077,16 +1659,152 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     </tr>
     ` : ''}
 
+    ${(revTechContent || revTechLinks.length > 0 || revTechEvents.length > 0) ? `
+    <!-- RevTech Enablement and Results Section -->
+    <tr>
+      <td style="padding: 15px 15px 10px 15px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.sectionHeaderBg}" style="border-radius: 4px; border-left: 3px solid ${currentColors.sectionHeaderBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
+          <tr>
+            <td style="padding: 10px; text-align: center;">
+              <h2 style="margin: 0; font-size: 14px; color: ${currentColors.sectionHeaderColor}; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
+                🚀 RevTech Enablement and Results
+              </h2>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    ${revTechContent ? `
+    <tr>
+      <td style="padding: 0 15px 15px 15px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="border-radius: 4px; border: 1px solid #e0e0e0; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+          <tr>
+            <td style="padding: 12px; font-size: 12px; color: #161616; line-height: 1.5; font-family: ${currentFont.family}, Arial, sans-serif;">
+              ${revTechContent}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    ` : ''}
+    ${revTechLinks.length > 0 ? `
+    <tr>
+      <td style="padding: 0 15px 15px 15px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="border-radius: 4px; border: 1px solid #e0e0e0; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+          <tr>
+            <td style="padding: 12px;">
+              ${revTechLinks.map((link, index) => `
+                <div style="margin-bottom: ${index < revTechLinks.length - 1 ? '10px' : '0'}; padding-bottom: ${index < revTechLinks.length - 1 ? '10px' : '0'}; ${index < revTechLinks.length - 1 ? 'border-bottom: 1px solid #f4f4f4;' : ''}">
+                  <a href="${link.url}" style="color: ${currentColors.featured}; text-decoration: none; font-weight: 700; font-size: 13px; display: block; margin-bottom: 4px; line-height: 1.3;">
+                    ${link.title}
+                  </a>
+                  ${link.description ? `
+                  <p style="margin: 0; font-size: 11px; color: #525252; line-height: 1.4;">
+                    ${link.description}
+                  </p>
+                  ` : ''}
+                </div>
+              `).join('')}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    ` : ''}
+    ${revTechEvents.length > 0 ? `
+    <tr>
+      <td style="padding: 0 15px 15px 15px;">
+        ${generateTwoColumnGrid(
+          revTechEvents,
+          revTechEvents[0]?.category === 'ibm' ? currentColors.ibmBorder :
+          revTechEvents[0]?.category === 'third-party' ? currentColors.thirdPartyBorder :
+          currentColors.onDemandBorder,
+          'Event',
+          currentColors.featured
+        )}
+      </td>
+    </tr>
+    ` : ''}
+    ` : ''}
+
+    ${customSections.map(section => `
+    <!-- Custom Section: ${section.title} -->
+    <tr>
+      <td style="padding: 15px 15px 10px 15px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.sectionHeaderBg}" style="border-radius: 4px; border-left: 3px solid ${currentColors.sectionHeaderBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
+          <tr>
+            <td style="padding: 10px; text-align: center;">
+              <h2 style="margin: 0; font-size: 14px; color: ${currentColors.sectionHeaderColor}; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
+                ${section.title}
+              </h2>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    ${section.content ? `
+    <tr>
+      <td style="padding: 0 15px 15px 15px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="border-radius: 4px; border: 1px solid #e0e0e0; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+          <tr>
+            <td style="padding: 12px; font-size: 12px; color: #161616; line-height: 1.5; font-family: ${currentFont.family}, Arial, sans-serif;">
+              ${section.content}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    ` : ''}
+    ${section.links && section.links.length > 0 ? `
+    <tr>
+      <td style="padding: 0 15px 15px 15px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="border-radius: 4px; border: 1px solid #e0e0e0; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+          <tr>
+            <td style="padding: 12px;">
+              ${section.links.map((link, index) => `
+                <div style="margin-bottom: ${index < section.links.length - 1 ? '10px' : '0'}; padding-bottom: ${index < section.links.length - 1 ? '10px' : '0'}; ${index < section.links.length - 1 ? 'border-bottom: 1px solid #f4f4f4;' : ''}">
+                  <a href="${link.url}" style="color: ${currentColors.featured}; text-decoration: none; font-weight: 700; font-size: 13px; display: block; margin-bottom: 4px; line-height: 1.3;">
+                    ${link.title}
+                  </a>
+                  ${link.description ? `
+                  <p style="margin: 0; font-size: 11px; color: #525252; line-height: 1.4;">
+                    ${link.description}
+                  </p>
+                  ` : ''}
+                </div>
+              `).join('')}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    ` : ''}
+    ${section.events && section.events.length > 0 ? `
+    <tr>
+      <td style="padding: 0 15px 15px 15px;">
+        ${generateTwoColumnGrid(
+          section.events,
+          section.events[0]?.category === 'ibm' ? currentColors.ibmBorder :
+          section.events[0]?.category === 'third-party' ? currentColors.thirdPartyBorder :
+          currentColors.onDemandBorder,
+          'Event',
+          currentColors.featured
+        )}
+      </td>
+    </tr>
+    ` : ''}
+    `).join('')}
+
     <!-- Footer -->
     <tr>
-      <td style="padding: 0; border-top: 3px solid ${currentColors.header};">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0f62fe" style="background-color: #0f62fe;">
+      <td style="padding: 0; border-top: 3px solid ${currentColors.footer};">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.footer}" style="background-color: ${currentColors.footer};">
           <tr>
-            <td bgcolor="#0f62fe" style="background-color: #0f62fe; background: linear-gradient(135deg, #0f62fe 0%, #0043ce 100%); padding: 20px 15px; text-align: center;">
+            <td bgcolor="${currentColors.footer}" style="background-color: ${currentColors.footer}; padding: 20px 15px; text-align: center;">
               <p style="margin: 0 0 8px 0; font-size: 13px; color: #ffffff; font-weight: 600;">
-                Questions? Contact the UKI Marketing Team
+                Questions? Reply to this email
               </p>
-              <p style="margin: 0; font-size: 11px; color: #d0e2ff; line-height: 1.4;">
+              <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.8); line-height: 1.4;">
                 © ${year} IBM Corporation. All rights reserved.
               </p>
             </td>
@@ -1124,9 +1842,47 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     });
   };
 
-  const ibmEvents = events.filter(e => e.category === 'ibm');
-  const thirdPartyEvents = events.filter(e => e.category === 'thirdParty');
-  const onDemandEvents = events.filter(e => e.category === 'onDemand');
+  // Helper function to parse and sort events by date
+  const parseEventDate = (dateString) => {
+    // Handle date ranges like "16-17 June" or "11-12th June"
+    const rangeMatch = dateString.match(/(\d+)(?:st|nd|rd|th)?[-–](\d+)(?:st|nd|rd|th)?\s+(\w+)/);
+    if (rangeMatch) {
+      const day = parseInt(rangeMatch[1]);
+      const monthName = rangeMatch[3];
+      const date = new Date(`${monthName} ${day}, ${year}`);
+      console.log(`Parsed range date "${dateString}" as:`, date);
+      return date;
+    }
+    
+    // Handle single dates like "3 June" or "13th May"
+    const singleMatch = dateString.match(/(\d+)(?:st|nd|rd|th)?\s+(\w+)/);
+    if (singleMatch) {
+      const day = parseInt(singleMatch[1]);
+      const monthName = singleMatch[2];
+      const date = new Date(`${monthName} ${day}, ${year}`);
+      console.log(`Parsed single date "${dateString}" as:`, date);
+      return date;
+    }
+    
+    // If we can't parse it, return a far future date so it appears last
+    console.log(`Could not parse date "${dateString}", using far future date`);
+    return new Date('9999-12-31');
+  };
+
+  const sortEventsByDate = (eventsList) => {
+    return [...eventsList].sort((a, b) => {
+      const dateA = parseEventDate(a.date);
+      const dateB = parseEventDate(b.date);
+      return dateA - dateB;
+    });
+  };
+
+  const ibmEvents = sortEventsByDate(events.filter(e => e.category === 'ibm'));
+  const thirdPartyEvents = sortEventsByDate(events.filter(e => e.category === 'thirdParty'));
+  const onDemandEvents = sortEventsByDate(events.filter(e => e.category === 'onDemand'));
+  
+  // Sort all events by date for display in the UI
+  const sortedEvents = sortEventsByDate(events);
 
   return (
     <div className="marketing-spotlight-tab">
@@ -1189,38 +1945,114 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                 </Select>
               </Column>
             </Grid>
-            <Grid style={{ marginTop: '1rem' }}>
-              <Column lg={8} md={4} sm={4}>
-                <Select
-                  id="colorScheme"
-                  labelText="🎨 Color Scheme"
-                  value={colorScheme}
-                  onChange={(e) => setColorScheme(e.target.value)}
-                >
-                  <SelectItem value="ibm-current" text="IBM Brand Colors (Current)" />
-                  <SelectItem value="navy-teal" text="Professional Navy & Teal" />
-                  <SelectItem value="indigo-coral" text="Modern Indigo & Coral" />
-                  <SelectItem value="charcoal-gold" text="Executive Charcoal & Gold" />
-                  <SelectItem value="ibm-official" text="Official IBM Brand Colors" />
-                  <SelectItem value="all-blue" text="All Blue" />
-                </Select>
-              </Column>
-              <Column lg={8} md={4} sm={4}>
-                <Select
-                  id="fontFamily"
-                  labelText="✍️ Font Family"
-                  value={fontFamily}
-                  onChange={(e) => setFontFamily(e.target.value)}
-                >
-                  <SelectItem value="ibm-plex" text="IBM Plex Sans" />
-                  <SelectItem value="inter" text="Inter" />
-                  <SelectItem value="roboto" text="Roboto" />
-                  <SelectItem value="open-sans" text="Open Sans" />
-                  <SelectItem value="lato" text="Lato" />
-                  <SelectItem value="montserrat" text="Montserrat" />
-                </Select>
-              </Column>
-            </Grid>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+              <Select
+                id="colorScheme"
+                labelText="🎨 Color Scheme"
+                value={colorScheme}
+                onChange={(e) => setColorScheme(e.target.value)}
+              >
+                <SelectItem value="navy-teal" text="Professional Navy & Teal" />
+                <SelectItem value="indigo-coral" text="Modern Indigo & Coral" />
+                <SelectItem value="charcoal-gold" text="Executive Charcoal & Gold" />
+                <SelectItem value="ibm-official" text="Official IBM Brand Colors" />
+                <SelectItem value="all-blue" text="All Blue" />
+                <SelectItem value="summer-sports" text="🎾 Summer of Sports (Wimbledon)" />
+                <SelectItem value="pastel-spring" text="🌸 Pastel Spring" />
+                <SelectItem value="pastel-ocean" text="🌊 Pastel Ocean" />
+                <SelectItem value="pastel-sunset" text="🌅 Pastel Sunset" />
+                <SelectItem value="pastel-lavender" text="💜 Pastel Lavender" />
+                <SelectItem value="pastel-mint" text="🍃 Pastel Mint" />
+                <SelectItem value="pastel-peach" text="🍑 Pastel Peach" />
+              </Select>
+              <Select
+                id="fontFamily"
+                labelText="✍️ Font Family"
+                value={fontFamily}
+                onChange={(e) => setFontFamily(e.target.value)}
+              >
+                <SelectItem value="ibm-plex" text="IBM Plex Sans" />
+                <SelectItem value="inter" text="Inter" />
+                <SelectItem value="roboto" text="Roboto" />
+                <SelectItem value="open-sans" text="Open Sans" />
+                <SelectItem value="lato" text="Lato" />
+                <SelectItem value="montserrat" text="Montserrat" />
+              </Select>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+              <TextInput
+                id="bannerTitle"
+                labelText="📝 Banner Title"
+                value={bannerTitle}
+                onChange={(e) => setBannerTitle(e.target.value)}
+                placeholder="UKI Marketing Spotlight"
+              />
+              <TextInput
+                id="bannerSubtitle"
+                labelText="📝 Banner Subtitle"
+                value={bannerSubtitle}
+                onChange={(e) => setBannerSubtitle(e.target.value)}
+                placeholder="Don't miss what's coming up in"
+              />
+            </div>
+            
+            {/* Custom Color Overrides */}
+            <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid #e0e0e0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '600' }}>🎨 Custom Color Overrides</h4>
+                <Checkbox
+                  id="useCustomColors"
+                  labelText="Enable Custom Colors"
+                  checked={useCustomColors}
+                  onChange={(e) => setUseCustomColors(e.target.checked)}
+                />
+              </div>
+              
+              {useCustomColors && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+                  {[
+                    { key: 'header', label: 'Header Background', placeholder: '#8a3ffc' },
+                    { key: 'featured', label: 'Featured Event Color', placeholder: '#8a3ffc' },
+                    { key: 'summaryBg', label: 'Summary Background', placeholder: '#e8f4ff' },
+                    { key: 'summaryBorder', label: 'Summary Border', placeholder: '#0f62fe' },
+                    { key: 'ibmBorder', label: 'IBM Events Border', placeholder: '#0f62fe' },
+                    { key: 'ibmColor', label: 'IBM Events Text', placeholder: '#0f62fe' },
+                    { key: 'thirdPartyBorder', label: '3rd Party Border', placeholder: '#198038' },
+                    { key: 'thirdPartyColor', label: '3rd Party Text', placeholder: '#8a3ffc' },
+                    { key: 'onDemandBorder', label: 'On-Demand Border', placeholder: '#8a3ffc' },
+                    { key: 'onDemandColor', label: 'On-Demand Text', placeholder: '#0072c3' },
+                  ].map(({ key, label, placeholder }) => (
+                    <div key={key}>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '12px', fontWeight: '600', color: '#525252' }}>
+                        {label}
+                      </label>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <input
+                          type="color"
+                          value={customColors[key]}
+                          onChange={(e) => setCustomColors({...customColors, [key]: e.target.value})}
+                          style={{
+                            width: '50px',
+                            height: '40px',
+                            border: '1px solid #8d8d8d',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                        />
+                        <TextInput
+                          id={`${key}Color`}
+                          labelText=""
+                          value={customColors[key]}
+                          onChange={(e) => setCustomColors({...customColors, [key]: e.target.value})}
+                          placeholder={placeholder}
+                          style={{ flex: 1 }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </Tile>
         </Column>
 
@@ -1263,12 +2095,15 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
             </div>
 
             {events.length === 0 ? (
-              <p style={{ color: '#525252', textAlign: 'center', padding: '2rem 0' }}>
+              <div style={{ color: '#525252', textAlign: 'center', padding: '2rem 0' }}>
                 No events added yet. Click "Add Event" to get started.
-              </p>
+              </div>
             ) : (
               <div style={{ display: 'grid', gap: '1rem' }}>
-                {events.map((event, index) => (
+                {sortedEvents.map((event) => {
+                  // Find the original index in the unsorted events array
+                  const originalIndex = events.findIndex(e => e.id === event.id);
+                  return (
                   <div
                     key={event.id}
                     style={{
@@ -1306,7 +2141,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                           renderIcon={Edit}
                           iconDescription="Edit"
                           hasIconOnly
-                          onClick={() => handleEditEvent(index)}
+                          onClick={() => handleEditEvent(originalIndex)}
                         />
                         <Button
                           kind="danger--ghost"
@@ -1314,22 +2149,22 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                           renderIcon={TrashCan}
                           iconDescription="Delete"
                           hasIconOnly
-                          onClick={() => handleDeleteEvent(index)}
+                          onClick={() => handleDeleteEvent(originalIndex)}
                         />
                       </ButtonSet>
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
             )}
           </Tile>
         </Column>
 
-        {/* News & Thought Leadership Links */}
+        {/* Thought Leadership & On Demand Assets Links */}
         <Column lg={16}>
           <Tile style={{ marginBottom: '1rem', padding: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ margin: 0 }}>📰 News & Thought Leadership ({newsLinks.length})</h3>
+              <h3 style={{ margin: 0 }}>📰 Thought Leadership & On Demand Assets ({newsLinks.length})</h3>
               <Button
                 kind="primary"
                 size="sm"
@@ -1345,9 +2180,9 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
             </div>
 
             {newsLinks.length === 0 ? (
-              <p style={{ color: '#525252', textAlign: 'center', padding: '1rem 0' }}>
+              <div style={{ color: '#525252', textAlign: 'center', padding: '1rem 0' }}>
                 No news links added yet. These will appear at the bottom of your communication.
-              </p>
+              </div>
             ) : (
               <div style={{ display: 'grid', gap: '0.75rem' }}>
                 {newsLinks.map((link, index) => (
@@ -1438,9 +2273,9 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
             </div>
 
             {podcastLinks.length === 0 ? (
-              <p style={{ color: '#525252', textAlign: 'center', padding: '1rem 0' }}>
+              <div style={{ color: '#525252', textAlign: 'center', padding: '1rem 0' }}>
                 No podcast/webinar links added yet. These will appear at the bottom of your communication.
-              </p>
+              </div>
             ) : (
               <div style={{ display: 'grid', gap: '0.75rem' }}>
                 {podcastLinks.map((link, index) => (
@@ -1504,6 +2339,378 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                         />
                       </ButtonSet>
                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Tile>
+        </Column>
+
+        {/* RevTech Enablement and Results */}
+        <Column lg={16}>
+          <Tile style={{ marginBottom: '1rem', padding: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ margin: 0 }}>🚀 RevTech Enablement and Results</h3>
+              <Button
+                kind="primary"
+                size="sm"
+                renderIcon={Edit}
+                onClick={() => setShowRevTechContentModal(true)}
+              >
+                Edit Content
+              </Button>
+            </div>
+
+            {/* Content Display */}
+            {revTechContent && (
+              <div
+                style={{
+                  fontSize: '12px',
+                  color: '#161616',
+                  margin: '0.5rem 0 1rem 0',
+                  padding: '0.75rem',
+                  background: '#f4f4f4',
+                  borderRadius: '4px'
+                }}
+                dangerouslySetInnerHTML={{ __html: revTechContent }}
+              />
+            )}
+
+            {/* Links Section */}
+            <div style={{ marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '600' }}>Links ({revTechLinks.length})</h4>
+                <Button
+                  kind="ghost"
+                  size="sm"
+                  renderIcon={Add}
+                  onClick={() => {
+                    setRevTechLinkForm({ title: '', url: '', description: '' });
+                    setEditingRevTechLink(null);
+                    setShowRevTechModal(true);
+                  }}
+                >
+                  Add Link
+                </Button>
+              </div>
+
+              {revTechLinks.length === 0 ? (
+                <div style={{ fontSize: '12px', color: '#525252', margin: '0.5rem 0' }}>
+                  No links added yet.
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gap: '0.5rem' }}>
+                  {revTechLinks.map((link, index) => (
+                    <div
+                      key={link.id}
+                      style={{
+                        padding: '0.5rem',
+                        background: 'white',
+                        borderRadius: '4px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'start'
+                      }}
+                    >
+                      <div style={{ flex: 1 }}>
+                        <p style={{ margin: '0 0 0.25rem 0', fontSize: '13px', fontWeight: '500' }}>
+                          {link.title}
+                        </p>
+                        <p style={{ margin: 0, fontSize: '11px', color: '#8a3ffc', wordBreak: 'break-all' }}>
+                          {link.url}
+                        </p>
+                        {link.description && (
+                          <p style={{ margin: '0.25rem 0 0 0', fontSize: '11px', color: '#525252' }}>
+                            {link.description}
+                          </p>
+                        )}
+                      </div>
+                      <Button
+                        kind="danger--ghost"
+                        size="sm"
+                        renderIcon={TrashCan}
+                        iconDescription="Delete link"
+                        hasIconOnly
+                        onClick={() => handleDeleteRevTechLink(index)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Events Section */}
+            {revTechEvents.length > 0 && (
+              <div style={{ marginTop: '1rem' }}>
+                <h5 style={{ margin: '0 0 0.5rem 0', fontSize: '12px', fontWeight: '600', color: '#525252' }}>
+                  Events in this section:
+                </h5>
+                <div style={{ display: 'grid', gap: '0.5rem' }}>
+                  {revTechEvents.map((event) => (
+                    <div
+                      key={event.id}
+                      style={{
+                        padding: '0.5rem',
+                        background: 'white',
+                        borderRadius: '4px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'start',
+                        borderLeft: `3px solid ${
+                          event.category === 'ibm' ? currentColors.ibmBorder :
+                          event.category === 'third-party' ? currentColors.thirdPartyBorder :
+                          currentColors.onDemandBorder
+                        }`
+                      }}
+                    >
+                      <div style={{ flex: 1 }}>
+                        <p style={{ margin: '0 0 0.25rem 0', fontSize: '13px', fontWeight: '500' }}>
+                          {event.title}
+                        </p>
+                        <p style={{ margin: 0, fontSize: '11px', color: '#525252' }}>
+                          📅 {event.date} | {event.category === 'ibm' ? '🏢 IBM' : event.category === 'third-party' ? '🤝 3rd Party' : '📺 On-Demand'}
+                        </p>
+                      </div>
+                      <Button
+                        kind="danger--ghost"
+                        size="sm"
+                        renderIcon={TrashCan}
+                        iconDescription="Remove event"
+                        hasIconOnly
+                        onClick={() => handleDeleteRevTechEvent(event.id)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <Button
+              kind="ghost"
+              size="sm"
+              renderIcon={Add}
+              onClick={() => setShowRevTechEventModal(true)}
+              style={{ marginTop: '0.5rem' }}
+            >
+              Add Event
+            </Button>
+          </Tile>
+        </Column>
+
+        {/* Custom Sections */}
+        <Column lg={16}>
+          <Tile style={{ padding: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>📋 Custom Sections</h3>
+              <Button
+                kind="primary"
+                size="sm"
+                renderIcon={Add}
+                type="button"
+                onClick={(e) => {
+                  console.log('=== ADD SECTION BUTTON CLICKED ===');
+                  console.log('Event:', e);
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Setting showCustomSectionModal to true');
+                  setEditingCustomSection(null);
+                  setCustomSectionForm({ title: '', content: '', links: [], events: [] });
+                  setShowCustomSectionModal(true);
+                  console.log('State should be updated now');
+                }}
+              >
+                Add Section
+              </Button>
+            </div>
+
+            {customSections.length === 0 ? (
+              <div style={{ color: '#525252', textAlign: 'center', padding: '1rem 0' }}>
+                No custom sections added yet. Add sections to include additional content in your communication.
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gap: '1rem' }}>
+                {customSections.map((section, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      padding: '1rem',
+                      background: '#f4f4f4',
+                      borderRadius: '4px',
+                      borderLeft: `4px solid ${currentColors.featured}`
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
+                      <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '600' }}>
+                        {section.title}
+                      </h4>
+                      <ButtonSet>
+                        <Button
+                          kind="ghost"
+                          size="sm"
+                          renderIcon={Edit}
+                          iconDescription="Edit section"
+                          hasIconOnly
+                          onClick={() => handleEditCustomSection(index)}
+                        />
+                        <Button
+                          kind="ghost"
+                          size="sm"
+                          iconDescription="Move up"
+                          hasIconOnly
+                          disabled={index === 0}
+                          onClick={() => handleMoveCustomSection(index, 'up')}
+                        >
+                          ↑
+                        </Button>
+                        <Button
+                          kind="ghost"
+                          size="sm"
+                          iconDescription="Move down"
+                          hasIconOnly
+                          disabled={index === customSections.length - 1}
+                          onClick={() => handleMoveCustomSection(index, 'down')}
+                        >
+                          ↓
+                        </Button>
+                        <Button
+                          kind="danger--ghost"
+                          size="sm"
+                          renderIcon={TrashCan}
+                          iconDescription="Delete section"
+                          hasIconOnly
+                          onClick={() => handleDeleteCustomSection(index)}
+                        />
+                      </ButtonSet>
+                    </div>
+
+                    {section.content && (
+                      <div
+                        style={{
+                          fontSize: '12px',
+                          color: '#161616',
+                          margin: '0.5rem 0',
+                          padding: '0.5rem',
+                          background: 'white',
+                          borderRadius: '4px'
+                        }}
+                        dangerouslySetInnerHTML={{ __html: section.content }}
+                      />
+                    )}
+
+                    {section.links.length === 0 ? (
+                      <div style={{ fontSize: '12px', color: '#525252', margin: '0.5rem 0' }}>
+                        No links added to this section yet.
+                      </div>
+                    ) : (
+                      <div style={{ display: 'grid', gap: '0.5rem' }}>
+                        {section.links.map((link, linkIndex) => (
+                          <div
+                            key={linkIndex}
+                            style={{
+                              padding: '0.5rem',
+                              background: 'white',
+                              borderRadius: '4px',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'start'
+                            }}
+                          >
+                            <div style={{ flex: 1 }}>
+                              <p style={{ margin: '0 0 0.25rem 0', fontSize: '13px', fontWeight: '500' }}>
+                                {link.title}
+                              </p>
+                              <p style={{ margin: 0, fontSize: '11px', color: '#8a3ffc', wordBreak: 'break-all' }}>
+                                {link.url}
+                              </p>
+                              {link.description && (
+                                <p style={{ margin: '0.25rem 0 0 0', fontSize: '11px', color: '#525252' }}>
+                                  {link.description}
+                                </p>
+                              )}
+                            </div>
+                            <Button
+                              kind="danger--ghost"
+                              size="sm"
+                              renderIcon={TrashCan}
+                              iconDescription="Delete link"
+                              hasIconOnly
+                              onClick={() => handleDeleteLinkFromCustomSection(index, linkIndex)}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {section.events && section.events.length > 0 && (
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <h5 style={{ margin: '0 0 0.5rem 0', fontSize: '12px', fontWeight: '600', color: '#525252' }}>
+                          Events in this section:
+                        </h5>
+                        <div style={{ display: 'grid', gap: '0.5rem' }}>
+                          {section.events.map((event) => (
+                            <div
+                              key={event.id}
+                              style={{
+                                padding: '0.5rem',
+                                background: 'white',
+                                borderRadius: '4px',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'start',
+                                borderLeft: `3px solid ${
+                                  event.category === 'ibm' ? currentColors.ibmBorder :
+                                  event.category === 'third-party' ? currentColors.thirdPartyBorder :
+                                  currentColors.onDemandBorder
+                                }`
+                              }}
+                            >
+                              <div style={{ flex: 1 }}>
+                                <p style={{ margin: '0 0 0.25rem 0', fontSize: '13px', fontWeight: '500' }}>
+                                  {event.title}
+                                </p>
+                                <p style={{ margin: 0, fontSize: '11px', color: '#525252' }}>
+                                  📅 {event.date} | {event.category === 'ibm' ? '🏢 IBM' : event.category === 'third-party' ? '🤝 3rd Party' : '📺 On-Demand'}
+                                </p>
+                              </div>
+                              <Button
+                                kind="danger--ghost"
+                                size="sm"
+                                renderIcon={TrashCan}
+                                iconDescription="Remove event"
+                                hasIconOnly
+                                onClick={() => handleDeleteEventFromCustomSection(index, event.id)}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <ButtonSet style={{ marginTop: '0.5rem' }}>
+                      <Button
+                        kind="ghost"
+                        size="sm"
+                        renderIcon={Add}
+                        onClick={() => {
+                          setEditingCustomSectionForLink(index);
+                          setCustomSectionLinkForm({ title: '', url: '', description: '' });
+                          setShowCustomSectionLinkModal(true);
+                        }}
+                      >
+                        Add Link
+                      </Button>
+                      <Button
+                        kind="ghost"
+                        size="sm"
+                        renderIcon={Add}
+                        onClick={() => {
+                          setEditingCustomSectionForLink(index);
+                          setShowCustomSectionEventModal(true);
+                        }}
+                      >
+                        Add Event
+                      </Button>
+                    </ButtonSet>
                   </div>
                 ))}
               </div>
@@ -1585,7 +2792,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
         primaryButtonText={editingEvent !== null ? 'Update Event' : 'Add Event'}
         secondaryButtonText="Cancel"
         onRequestSubmit={handleAddEvent}
-        size="lg"
+        size="sm"
       >
         <Form>
           <Stack gap={6}>
@@ -1597,29 +2804,56 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
               onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
             />
 
-            <Grid>
-              <Column lg={8} md={4} sm={4}>
-                <TextInput
-                  id="event-date"
-                  labelText="Date *"
-                  placeholder="e.g., 3 June or 16-17 June"
-                  value={eventForm.date}
-                  onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })}
-                />
-              </Column>
-              <Column lg={8} md={4} sm={4}>
-                <Select
-                  id="event-category"
-                  labelText="Category *"
-                  value={eventForm.category}
-                  onChange={(e) => setEventForm({ ...eventForm, category: e.target.value })}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              <div>
+                <DatePicker
+                  datePickerType="range"
+                  onChange={(dates) => {
+                    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                                       'July', 'August', 'September', 'October', 'November', 'December'];
+                    if (dates && dates.length === 2 && dates[1]) {
+                      // Range selected: format as "10–12 June" or "30 June–2 July"
+                      const start = new Date(dates[0]);
+                      const end = new Date(dates[1]);
+                      const startDay = start.getDate();
+                      const endDay = end.getDate();
+                      const startMonth = monthNames[start.getMonth()];
+                      const endMonth = monthNames[end.getMonth()];
+                      const formattedDate = startMonth === endMonth
+                        ? `${startDay}–${endDay} ${startMonth}`
+                        : `${startDay} ${startMonth}–${endDay} ${endMonth}`;
+                      setEventForm({ ...eventForm, date: formattedDate });
+                    } else if (dates && dates.length >= 1 && dates[0]) {
+                      // Only start date picked so far
+                      const start = new Date(dates[0]);
+                      const formattedDate = `${start.getDate()} ${monthNames[start.getMonth()]}`;
+                      setEventForm({ ...eventForm, date: formattedDate });
+                    }
+                  }}
                 >
-                  <SelectItem value="ibm" text="IBM Event" />
-                  <SelectItem value="thirdParty" text="3rd Party Event" />
-                  <SelectItem value="onDemand" text="On-Demand/Webinar" />
-                </Select>
-              </Column>
-            </Grid>
+                  <DatePickerInput
+                    id="event-date-start"
+                    labelText="Date *"
+                    placeholder="Start date"
+                  />
+                  <DatePickerInput
+                    id="event-date-end"
+                    labelText="End Date (optional)"
+                    placeholder="End date"
+                  />
+                </DatePicker>
+              </div>
+              <Select
+                id="event-category"
+                labelText="Category *"
+                value={eventForm.category}
+                onChange={(e) => setEventForm({ ...eventForm, category: e.target.value })}
+              >
+                <SelectItem value="ibm" text="IBM Event" />
+                <SelectItem value="thirdParty" text="3rd Party Event" />
+                <SelectItem value="onDemand" text="On-Demand/Webinar" />
+              </Select>
+            </div>
 
             <TextInput
               id="event-location"
@@ -1647,6 +2881,15 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
             />
 
             <TextInput
+              id="event-contact-email"
+              labelText="Contact Email (For Invite-Only Events)"
+              placeholder="e.g., john.doe@ibm.com"
+              value={eventForm.contactEmail}
+              onChange={(e) => setEventForm({ ...eventForm, contactEmail: e.target.value })}
+              helperText="Use this for invite-only events instead of a registration link"
+            />
+
+            <TextInput
               id="event-seismic-link"
               labelText="Seismic Page Link (Optional)"
               placeholder="https://seismic-page-url.com"
@@ -1659,7 +2902,17 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
               labelText="Mark as Featured Event (will appear in top section)"
               checked={eventForm.featured}
               onChange={(e) => setEventForm({ ...eventForm, featured: e.target.checked })}
+              disabled={
+                !eventForm.featured &&
+                events.filter(e => e.featured).length >= 3 &&
+                (editingEvent === null || !events[editingEvent]?.featured)
+              }
             />
+            {!eventForm.featured && events.filter(e => e.featured).length >= 3 && (
+              <p style={{ fontSize: '12px', color: '#da1e28', marginTop: '0.5rem' }}>
+                ⚠️ Maximum of 3 featured events reached. Unmark an existing featured event to add a new one.
+              </p>
+            )}
           </Stack>
         </Form>
       </Modal>
@@ -1676,7 +2929,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
         primaryButtonText={editingNewsLink !== null ? 'Update Link' : 'Add Link'}
         secondaryButtonText="Cancel"
         onRequestSubmit={handleAddNewsLink}
-        size="md"
+        size="sm"
       >
         <Form>
           <Stack gap={5}>
@@ -1720,7 +2973,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
         primaryButtonText={editingPodcastLink !== null ? 'Update Link' : 'Add Link'}
         secondaryButtonText="Cancel"
         onRequestSubmit={handleAddPodcastLink}
-        size="md"
+        size="sm"
       >
         <Form>
           <Stack gap={5}>
@@ -1748,6 +3001,394 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
               value={podcastLinkForm.description}
               onChange={(e) => setPodcastLinkForm({ ...podcastLinkForm, description: e.target.value })}
             />
+          </Stack>
+        </Form>
+      </Modal>
+
+      {/* Rev Tech Link Modal */}
+      <Modal
+        open={showRevTechModal}
+        onRequestClose={() => {
+          setShowRevTechModal(false);
+          setRevTechLinkForm({ title: '', url: '', description: '' });
+          setEditingRevTechLink(null);
+        }}
+        modalHeading={editingRevTechLink !== null ? 'Edit Rev Tech Link' : 'Add Rev Tech Link'}
+        primaryButtonText={editingRevTechLink !== null ? 'Update Link' : 'Add Link'}
+        secondaryButtonText="Cancel"
+        onRequestSubmit={handleAddRevTechLink}
+        size="sm"
+      >
+        <Form>
+          <Stack gap={5}>
+            <TextInput
+              id="revtech-title"
+              labelText="Link Title *"
+              placeholder="e.g., Revenue Enablement Success Story"
+              value={revTechLinkForm.title}
+              onChange={(e) => setRevTechLinkForm({ ...revTechLinkForm, title: e.target.value })}
+            />
+
+            <TextInput
+              id="revtech-url"
+              labelText="URL *"
+              placeholder="https://..."
+              value={revTechLinkForm.url}
+              onChange={(e) => setRevTechLinkForm({ ...revTechLinkForm, url: e.target.value })}
+            />
+
+            <TextArea
+              id="revtech-description"
+              labelText="Description (Optional)"
+              placeholder="Brief description of the resource"
+              rows={3}
+              value={revTechLinkForm.description}
+              onChange={(e) => setRevTechLinkForm({ ...revTechLinkForm, description: e.target.value })}
+            />
+          </Stack>
+        </Form>
+      </Modal>
+
+      {/* Rev Tech Content Modal */}
+      <Modal
+        open={showRevTechContentModal}
+        onRequestClose={() => setShowRevTechContentModal(false)}
+        modalHeading="Edit Rev Tech Content"
+        primaryButtonText="Save Content"
+        secondaryButtonText="Cancel"
+        onRequestSubmit={() => {
+          setShowRevTechContentModal(false);
+          toast.success('Rev Tech content updated!');
+        }}
+        size="sm"
+      >
+        <Form>
+          <Stack gap={5}>
+            <RichTextEditor
+              label="Section Content (Optional)"
+              value={revTechContent}
+              onChange={(value) => setRevTechContent(value)}
+              placeholder="Add any additional information, announcements, or formatted text here..."
+            />
+          </Stack>
+        </Form>
+      </Modal>
+
+      {/* Rev Tech Event Modal */}
+      <Modal
+        open={showRevTechEventModal}
+        onRequestClose={() => {
+          setShowRevTechEventModal(false);
+          setRevTechEventForm({
+            title: '',
+            date: '',
+            category: 'ibm',
+            location: '',
+            audience: '',
+            registrationLink: '',
+            contactEmail: '',
+            seismicLink: '',
+            featured: false
+          });
+        }}
+        modalHeading="Add Event to Rev Tech Section"
+        primaryButtonText="Add Event"
+        secondaryButtonText="Cancel"
+        onRequestSubmit={handleAddRevTechEvent}
+        size="sm"
+      >
+        <Form>
+          <Stack gap={6}>
+            <TextInput
+              id="revtech-event-title"
+              labelText="Event Title *"
+              placeholder="e.g., From AI Ambition to Business Value"
+              value={revTechEventForm.title}
+              onChange={(e) => setRevTechEventForm({ ...revTechEventForm, title: e.target.value })}
+            />
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              <div>
+                <DatePicker
+                  datePickerType="single"
+                  onChange={(dates) => {
+                    if (dates && dates.length > 0) {
+                      const date = new Date(dates[0]);
+                      const day = date.getDate();
+                      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                                         'July', 'August', 'September', 'October', 'November', 'December'];
+                      const monthName = monthNames[date.getMonth()];
+                      const formattedDate = `${day} ${monthName}`;
+                      setRevTechEventForm({ ...revTechEventForm, date: formattedDate });
+                    }
+                  }}
+                >
+                  <DatePickerInput
+                    id="revtech-event-date"
+                    labelText="Date *"
+                    placeholder="mm/dd/yyyy"
+                    value={revTechEventForm.date}
+                  />
+                </DatePicker>
+              </div>
+              <Select
+                id="revtech-event-category"
+                labelText="Category *"
+                value={revTechEventForm.category}
+                onChange={(e) => setRevTechEventForm({ ...revTechEventForm, category: e.target.value })}
+              >
+                <SelectItem value="ibm" text="IBM Event" />
+                <SelectItem value="thirdParty" text="3rd Party Event" />
+                <SelectItem value="onDemand" text="On-Demand/Webinar" />
+              </Select>
+            </div>
+
+            <TextInput
+              id="revtech-event-location"
+              labelText="Location"
+              placeholder="e.g., The Ivy Soho Brasserie, London"
+              value={revTechEventForm.location}
+              onChange={(e) => setRevTechEventForm({ ...revTechEventForm, location: e.target.value })}
+            />
+
+            <TextArea
+              id="revtech-event-audience"
+              labelText="Target Audience"
+              placeholder="e.g., 12-15 Senior Leaders, C-Suite executives"
+              rows={2}
+              value={revTechEventForm.audience}
+              onChange={(e) => setRevTechEventForm({ ...revTechEventForm, audience: e.target.value })}
+            />
+
+            <TextInput
+              id="revtech-event-registration-link"
+              labelText="Registration Link (Optional)"
+              placeholder="https://registration-url.com"
+              value={revTechEventForm.registrationLink}
+              onChange={(e) => setRevTechEventForm({ ...revTechEventForm, registrationLink: e.target.value })}
+            />
+
+            <TextInput
+              id="revtech-event-contact-email"
+              labelText="Contact Email (For Invite-Only Events)"
+              placeholder="e.g., john.doe@ibm.com"
+              value={revTechEventForm.contactEmail}
+              onChange={(e) => setRevTechEventForm({ ...revTechEventForm, contactEmail: e.target.value })}
+              helperText="Use this for invite-only events instead of a registration link"
+            />
+
+            <TextInput
+              id="revtech-event-seismic-link"
+              labelText="Seismic Page Link (Optional)"
+              placeholder="https://seismic-page-url.com"
+              value={revTechEventForm.seismicLink}
+              onChange={(e) => setRevTechEventForm({ ...revTechEventForm, seismicLink: e.target.value })}
+            />
+
+            <p style={{ fontSize: '12px', color: '#525252', fontStyle: 'italic', margin: '0.5rem 0' }}>
+              Note: This event will only appear in the Rev Tech section, not in the main event categories.
+            </p>
+          </Stack>
+        </Form>
+      </Modal>
+
+      {/* Custom Section Modal */}
+      <Modal
+        key="custom-section-modal"
+        open={showCustomSectionModal}
+        modalLabel="Custom Sections"
+        onRequestClose={() => {
+          console.log('Modal close requested');
+          setShowCustomSectionModal(false);
+          setCustomSectionForm({ title: '', content: '', links: [] });
+          setEditingCustomSection(null);
+        }}
+        modalHeading={editingCustomSection !== null ? 'Edit Custom Section' : 'Add Custom Section'}
+        primaryButtonText={editingCustomSection !== null ? 'Update Section' : 'Add Section'}
+        secondaryButtonText="Cancel"
+        onRequestSubmit={handleAddCustomSection}
+        size="sm"
+        preventCloseOnClickOutside={false}
+      >
+        <Form>
+          <Stack gap={5}>
+            <TextInput
+              id="custom-section-title"
+              labelText="Section Title *"
+              placeholder="e.g., Resources, Training, Community"
+              value={customSectionForm.title}
+              onChange={(e) => setCustomSectionForm({ ...customSectionForm, title: e.target.value })}
+            />
+
+            <RichTextEditor
+              label="Section Content (Optional)"
+              value={customSectionForm.content}
+              onChange={(value) => setCustomSectionForm({ ...customSectionForm, content: value })}
+              placeholder="Add any additional information, announcements, or formatted text here..."
+            />
+          </Stack>
+        </Form>
+      </Modal>
+
+      {/* Custom Section Link Modal */}
+      <Modal
+        open={showCustomSectionLinkModal}
+        onRequestClose={() => {
+          setShowCustomSectionLinkModal(false);
+          setCustomSectionLinkForm({ title: '', url: '', description: '' });
+          setEditingCustomSectionForLink(null);
+        }}
+        modalHeading="Add Link to Section"
+        primaryButtonText="Add Link"
+        secondaryButtonText="Cancel"
+        onRequestSubmit={handleAddLinkToCustomSection}
+        size="sm"
+      >
+        <Form>
+          <Stack gap={5}>
+            <TextInput
+              id="custom-link-title"
+              labelText="Link Title *"
+              placeholder="e.g., Getting Started Guide"
+              value={customSectionLinkForm.title}
+              onChange={(e) => setCustomSectionLinkForm({ ...customSectionLinkForm, title: e.target.value })}
+            />
+
+            <TextInput
+              id="custom-link-url"
+              labelText="URL *"
+              placeholder="https://..."
+              value={customSectionLinkForm.url}
+              onChange={(e) => setCustomSectionLinkForm({ ...customSectionLinkForm, url: e.target.value })}
+            />
+
+            <TextArea
+              id="custom-link-description"
+              labelText="Description (Optional)"
+              placeholder="Brief description of the link"
+              rows={3}
+              value={customSectionLinkForm.description}
+              onChange={(e) => setCustomSectionLinkForm({ ...customSectionLinkForm, description: e.target.value })}
+            />
+          </Stack>
+        </Form>
+      </Modal>
+
+      {/* Custom Section Event Modal */}
+      <Modal
+        open={showCustomSectionEventModal}
+        onRequestClose={() => {
+          setShowCustomSectionEventModal(false);
+          setCustomSectionEventForm({
+            title: '',
+            date: '',
+            category: 'ibm',
+            location: '',
+            audience: '',
+            registrationLink: '',
+            contactEmail: '',
+            seismicLink: '',
+            featured: false
+          });
+          setEditingCustomSectionForLink(null);
+        }}
+        modalHeading="Add Event to Section"
+        primaryButtonText="Add Event"
+        secondaryButtonText="Cancel"
+        onRequestSubmit={handleAddEventToCustomSection}
+        size="sm"
+      >
+        <Form>
+          <Stack gap={6}>
+            <TextInput
+              id="custom-event-title"
+              labelText="Event Title *"
+              placeholder="e.g., From AI Ambition to Business Value"
+              value={customSectionEventForm.title}
+              onChange={(e) => setCustomSectionEventForm({ ...customSectionEventForm, title: e.target.value })}
+            />
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              <div>
+                <DatePicker
+                  datePickerType="single"
+                  onChange={(dates) => {
+                    if (dates && dates.length > 0) {
+                      const date = new Date(dates[0]);
+                      const day = date.getDate();
+                      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                                         'July', 'August', 'September', 'October', 'November', 'December'];
+                      const monthName = monthNames[date.getMonth()];
+                      const formattedDate = `${day} ${monthName}`;
+                      setCustomSectionEventForm({ ...customSectionEventForm, date: formattedDate });
+                    }
+                  }}
+                >
+                  <DatePickerInput
+                    id="custom-event-date"
+                    labelText="Date *"
+                    placeholder="mm/dd/yyyy"
+                    value={customSectionEventForm.date}
+                  />
+                </DatePicker>
+              </div>
+              <Select
+                id="custom-event-category"
+                labelText="Category *"
+                value={customSectionEventForm.category}
+                onChange={(e) => setCustomSectionEventForm({ ...customSectionEventForm, category: e.target.value })}
+              >
+                <SelectItem value="ibm" text="IBM Event" />
+                <SelectItem value="thirdParty" text="3rd Party Event" />
+                <SelectItem value="onDemand" text="On-Demand/Webinar" />
+              </Select>
+            </div>
+
+            <TextInput
+              id="custom-event-location"
+              labelText="Location"
+              placeholder="e.g., The Ivy Soho Brasserie, London"
+              value={customSectionEventForm.location}
+              onChange={(e) => setCustomSectionEventForm({ ...customSectionEventForm, location: e.target.value })}
+            />
+
+            <TextArea
+              id="custom-event-audience"
+              labelText="Target Audience"
+              placeholder="e.g., 12-15 Senior Leaders, C-Suite executives"
+              rows={2}
+              value={customSectionEventForm.audience}
+              onChange={(e) => setCustomSectionEventForm({ ...customSectionEventForm, audience: e.target.value })}
+            />
+
+            <TextInput
+              id="custom-event-registration-link"
+              labelText="Registration Link (Optional)"
+              placeholder="https://registration-url.com"
+              value={customSectionEventForm.registrationLink}
+              onChange={(e) => setCustomSectionEventForm({ ...customSectionEventForm, registrationLink: e.target.value })}
+            />
+
+            <TextInput
+              id="custom-event-contact-email"
+              labelText="Contact Email (For Invite-Only Events)"
+              placeholder="e.g., john.doe@ibm.com"
+              value={customSectionEventForm.contactEmail}
+              onChange={(e) => setCustomSectionEventForm({ ...customSectionEventForm, contactEmail: e.target.value })}
+              helperText="Use this for invite-only events instead of a registration link"
+            />
+
+            <TextInput
+              id="custom-event-seismic-link"
+              labelText="Seismic Page Link (Optional)"
+              placeholder="https://seismic-page-url.com"
+              value={customSectionEventForm.seismicLink}
+              onChange={(e) => setCustomSectionEventForm({ ...customSectionEventForm, seismicLink: e.target.value })}
+            />
+
+            <p style={{ fontSize: '12px', color: '#525252', fontStyle: 'italic', margin: '0.5rem 0' }}>
+              Note: This event will only appear in this custom section, not in the main event categories.
+            </p>
           </Stack>
         </Form>
       </Modal>
