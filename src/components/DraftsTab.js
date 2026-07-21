@@ -13,49 +13,42 @@ import {
 } from '@carbon/react';
 import { TrashCan, Edit, Share, Checkmark, Events } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
+import { listDrafts, deleteDraft } from '../lib/supabaseData';
 
-const DraftsTab = ({ onEditDraft }) => {
+const DraftsTab = ({ onEditDraft, currentUser }) => {
   const [drafts, setDrafts] = useState([]);
   const [groupedDrafts, setGroupedDrafts] = useState({});
 
   useEffect(() => {
-    loadDrafts();
-    
-    // Listen for storage changes (when drafts are saved/updated)
-    const handleStorageChange = (e) => {
-      if (e.key === 'comms_drafts') {
-        loadDrafts();
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Also listen for custom event for same-window updates
-    const handleDraftsUpdate = () => {
+    if (currentUser?.email) {
       loadDrafts();
+    }
+    // Re-load when another tab saves a draft in the same session
+    const handleDraftsUpdate = () => {
+      if (currentUser?.email) loadDrafts();
     };
-    
     window.addEventListener('draftsUpdated', handleDraftsUpdate);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('draftsUpdated', handleDraftsUpdate);
-    };
-  }, []);
+    return () => window.removeEventListener('draftsUpdated', handleDraftsUpdate);
+  }, [currentUser?.email]);
 
-  const loadDrafts = () => {
-    const savedDrafts = JSON.parse(localStorage.getItem('comms_drafts') || '[]');
-    setDrafts(savedDrafts);
-    groupDraftsByMonth(savedDrafts);
+  const loadDrafts = async () => {
+    try {
+      const savedDrafts = await listDrafts(currentUser.email);
+      setDrafts(savedDrafts);
+      groupDraftsByMonth(savedDrafts);
+    } catch (err) {
+      console.error('Failed to load drafts:', err);
+      toast.error('Failed to load drafts. Please try again.');
+    }
   };
 
   const groupDraftsByMonth = (draftsArray) => {
     const grouped = {};
-    
-    draftsArray.forEach(draft => {
+
+    draftsArray.forEach((draft) => {
       const date = new Date(draft.date || draft.savedAt);
       const monthYear = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
-      
+
       if (!grouped[monthYear]) {
         grouped[monthYear] = [];
       }
@@ -63,7 +56,7 @@ const DraftsTab = ({ onEditDraft }) => {
     });
 
     // Sort each month's drafts by date (newest first)
-    Object.keys(grouped).forEach(month => {
+    Object.keys(grouped).forEach((month) => {
       grouped[month].sort((a, b) => {
         const dateA = new Date(a.date || a.savedAt);
         const dateB = new Date(b.date || b.savedAt);
@@ -79,22 +72,28 @@ const DraftsTab = ({ onEditDraft }) => {
         const dateB = new Date(grouped[b][0].date || grouped[b][0].savedAt);
         return dateB - dateA;
       })
-      .forEach(key => {
+      .forEach((key) => {
         sortedGrouped[key] = grouped[key];
       });
 
     setGroupedDrafts(sortedGrouped);
   };
 
-  const handleDelete = (draftId) => {
+  const handleDelete = async (draftId) => {
     if (confirm('Are you sure you want to delete this draft?')) {
-      const updatedDrafts = drafts.filter(d => d.id !== draftId);
-      localStorage.setItem('comms_drafts', JSON.stringify(updatedDrafts));
-      setDrafts(updatedDrafts);
-      toast.success('🗑️ Draft deleted successfully!', {
-        icon: <Checkmark size={24} />,
-        autoClose: 3000,
-      });
+      try {
+        await deleteDraft(draftId, currentUser.email);
+        const updatedDrafts = drafts.filter((d) => d.id !== draftId);
+        setDrafts(updatedDrafts);
+        groupDraftsByMonth(updatedDrafts);
+        toast.success('🗑️ Draft deleted successfully!', {
+          icon: <Checkmark size={24} />,
+          autoClose: 3000,
+        });
+      } catch (err) {
+        console.error('Failed to delete draft:', err);
+        toast.error('Failed to delete draft. Please try again.');
+      }
     }
   };
 
@@ -114,31 +113,12 @@ const DraftsTab = ({ onEditDraft }) => {
     });
   };
 
-  const handleSaveToEventLibrary = (draft) => {
-    const eventName = prompt('Enter a name for this event:', draft.name);
-    if (eventName) {
-      const events = JSON.parse(localStorage.getItem('event_library') || '[]');
-      const newEvent = {
-        id: Date.now(),
-        name: eventName,
-        date: new Date().toISOString(),
-        data: draft.data
-      };
-      events.push(newEvent);
-      localStorage.setItem('event_library', JSON.stringify(events));
-      toast.success(`📅 "${eventName}" added to Event Library!`, {
-        icon: <Events size={24} />,
-        autoClose: 3000,
-      });
-    }
-  };
-
   return (
     <div className="drafts-tab">
       <div className="drafts-header" style={{ marginBottom: '24px' }}>
         <h2>My Drafts</h2>
         <p style={{ color: '#525252', marginTop: '8px' }}>
-          Manage your saved communication drafts - organized by month
+          Manage your saved communication drafts — organized by month
         </p>
         {drafts.length > 0 && (
           <Tag type="blue" size="sm" style={{ marginTop: '12px' }}>
@@ -148,12 +128,10 @@ const DraftsTab = ({ onEditDraft }) => {
       </div>
 
       {drafts.length === 0 ? (
-        <div className="empty-state" style={{
-          textAlign: 'center',
-          padding: '48px',
-          background: '#f4f4f4',
-          borderRadius: '8px'
-        }}>
+        <div
+          className="empty-state"
+          style={{ textAlign: 'center', padding: '48px', background: '#f4f4f4', borderRadius: '8px' }}
+        >
           <p style={{ fontSize: '16px', color: '#525252' }}>
             No drafts saved yet. Create a communication and save it as a draft.
           </p>
@@ -194,16 +172,18 @@ const DraftsTab = ({ onEditDraft }) => {
                           {new Date(draft.date || draft.savedAt).toLocaleDateString('en-US', {
                             month: 'short',
                             day: 'numeric',
-                            year: 'numeric'
+                            year: 'numeric',
                           })}
                         </StructuredListCell>
                         <StructuredListCell>
-                          <div style={{
-                            maxWidth: '300px',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
-                          }}>
+                          <div
+                            style={{
+                              maxWidth: '300px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
                             {draft.data?.title || draft.title || 'Untitled'}
                           </div>
                         </StructuredListCell>
@@ -216,14 +196,6 @@ const DraftsTab = ({ onEditDraft }) => {
                               iconDescription="Edit"
                               hasIconOnly
                               onClick={() => handleEdit(draft)}
-                            />
-                            <Button
-                              kind="ghost"
-                              size="sm"
-                              renderIcon={Events}
-                              iconDescription="Save to Event Library"
-                              hasIconOnly
-                              onClick={() => handleSaveToEventLibrary(draft)}
                             />
                             <Button
                               kind="ghost"

@@ -8,9 +8,15 @@ import {
   Checkbox,
   Link
 } from '@carbon/react';
-import { Login, View, ViewOff } from '@carbon/icons-react';
+import { Login, View, ViewOff, ArrowLeft } from '@carbon/icons-react';
+import { useUser } from '../contexts/UserContext';
 
 const LoginPage = ({ onLogin }) => {
+  const { resetPassword } = useUser();
+
+  // 'login' | 'forgot' | 'reset-sent'
+  const [view, setView] = useState('login');
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -18,35 +24,46 @@ const LoginPage = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Demo credentials for testing
-  const DEMO_CREDENTIALS = {
-    email: 'admin@ibm.com',
-    password: 'admin123'
-  };
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetError, setResetError] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
+    console.log('LOGIN: submitting', email);
 
-    // Simulate API call delay
-    setTimeout(() => {
-      // Simple validation for demo
-      if (email === DEMO_CREDENTIALS.email && password === DEMO_CREDENTIALS.password) {
-        // Store login state
-        if (rememberMe) {
-          localStorage.setItem('rememberedEmail', email);
-        }
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userEmail', email);
-        
-        // Call parent callback
-        onLogin({ email, rememberMe });
-      } else {
-        setError('Invalid email or password. Try admin@ibm.com / admin123');
+    try {
+      if (rememberMe) {
+        localStorage.setItem('rememberedEmail', email);
       }
+
+      console.log('LOGIN: calling onLogin');
+      await onLogin({ email, rememberMe, password });
+      console.log('LOGIN: onLogin returned');
+    } catch (loginError) {
+      console.error('LOGIN: caught error', loginError);
+      setError(loginError.message || 'Unable to sign in');
+    } finally {
       setIsLoading(false);
-    }, 800);
+    }
+  };
+
+  const handleResetSubmit = async (e) => {
+    e.preventDefault();
+    setResetError('');
+    setResetLoading(true);
+
+    const result = await resetPassword(resetEmail);
+
+    setResetLoading(false);
+
+    if (!result.success) {
+      setResetError(result.error || 'Failed to send reset email');
+    } else {
+      setView('reset-sent');
+    }
   };
 
   // Check for remembered email on mount
@@ -58,23 +75,147 @@ const LoginPage = ({ onLogin }) => {
     }
   }, []);
 
+  const cardStyle = {
+    width: '100%',
+    maxWidth: '400px',
+    backgroundColor: 'white',
+    padding: '48px 32px',
+    borderRadius: '4px',
+    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)'
+  };
+
+  const pageStyle = {
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f4f4f4',
+    padding: '20px'
+  };
+
+  // ── Forgot password form ──────────────────────────────────────────────────
+  if (view === 'forgot') {
+    return (
+      <div style={pageStyle}>
+        <div style={cardStyle}>
+          <button
+            type="button"
+            onClick={() => { setView('login'); setResetError(''); setResetEmail(''); }}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              color: '#0f62fe',
+              fontSize: '14px',
+              padding: 0,
+              marginBottom: '24px'
+            }}
+          >
+            <ArrowLeft size={16} /> Back to sign in
+          </button>
+
+          <div style={{ marginBottom: '32px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '400', color: '#161616', margin: '0 0 8px 0' }}>
+              Reset your password
+            </h2>
+            <p style={{ fontSize: '14px', color: '#525252', margin: 0 }}>
+              Enter your email address and we'll send you a link to reset your password.
+            </p>
+          </div>
+
+          {resetError && (
+            <div style={{ marginBottom: '24px' }}>
+              <InlineNotification
+                kind="error"
+                title="Error"
+                subtitle={resetError}
+                hideCloseButton
+                lowContrast
+              />
+            </div>
+          )}
+
+          <Form onSubmit={handleResetSubmit}>
+            <Stack gap={6}>
+              <TextInput
+                id="reset-email"
+                labelText="Email address"
+                placeholder="Enter your email"
+                type="email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+              <Button
+                type="submit"
+                kind="primary"
+                size="lg"
+                disabled={resetLoading || !resetEmail}
+                style={{ width: '100%', marginTop: '8px' }}
+              >
+                {resetLoading ? 'Sending...' : 'Send reset link'}
+              </Button>
+            </Stack>
+          </Form>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Reset email sent confirmation ─────────────────────────────────────────
+  if (view === 'reset-sent') {
+    return (
+      <div style={pageStyle}>
+        <div style={cardStyle}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              backgroundColor: '#defbe6',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 16px'
+            }}>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M4 10l4 4 8-8" stroke="#24a148" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <h2 style={{ fontSize: '24px', fontWeight: '400', color: '#161616', margin: '0 0 12px 0' }}>
+              Check your email
+            </h2>
+            <p style={{ fontSize: '14px', color: '#525252', marginBottom: '8px' }}>
+              We sent a password reset link to:
+            </p>
+            <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '24px' }}>
+              {resetEmail}
+            </p>
+            <p style={{ fontSize: '13px', color: '#525252', marginBottom: '32px' }}>
+              Click the link in the email to set a new password. The link expires after 1 hour.
+            </p>
+            <Button
+              kind="tertiary"
+              size="md"
+              onClick={() => { setView('login'); setResetEmail(''); }}
+              style={{ width: '100%' }}
+            >
+              Back to sign in
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Login form (default) ──────────────────────────────────────────────────
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#f4f4f4',
-      padding: '20px'
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '400px',
-        backgroundColor: 'white',
-        padding: '48px 32px',
-        borderRadius: '4px',
-        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)'
-      }}>
+    <div style={pageStyle}>
+      <div style={cardStyle}>
         {/* Logo/Header */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <Login size={48} style={{ color: '#0f62fe', marginBottom: '16px' }} />
@@ -107,21 +248,6 @@ const LoginPage = ({ onLogin }) => {
             />
           </div>
         )}
-
-        {/* Demo Credentials Info */}
-        <div style={{
-          backgroundColor: '#e5f6ff',
-          border: '1px solid #0f62fe',
-          borderRadius: '4px',
-          padding: '12px',
-          marginBottom: '24px',
-          fontSize: '12px',
-          color: '#161616'
-        }}>
-          <strong>Demo Credentials:</strong><br />
-          Email: admin@ibm.com<br />
-          Password: admin123
-        </div>
 
         {/* Login Form */}
         <Form onSubmit={handleSubmit}>
@@ -185,7 +311,9 @@ const LoginPage = ({ onLogin }) => {
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  alert('Password reset functionality coming soon!');
+                  setError('');
+                  setResetEmail(email);
+                  setView('forgot');
                 }}
                 style={{ fontSize: '14px' }}
               >

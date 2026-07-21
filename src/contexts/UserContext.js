@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabaseClient';
+import { findUserByEmail } from '../lib/supabaseData';
 
 const UserContext = createContext();
 
@@ -10,161 +12,134 @@ export const useUser = () => {
   return context;
 };
 
-const DEFAULT_PERMISSIONS = {
-  admin: {
-    'create-comm': true,
-    'marketing-spotlight': true,
-    'templates': true,
-    'event-library': true,
-    'manage-events': true,
-    'drafts': true,
-    'user-access': true,
-  },
-  manager: {
-    'create-comm': true,
-    'marketing-spotlight': true,
-    'templates': true,
-    'event-library': true,
-    'manage-events': true,
-    'drafts': true,
-    'user-access': false,
-  },
-  editor: {
-    'create-comm': true,
-    'marketing-spotlight': true,
-    'templates': true,
-    'event-library': true,
-    'manage-events': false,
-    'drafts': true,
-    'user-access': false,
-  },
-  seller: {
-    'create-comm': true,
-    'marketing-spotlight': false,
-    'templates': false,
-    'event-library': true,
-    'manage-events': false,
-    'drafts': true,
-    'user-access': false,
-  },
-  viewer: {
-    'create-comm': false,
-    'marketing-spotlight': false,
-    'templates': true,
-    'event-library': true,
-    'manage-events': false,
-    'drafts': true,
-    'user-access': false,
-  },
-};
-
 export const UserProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [passwordRecoveryMode, setPasswordRecoveryMode] = useState(false);
 
-  // Initialize user session
   useEffect(() => {
-    // First, ensure we have users in localStorage
-    let users = JSON.parse(localStorage.getItem('app_users') || '[]');
-    
-    // If no users exist, create default admin user
-    if (users.length === 0) {
-      const defaultAdmin = {
-        id: '1',
-        name: 'Admin User',
-        email: 'admin@ibm.com',
-        role: 'admin',
-        active: true,
-        createdAt: new Date().toISOString(),
-        permissions: DEFAULT_PERMISSIONS.admin,
-      };
-      users = [defaultAdmin];
-      localStorage.setItem('app_users', JSON.stringify(users));
-    }
+    // Safety net — never stay stuck on loading
+    const timeout = setTimeout(() => setLoading(false), 5000);
 
-    // Now check for existing session
-    const savedSession = localStorage.getItem('app_session');
-    if (savedSession) {
-      try {
-        const session = JSON.parse(savedSession);
-        const user = users.find((u) => u.id === session.userId);
-        
-        if (user && user.active) {
-          setCurrentUser(user);
-          setIsAuthenticated(true);
-          setLoading(false);
-          return;
-        } else {
-          // Clear invalid session
-          localStorage.removeItem('app_session');
+    // Restore session on mount
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user?.email) {
+        try {
+          const user = await findUserByEmail(session.user.email);
+          if (user) {
+            setCurrentUser(user);
+            setIsAuthenticated(true);
+          }
+        } catch (error) {
+          console.error('Error loading user from session:', error);
         }
-      } catch (error) {
-        console.error('Error loading session:', error);
-        localStorage.removeItem('app_session');
       }
-    }
-    
-    // Auto-login as admin for development (remove in production)
-    const adminUser = users.find((u) => u.role === 'admin' && u.active);
-    
-    if (adminUser) {
-      setCurrentUser(adminUser);
-      setIsAuthenticated(true);
-      localStorage.setItem('app_session', JSON.stringify({ userId: adminUser.id }));
-    }
-    
-    setLoading(false);
+      clearTimeout(timeout);
+      setLoading(false);
+    });
+
+    // Listen for auth changes (token refresh and sign out only)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'TOKEN_REFRESHED' && session?.user?.email) {
+        try {
+          const user = await findUserByEmail(session.user.email);
+          if (user) {
+            setCurrentUser(user);
+            setIsAuthenticated(true);
+          }
+        } catch (error) {
+          console.error('Error loading user on token refresh:', error);
+        }
+      } else if (event === 'PASSWORD_RECOVERY') {
+        setPasswordRecoveryMode(true);
+      } else if (event === 'SIGNED_OUT') {
+        setCurrentUser(null);
+        setIsAuthenticated(false);
+        setPasswordRecoveryMode(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  // Login function
-  const login = (email, password) => {
-    const users = JSON.parse(localStorage.getItem('app_users') || '[]');
-    const user = users.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase() && u.active
+  const login = async (email, password) => {
+    console.log('UserContext.login: calling signInWithPassword');
+
+    const signInPromise = supabase.auth.signInWithPassword({ email, password });
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Sign-in timed out. Please check your connection and try again.')), 15000)
     );
 
-    if (user) {
-      setCurrentUser(user);
-      setIsAuthenticated(true);
-      localStorage.setItem('app_session', JSON.stringify({ userId: user.id }));
-      return { success: true, user };
+    let data, error;
+    try {
+      ({ data, error } = await Promise.race([signInPromise, timeoutPromise]));
+    } catch (timeoutErr) {
+      return { success: false, error: timeoutErr.message };
     }
 
-    return { success: false, error: 'Invalid credentials or inactive account' };
+    console.log('UserContext.login: result', { data, error });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    try {
+      const userPromise = findUserByEmail(data.user.email);
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('User lookup timed out. Please try again.')), 10000)
+      );
+      const user = await Promise.race([userPromise, timeoutPromise]);
+      console.log('UserContext.login: findUserByEmail result', user);
+      if (!user) {
+        await supabase.auth.signOut();
+        return { success: false, error: 'Account not found or inactive. Contact an administrator.' };
+      }
+      setCurrentUser(user);
+      setIsAuthenticated(true);
+      return { success: true, user };
+    } catch (err) {
+      console.error('UserContext.login: findUserByEmail error', err);
+      await supabase.auth.signOut();
+      return { success: false, error: err.message };
+    }
   };
 
-  // Logout function
-  const logout = () => {
+  const resetPassword = async (email) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}`,
+    });
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  };
+
+  const updatePassword = async (newPassword) => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    setPasswordRecoveryMode(false);
+    return { success: true };
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
     setCurrentUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem('app_session');
   };
 
-  // Switch user (for testing/demo purposes)
-  const switchUser = (userId) => {
-    const users = JSON.parse(localStorage.getItem('app_users') || '[]');
-    const user = users.find((u) => u.id === userId && u.active);
-
-    if (user) {
-      setCurrentUser(user);
-      setIsAuthenticated(true);
-      localStorage.setItem('app_session', JSON.stringify({ userId: user.id }));
-      return true;
-    }
-    return false;
+  const switchUser = async (email, password) => {
+    const result = await login(email, password);
+    return result.success;
   };
 
-  // Check if user has permission for a specific tab
   const hasPermission = (tabId) => {
     if (!currentUser) return false;
-    
-    // Use custom permissions if available, otherwise use role defaults
-    const permissions = currentUser.permissions || DEFAULT_PERMISSIONS[currentUser.role];
-    return permissions[tabId] === true;
+    return currentUser.permissions?.[tabId] === true;
   };
 
-  // Check if user has a specific role
   const hasRole = (role) => {
     if (!currentUser) return false;
     if (Array.isArray(role)) {
@@ -173,20 +148,20 @@ export const UserProvider = ({ children }) => {
     return currentUser.role === role;
   };
 
-  // Get user's accessible tabs
   const getAccessibleTabs = () => {
-    if (!currentUser) return [];
-    
-    const permissions = currentUser.permissions || DEFAULT_PERMISSIONS[currentUser.role];
-    return Object.keys(permissions).filter((tabId) => permissions[tabId] === true);
+    if (!currentUser?.permissions) return [];
+    return Object.keys(currentUser.permissions).filter((tabId) => currentUser.permissions[tabId] === true);
   };
 
   const value = {
     currentUser,
     isAuthenticated,
     loading,
+    passwordRecoveryMode,
     login,
     logout,
+    resetPassword,
+    updatePassword,
     switchUser,
     hasPermission,
     hasRole,
@@ -197,5 +172,3 @@ export const UserProvider = ({ children }) => {
 };
 
 export default UserContext;
-
-// Made with Bob

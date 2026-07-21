@@ -47,6 +47,7 @@ import FontSize from '@tiptap/extension-text-style';
 import { toast } from 'react-toastify';
 import html2canvas from 'html2canvas';
 import ImageGalleryModal from './ImageGalleryModal';
+import { saveDraft, updateDraft } from '../lib/supabaseData';
 
 const FontSizeExtension = TextStyle.extend({
   addAttributes() {
@@ -530,7 +531,7 @@ const RichTextEditor = ({
   );
 };
 
-const CreateCommTab = forwardRef((props, ref) => {
+const CreateCommTab = forwardRef(({ currentUser, ...props }, ref) => {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [inlineImageGalleryOpen, setInlineImageGalleryOpen] = useState(false);
   const [inlineImageInsertConfig, setInlineImageInsertConfig] = useState(null);
@@ -836,67 +837,37 @@ const CreateCommTab = forwardRef((props, ref) => {
     console.log('Form submitted:', formData);
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
     const draftName = prompt('Enter a name for this draft:');
-    if (draftName) {
-      setIsLoading(true);
-      setTimeout(() => {
-        try {
-          const drafts = JSON.parse(localStorage.getItem('comms_drafts') || '[]');
-          const newDraft = {
-            id: Date.now(),
-            name: draftName,
-            date: new Date().toISOString(),
-            data: normalizeStoredDraftData({
-              ...formData,
-              bannerImage: bannerImage,
-              eventSections: eventSections
-            }, { persistAsHtml: true })
-          };
-          drafts.push(newDraft);
-          
-          try {
-            localStorage.setItem('comms_drafts', JSON.stringify(drafts));
-          } catch (storageError) {
-            // Storage quota exceeded - try cleanup and retry
-            if (storageError.name === 'QuotaExceededError') {
-              checkAndCleanupStorage();
-              try {
-                localStorage.setItem('comms_drafts', JSON.stringify(drafts));
-              } catch (retryError) {
-                toast.error('❌ Storage quota exceeded. Please delete some old drafts.', {
-                  autoClose: 5000,
-                });
-                setIsLoading(false);
-                return;
-              }
-            } else {
-              throw storageError;
-            }
-          }
-          
-          setCurrentDraftId(newDraft.id);
-          setIsLoading(false);
-          
-          // Dispatch custom event to notify DraftsTab
-          window.dispatchEvent(new Event('draftsUpdated'));
-          
-          toast.success(`✅ Draft "${draftName}" saved successfully!`, {
-            icon: <Checkmark size={24} />,
-            autoClose: 3000,
-          });
-        } catch (error) {
-          console.error('Error saving draft:', error);
-          toast.error('❌ Failed to save draft. Please try again.', {
-            autoClose: 5000,
-          });
-          setIsLoading(false);
-        }
-      }, 500);
+    if (!draftName) return;
+
+    if (!currentUser?.email) {
+      toast.error('You must be logged in to save drafts.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const draftData = normalizeStoredDraftData(
+        { ...formData, bannerImage, eventSections },
+        { persistAsHtml: true }
+      );
+      const saved = await saveDraft(currentUser.email, draftName, draftData);
+      setCurrentDraftId(saved.id);
+      window.dispatchEvent(new Event('draftsUpdated'));
+      toast.success(`✅ Draft "${draftName}" saved successfully!`, {
+        icon: <Checkmark size={24} />,
+        autoClose: 3000,
+      });
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      toast.error(`❌ Failed to save draft: ${error.message}`, { autoClose: 8000 });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleUpdateDraft = () => {
+  const handleUpdateDraft = async () => {
     if (!currentDraftId) {
       toast.warning('⚠️ No draft is currently loaded. Use "Save as Draft" to create a new draft.', {
         autoClose: 5000,
@@ -904,68 +875,29 @@ const CreateCommTab = forwardRef((props, ref) => {
       return;
     }
 
+    if (!currentUser?.email) {
+      toast.error('You must be logged in to save drafts.');
+      return;
+    }
+
     setIsLoading(true);
-    setTimeout(() => {
-      try {
-        const drafts = JSON.parse(localStorage.getItem('comms_drafts') || '[]');
-        const draftIndex = drafts.findIndex(d => d.id === currentDraftId);
-        
-        if (draftIndex === -1) {
-          toast.error('❌ Draft not found. It may have been deleted.', {
-            autoClose: 5000,
-          });
-          setCurrentDraftId(null);
-          setIsLoading(false);
-          return;
-        }
-
-        drafts[draftIndex] = {
-          ...drafts[draftIndex],
-          date: new Date().toISOString(),
-          data: normalizeStoredDraftData({
-            ...formData,
-            bannerImage: bannerImage,
-            eventSections: eventSections
-          }, { persistAsHtml: true })
-        };
-
-        try {
-          localStorage.setItem('comms_drafts', JSON.stringify(drafts));
-        } catch (storageError) {
-          // Storage quota exceeded - try cleanup and retry
-          if (storageError.name === 'QuotaExceededError') {
-            checkAndCleanupStorage();
-            try {
-              localStorage.setItem('comms_drafts', JSON.stringify(drafts));
-            } catch (retryError) {
-              toast.error('❌ Storage quota exceeded. Please delete some old drafts.', {
-                autoClose: 5000,
-              });
-              setIsLoading(false);
-              return;
-            }
-          } else {
-            throw storageError;
-          }
-        }
-        
-        setIsLoading(false);
-        
-        // Dispatch custom event to notify DraftsTab
-        window.dispatchEvent(new Event('draftsUpdated'));
-        
-        toast.success('✅ Draft updated successfully!', {
-          icon: <Checkmark size={24} />,
-          autoClose: 3000,
-        });
-      } catch (error) {
-        console.error('Error updating draft:', error);
-        toast.error('❌ Failed to update draft. Please try again.', {
-          autoClose: 5000,
-        });
-        setIsLoading(false);
-      }
-    }, 500);
+    try {
+      const draftData = normalizeStoredDraftData(
+        { ...formData, bannerImage, eventSections },
+        { persistAsHtml: true }
+      );
+      await updateDraft(currentDraftId, currentUser.email, draftData);
+      window.dispatchEvent(new Event('draftsUpdated'));
+      toast.success('✅ Draft updated successfully!', {
+        icon: <Checkmark size={24} />,
+        autoClose: 3000,
+      });
+    } catch (error) {
+      console.error('Error updating draft:', error);
+      toast.error(`❌ Failed to update draft: ${error.message}`, { autoClose: 8000 });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSaveToEventLibrary = () => {
@@ -995,33 +927,42 @@ const CreateCommTab = forwardRef((props, ref) => {
     }
   };
 
-  const handleLoadDraft = () => {
-    migrateStoredDraftsToRichText();
-    const drafts = JSON.parse(localStorage.getItem('comms_drafts') || '[]');
-    if (drafts.length === 0) {
-      toast.info('ℹ️ No drafts found. Create and save a draft first!', {
-        autoClose: 5000,
-      });
+  const handleLoadDraft = async () => {
+    if (!currentUser?.email) {
+      toast.error('You must be logged in to load drafts.');
       return;
     }
-    const draftList = drafts.map((d, i) => `${i + 1}. ${d.name}`).join('\n');
-    const selection = prompt(`Select a draft:\n${draftList}\n\nEnter number:`);
-    if (selection) {
-      const index = parseInt(selection) - 1;
-      if (drafts[index]) {
-        setIsLoading(true);
-        setTimeout(() => {
+    setIsLoading(true);
+    try {
+      const { listDrafts: fetchDrafts } = await import('../lib/supabaseData');
+      const drafts = await fetchDrafts(currentUser.email);
+      setIsLoading(false);
+      if (drafts.length === 0) {
+        toast.info('ℹ️ No drafts found. Create and save a draft first!', { autoClose: 5000 });
+        return;
+      }
+      const draftList = drafts.map((d, i) => `${i + 1}. ${d.name}`).join('\n');
+      const selection = prompt(`Select a draft:\n${draftList}\n\nEnter number:`);
+      if (selection) {
+        const index = parseInt(selection) - 1;
+        if (drafts[index]) {
+          setIsLoading(true);
           const normalizedDraftData = normalizeStoredDraftData(drafts[index].data, { persistAsHtml: false });
           setFormData(normalizedDraftData);
           setBannerImage(normalizedDraftData.bannerImage || null);
           setEventSections(normalizedDraftData.eventSections || []);
+          setCurrentDraftId(drafts[index].id);
           setIsLoading(false);
           toast.success(`✅ Draft "${drafts[index].name}" loaded successfully!`, {
             icon: <Checkmark size={24} />,
             autoClose: 3000,
           });
-        }, 300);
+        }
       }
+    } catch (err) {
+      console.error('Error loading drafts:', err);
+      toast.error(`❌ Failed to load drafts: ${err.message}`, { autoClose: 8000 });
+      setIsLoading(false);
     }
   };
 

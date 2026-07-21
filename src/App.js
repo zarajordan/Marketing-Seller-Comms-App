@@ -28,6 +28,7 @@ import MarketingSpotlightTab from './components/MarketingSpotlightTab';
 import UserAccessTab from './components/UserAccessTab';
 import ThemeSelector from './components/ThemeSelector';
 import LoginPage from './components/LoginPage';
+import SetNewPasswordPage from './components/SetNewPasswordPage';
 import { UserProvider, useUser } from './contexts/UserContext';
 
 // Tab configuration with IDs for permission checking
@@ -42,46 +43,38 @@ const TAB_CONFIG = [
 ];
 
 function AppContent() {
-  const { currentUser, isAuthenticated, login, logout } = useUser();
-  const [showLogin, setShowLogin] = useState(false);
+  const { currentUser, isAuthenticated, loading, passwordRecoveryMode, login, logout, updatePassword } = useUser();
 
-  // Check if we should show login page
-  useEffect(() => {
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (!loggedIn && !isAuthenticated) {
-      setShowLogin(true);
-    } else {
-      setShowLogin(false);
-    }
-  }, [isAuthenticated]);
-
-  const handleLogin = (userData) => {
-    // Use the UserContext login function
-    const result = login(userData.email, 'password');
+  const handleLogin = async (userData) => {
+    const result = await login(userData.email, userData.password);
     if (result.success) {
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userEmail', userData.email);
-      setShowLogin(false);
       toast.success(`Welcome back, ${result.user.name}!`);
     } else {
-      toast.error('Login failed');
+      throw new Error(result.error || 'Login failed');
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userEmail');
-    setShowLogin(true);
+  const handleLogout = async () => {
+    await logout();
     toast.info('You have been logged out');
   };
 
-  // Show login page if not authenticated
-  if (showLogin || !isAuthenticated || !currentUser) {
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontSize: '14px', color: '#525252' }}>
+        Loading...
+      </div>
+    );
+  }
+
+  if (passwordRecoveryMode) {
+    return <SetNewPasswordPage onPasswordUpdated={() => {}} updatePassword={updatePassword} />;
+  }
+
+  if (!isAuthenticated || !currentUser) {
     return <LoginPage onLogin={handleLogin} />;
   }
 
-  // Render main app content after login
   return <MainAppContent onLogout={handleLogout} />;
 }
 
@@ -118,6 +111,14 @@ function MainAppContent({ onLogout }) {
     }
   };
 
+  const handleGenerateComm = (selectedEvents) => {
+    localStorage.setItem('selected_events_for_comm', JSON.stringify(selectedEvents));
+    const createCommIndex = accessibleTabs.findIndex((tab) => tab.id === 'create-comm');
+    if (createCommIndex !== -1) {
+      setSelectedIndex(createCommIndex);
+    }
+  };
+
   const handleEditDraft = (draftData, draftId) => {
     // Check if it's a Marketing Spotlight draft
     if (draftData.type === 'Marketing Spotlight') {
@@ -140,31 +141,15 @@ function MainAppContent({ onLogout }) {
     }
   };
 
-  const handleSwitchUser = () => {
-    const users = JSON.parse(localStorage.getItem('app_users') || '[]');
-    const activeUsers = users.filter((u) => u.active);
-    
-    if (activeUsers.length > 1) {
-      const currentIndex = activeUsers.findIndex((u) => u.id === currentUser?.id);
-      const nextIndex = (currentIndex + 1) % activeUsers.length;
-      const nextUser = activeUsers[nextIndex];
-      
-      if (switchUser(nextUser.id)) {
-        toast.success(`Switched to ${nextUser.name} (${nextUser.role})`);
-        setSelectedIndex(0); // Reset to first accessible tab
-      }
-    } else {
-      toast.info('No other users available to switch to');
-    }
+  const handleSwitchUser = async () => {
+    toast.info('Use the login screen to switch users');
   };
 
   const getRoleColor = (role) => {
     const colors = {
-      admin: 'red',
-      manager: 'purple',
-      editor: 'blue',
+      'admin-manager': 'red',
+      marketer: 'purple',
       seller: 'cyan',
-      viewer: 'green',
     };
     return colors[role] || 'gray';
   };
@@ -270,12 +255,17 @@ function MainAppContent({ onLogout }) {
                   // Add refs for specific components
                   if (tab.id === 'create-comm') {
                     componentProps.ref = createCommRef;
+                    componentProps.currentUser = currentUser;
                   } else if (tab.id === 'marketing-spotlight') {
                     componentProps.ref = marketingSpotlightRef;
+                    componentProps.currentUser = currentUser;
                   } else if (tab.id === 'templates') {
                     componentProps.onUseTemplate = handleLoadTemplate;
                   } else if (tab.id === 'drafts') {
                     componentProps.onEditDraft = handleEditDraft;
+                    componentProps.currentUser = currentUser;
+                  } else if (tab.id === 'event-library') {
+                    componentProps.onGenerateComm = handleGenerateComm;
                   }
 
                   return (

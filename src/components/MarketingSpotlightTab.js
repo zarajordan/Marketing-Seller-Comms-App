@@ -1,4 +1,5 @@
 import React, { useState, useImperativeHandle, forwardRef } from 'react';
+import { saveDraft, updateDraft } from '../lib/supabaseData';
 import {
   Grid,
   Column,
@@ -16,6 +17,8 @@ import {
   Checkbox,
   DatePicker,
   DatePickerInput,
+  RadioButtonGroup,
+  RadioButton,
 } from '@carbon/react';
 import {
   Star,
@@ -32,7 +35,52 @@ import {
 import { toast } from 'react-toastify';
 import RichTextEditor from './RichTextEditor';
 
-const MarketingSpotlightTab = forwardRef((props, ref) => {
+const InlineEditableIntroText = ({ value, onChange }) => {
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [draft, setDraft] = React.useState(value);
+
+  const handleOpen = () => { setDraft(value); setModalOpen(true); };
+  const handleSave = () => { onChange(draft); setModalOpen(false); };
+  const handleCancel = () => { setDraft(value); setModalOpen(false); };
+
+  return (
+    <>
+      <div
+        onClick={handleOpen}
+        title="Click to edit intro text"
+        style={{ background: '#f4f4f4', border: '1px dashed #c6c6c6', borderRadius: '4px', padding: '12px 16px', cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: '10px' }}
+      >
+        <Edit size={16} style={{ color: '#0f62fe', marginTop: '2px', flexShrink: 0 }} />
+        <span style={{ fontSize: '13px', color: '#393939', lineHeight: '1.5' }}>📝 Intro Text — {value}</span>
+      </div>
+
+      <Modal
+        open={modalOpen}
+        onRequestClose={handleCancel}
+        modalHeading="Edit Intro Text"
+        primaryButtonText="Save"
+        secondaryButtonText="Cancel"
+        onRequestSubmit={handleSave}
+        size="sm"
+      >
+        <div style={{ padding: '8px 0' }}>
+          <p style={{ fontSize: '13px', color: '#525252', marginBottom: '16px' }}>
+            This text appears at the top of the email below the banner, before the event listings.
+          </p>
+          <textarea
+            autoFocus
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            rows={5}
+            style={{ width: '100%', padding: '12px', border: '1px solid #8d8d8d', fontSize: '14px', lineHeight: '1.6', resize: 'vertical', fontFamily: 'inherit', background: '#fff', boxSizing: 'border-box' }}
+          />
+        </div>
+      </Modal>
+    </>
+  );
+};
+
+const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
   const [month, setMonth] = useState('May');
   const [year, setYear] = useState('2026');
   const [quarter, setQuarter] = useState('Q2');
@@ -45,10 +93,13 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
   const [draftName, setDraftName] = useState('');
   const [colorScheme, setColorScheme] = useState('navy-teal'); // Color scheme selector
   const [fontFamily, setFontFamily] = useState('ibm-plex'); // Font family selector
+  const [layoutStyle, setLayoutStyle] = useState('classic'); // Layout style: 'classic' | 'modern'
   
   // Custom banner headings
   const [bannerTitle, setBannerTitle] = useState('UKI Marketing Spotlight');
   const [bannerSubtitle, setBannerSubtitle] = useState("Don't miss what's coming up in");
+  const [heroImageUrl, setHeroImageUrl] = useState('https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&q=80');
+  const [introText, setIntroText] = useState('Please see below for the latest update on all upcoming events you can use to drive client engagement, deepen relationships and open new opportunities.');
   
   // Custom color overrides
   const [useCustomColors, setUseCustomColors] = useState(false);
@@ -867,84 +918,53 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
     setShowSaveDraftModal(true);
   };
 
-  const handleSaveToDrafts = () => {
+  const buildDraftData = () => ({
+    title: draftName.trim() || (currentDraftId ? undefined : `${month} ${year} Marketing Spotlight`),
+    type: 'Marketing Spotlight',
+    month,
+    year,
+    quarter,
+    events,
+    eventCount: events.length,
+    newsLinks,
+    podcastLinks,
+    revTechContent,
+    revTechLinks,
+    revTechEvents,
+    bannerTitle,
+    bannerSubtitle,
+    useCustomColors,
+    customColors,
+    customSections,
+    colorScheme,
+    fontFamily,
+  });
+
+  const handleSaveToDrafts = async () => {
     if (!draftName.trim()) {
       toast.error('Please enter a name for the draft');
       return;
     }
 
+    if (!currentUser?.email) {
+      toast.error('You must be logged in to save drafts.');
+      return;
+    }
+
     try {
-      // Get existing drafts
-      const existingDrafts = JSON.parse(localStorage.getItem('comms_drafts') || '[]');
-      
-      // Helper function to strip HTML and keep only plain text
-      const stripHTML = (html) => {
-        if (!html) return '';
-        const tmp = document.createElement('DIV');
-        tmp.innerHTML = html;
-        return tmp.textContent || tmp.innerText || '';
-      };
-      
-      // Strip HTML from rich text content to save space
-      const strippedCustomSections = customSections.map(section => ({
-        ...section,
-        content: stripHTML(section.content) // Store plain text only
-      }));
-      
-      // Create new draft matching DraftsTab expected structure
-      // Note: We strip HTML formatting to save localStorage space
-      const newDraft = {
-        id: Date.now(),
-        name: draftName.trim(),
-        date: new Date().toISOString(),
-        data: {
-          title: draftName.trim(),
-          type: 'Marketing Spotlight',
-          month,
-          year,
-          quarter,
-          events,
-          eventCount: events.length,
-          newsLinks,
-          podcastLinks,
-          revTechContent: stripHTML(revTechContent), // Store plain text only
-          revTechLinks,
-          revTechEvents,
-          bannerTitle,
-          bannerSubtitle,
-          useCustomColors,
-          customColors,
-          customSections: strippedCustomSections,
-          colorScheme,
-          fontFamily,
-          // HTML content will be regenerated when draft is loaded
-        }
-      };
-      
-      // Add to drafts
-      existingDrafts.push(newDraft);
-      localStorage.setItem('comms_drafts', JSON.stringify(existingDrafts));
-      
-      // Set current draft ID so we can update it later
-      setCurrentDraftId(newDraft.id);
-      
-      // Dispatch custom event to notify DraftsTab
+      const saved = await saveDraft(currentUser.email, draftName.trim(), buildDraftData());
+      setCurrentDraftId(saved.id);
       window.dispatchEvent(new Event('draftsUpdated'));
-      
       setShowSaveDraftModal(false);
       setDraftName('');
-      toast.success(`✅ Saved to Drafts: ${newDraft.name}`);
+      toast.success(`✅ Saved to Drafts: ${saved.name}`);
     } catch (error) {
       console.error('Error saving draft:', error);
-      if (error.name === 'QuotaExceededError') {
-        toast.error('❌ Storage quota exceeded. Please delete some old drafts to free up space.');
-      } else {
-        toast.error('❌ Failed to save draft. Please try again.');
-      }
+      toast.error(`❌ Failed to save draft: ${error.message}`, { autoClose: 8000 });
     }
   };
 
-  const handleUpdateDraft = () => {
+  const handleUpdateDraft = async () => {
     if (events.length === 0) {
       toast.error('Please add at least one event before updating');
       return;
@@ -955,78 +975,18 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
       return;
     }
 
+    if (!currentUser?.email) {
+      toast.error('You must be logged in to save drafts.');
+      return;
+    }
+
     try {
-      // Get existing drafts
-      const existingDrafts = JSON.parse(localStorage.getItem('comms_drafts') || '[]');
-      
-      // Find and update the current draft
-      const draftIndex = existingDrafts.findIndex(d => d.id === currentDraftId);
-      
-      if (draftIndex === -1) {
-        toast.error('Draft not found. Saving as new draft instead.');
-        handleSaveToDrafts();
-        return;
-      }
-
-      // Get the existing draft to preserve its name
-      const existingDraft = existingDrafts[draftIndex];
-
-      // Helper function to strip HTML and keep only plain text
-      const stripHTML = (html) => {
-        if (!html) return '';
-        const tmp = document.createElement('DIV');
-        tmp.innerHTML = html;
-        return tmp.textContent || tmp.innerText || '';
-      };
-      
-      // Strip HTML from rich text content to save space
-      const strippedCustomSections = customSections.map(section => ({
-        ...section,
-        content: stripHTML(section.content) // Store plain text only
-      }));
-
-      // Update the draft, preserving the original name
-      existingDrafts[draftIndex] = {
-        id: currentDraftId,
-        name: existingDraft.name, // Preserve original name
-        date: new Date().toISOString(),
-        data: {
-          title: existingDraft.name, // Use the preserved name
-          type: 'Marketing Spotlight',
-          month,
-          year,
-          quarter,
-          events,
-          eventCount: events.length,
-          newsLinks,
-          podcastLinks,
-          revTechContent: stripHTML(revTechContent), // Store plain text only
-          revTechLinks,
-          revTechEvents,
-          bannerTitle,
-          bannerSubtitle,
-          useCustomColors,
-          customColors,
-          customSections: strippedCustomSections,
-          colorScheme,
-          fontFamily,
-          // HTML content will be regenerated when draft is loaded
-        }
-      };
-      
-      localStorage.setItem('comms_drafts', JSON.stringify(existingDrafts));
-      
-      // Dispatch custom event to notify DraftsTab
+      const updated = await updateDraft(currentDraftId, currentUser.email, buildDraftData());
       window.dispatchEvent(new Event('draftsUpdated'));
-      
-      toast.success(`✅ Updated Draft: ${existingDraft.name}`);
+      toast.success(`✅ Updated Draft: ${updated.name}`);
     } catch (error) {
       console.error('Error updating draft:', error);
-      if (error.name === 'QuotaExceededError') {
-        toast.error('❌ Storage quota exceeded. Please delete some old drafts to free up space.');
-      } else {
-        toast.error('❌ Failed to update draft. Please try again.');
-      }
+      toast.error(`❌ Failed to update draft: ${error.message}`, { autoClose: 8000 });
     }
   };
 
@@ -1062,7 +1022,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
       return;
     }
 
-    const html = generateEmailHTML();
+    const html = layoutStyle === 'modern' ? generateModernEmailHTML() : generateEmailHTML();
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -1388,7 +1348,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
           <tr>
             <td style="padding: 15px 20px; background-color: #fafafa; border-bottom: 1px solid #e0e0e0;">
               <p style="margin: 0; color: #393939; line-height: 1.5; font-size: 12px; text-align: center;">
-                Please see below for the latest update on all upcoming events you can use to drive client engagement, deepen relationships and open new opportunities.
+                ${introText}
               </p>
             </td>
           </tr>
@@ -1827,20 +1787,321 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
   };
 
   const handlePreview = () => {
-    const html = generateEmailHTML();
+    const html = layoutStyle === 'modern' ? generateModernEmailHTML() : generateEmailHTML();
     const previewWindow = window.open('', '_blank');
     previewWindow.document.write(html);
     previewWindow.document.close();
   };
 
   const handleCopyHTML = () => {
-    const html = generateEmailHTML();
+    const html = layoutStyle === 'modern' ? generateModernEmailHTML() : generateEmailHTML();
     navigator.clipboard.writeText(html).then(() => {
       toast.success('✨ Email HTML copied to clipboard!');
     }).catch(() => {
       toast.error('Failed to copy to clipboard');
     });
   };
+
+
+  // ─── Modern Layout HTML Generator ───────────────────────────────────────────
+  const generateModernEmailHTML = () => {
+    const currentColors = (() => {
+      if (useCustomColors) {
+        // Build a merged object — fill missing keys from navy-teal defaults
+        const base = {
+          header: '#1a3a4a', footer: '#1a3a4a',
+          summaryBg: '#e8f6f3', summaryBorder: '#2ec4a5', summaryLabelColor: '#1a3a4a',
+          sectionHeaderColor: '#ffffff', sectionHeaderBg: '#1a3a4a', sectionHeaderBorder: '#2ec4a5',
+          featured: '#2ec4a5',
+          ibmBg: '#f0faf7', ibmBorder: '#2ec4a5', ibmColor: '#1a3a4a',
+          thirdPartyBg: '#f0f4ff', thirdPartyBorder: '#4a6fa5', thirdPartyColor: '#2d3a7c',
+          onDemandBg: '#fff8f0', onDemandBorder: '#e07b39', onDemandColor: '#b35a1a',
+        };
+        return { ...base, ...customColors };
+      }
+      // Resolve from colorSchemes map (same pattern as classic generator)
+      const schemeKey = colorScheme;
+      const schemes = {
+        'navy-teal': { header: '#1a3a4a', footer: '#1a3a4a', summaryBg: '#e8f6f3', summaryBorder: '#2ec4a5', summaryLabelColor: '#1a3a4a', sectionHeaderColor: '#ffffff', sectionHeaderBg: '#1a3a4a', sectionHeaderBorder: '#2ec4a5', featured: '#2ec4a5', ibmBg: '#f0faf7', ibmBorder: '#2ec4a5', ibmColor: '#1a3a4a', thirdPartyBg: '#f0f4ff', thirdPartyBorder: '#4a6fa5', thirdPartyColor: '#2d3a7c', onDemandBg: '#fff8f0', onDemandBorder: '#e07b39', onDemandColor: '#b35a1a' },
+        'indigo-coral': { header: '#3730a3', footer: '#3730a3', summaryBg: '#fff0ed', summaryBorder: '#ef4444', summaryLabelColor: '#3730a3', sectionHeaderColor: '#ffffff', sectionHeaderBg: '#3730a3', sectionHeaderBorder: '#ef4444', featured: '#ef4444', ibmBg: '#f5f3ff', ibmBorder: '#6366f1', ibmColor: '#3730a3', thirdPartyBg: '#fff5f5', thirdPartyBorder: '#ef4444', thirdPartyColor: '#b91c1c', onDemandBg: '#f0fdf4', onDemandBorder: '#22c55e', onDemandColor: '#166534' },
+        'charcoal-gold': { header: '#1c1c1e', footer: '#1c1c1e', summaryBg: '#fffbeb', summaryBorder: '#d97706', summaryLabelColor: '#1c1c1e', sectionHeaderColor: '#ffffff', sectionHeaderBg: '#1c1c1e', sectionHeaderBorder: '#d97706', featured: '#d97706', ibmBg: '#fffbeb', ibmBorder: '#d97706', ibmColor: '#1c1c1e', thirdPartyBg: '#f9fafb', thirdPartyBorder: '#6b7280', thirdPartyColor: '#374151', onDemandBg: '#f5f3ff', onDemandBorder: '#7c3aed', onDemandColor: '#5b21b6' },
+        'ibm-official': { header: '#0530AD', footer: '#0530AD', summaryBg: '#edf5ff', summaryBorder: '#0f62fe', summaryLabelColor: '#0530AD', sectionHeaderColor: '#ffffff', sectionHeaderBg: '#0530AD', sectionHeaderBorder: '#0f62fe', featured: '#0f62fe', ibmBg: '#edf5ff', ibmBorder: '#0f62fe', ibmColor: '#0530AD', thirdPartyBg: '#f2f4f8', thirdPartyBorder: '#4589ff', thirdPartyColor: '#0043ce', onDemandBg: '#f6f2ff', onDemandBorder: '#8a3ffc', onDemandColor: '#6929c4' },
+        'all-blue': { header: '#0f62fe', footer: '#0043ce', summaryBg: '#edf5ff', summaryBorder: '#0f62fe', summaryLabelColor: '#0043ce', sectionHeaderColor: '#ffffff', sectionHeaderBg: '#0043ce', sectionHeaderBorder: '#4589ff', featured: '#4589ff', ibmBg: '#edf5ff', ibmBorder: '#0f62fe', ibmColor: '#0043ce', thirdPartyBg: '#f2f4f8', thirdPartyBorder: '#4589ff', thirdPartyColor: '#0043ce', onDemandBg: '#f6f2ff', onDemandBorder: '#8a3ffc', onDemandColor: '#6929c4' },
+        'summer-sports': { header: '#2d572c', footer: '#2d572c', summaryBg: '#f0f9f0', summaryBorder: '#4caf50', summaryLabelColor: '#2d572c', sectionHeaderColor: '#ffffff', sectionHeaderBg: '#2d572c', sectionHeaderBorder: '#81c784', featured: '#4caf50', ibmBg: '#f0f9f0', ibmBorder: '#4caf50', ibmColor: '#2d572c', thirdPartyBg: '#fffde7', thirdPartyBorder: '#ffb300', thirdPartyColor: '#e65100', onDemandBg: '#f3e5f5', onDemandBorder: '#9c27b0', onDemandColor: '#6a1b9a' },
+        'pastel-spring': { header: '#b06ab3', footer: '#b06ab3', summaryBg: '#fdf6ff', summaryBorder: '#b06ab3', summaryLabelColor: '#7b2d8b', sectionHeaderColor: '#ffffff', sectionHeaderBg: '#b06ab3', sectionHeaderBorder: '#d4a0d7', featured: '#d4a0d7', ibmBg: '#fdf6ff', ibmBorder: '#b06ab3', ibmColor: '#7b2d8b', thirdPartyBg: '#f0fff4', thirdPartyBorder: '#68d391', thirdPartyColor: '#276749', onDemandBg: '#fff5f7', onDemandBorder: '#fc8181', onDemandColor: '#c53030' },
+        'pastel-ocean': { header: '#2b6cb0', footer: '#2b6cb0', summaryBg: '#ebf8ff', summaryBorder: '#63b3ed', summaryLabelColor: '#2b6cb0', sectionHeaderColor: '#ffffff', sectionHeaderBg: '#2b6cb0', sectionHeaderBorder: '#90cdf4', featured: '#63b3ed', ibmBg: '#ebf8ff', ibmBorder: '#63b3ed', ibmColor: '#2b6cb0', thirdPartyBg: '#e6fffa', thirdPartyBorder: '#4fd1c5', thirdPartyColor: '#234e52', onDemandBg: '#fefcbf', onDemandBorder: '#f6e05e', onDemandColor: '#744210' },
+        'pastel-sunset': { header: '#c05621', footer: '#c05621', summaryBg: '#fffaf0', summaryBorder: '#ed8936', summaryLabelColor: '#c05621', sectionHeaderColor: '#ffffff', sectionHeaderBg: '#c05621', sectionHeaderBorder: '#fbd38d', featured: '#ed8936', ibmBg: '#fff5f5', ibmBorder: '#fc8181', ibmColor: '#c53030', thirdPartyBg: '#fffaf0', thirdPartyBorder: '#ed8936', thirdPartyColor: '#c05621', onDemandBg: '#faf5ff', onDemandBorder: '#b794f4', onDemandColor: '#553c9a' },
+        'pastel-lavender': { header: '#553c9a', footer: '#553c9a', summaryBg: '#faf5ff', summaryBorder: '#b794f4', summaryLabelColor: '#553c9a', sectionHeaderColor: '#ffffff', sectionHeaderBg: '#553c9a', sectionHeaderBorder: '#d6bcfa', featured: '#b794f4', ibmBg: '#faf5ff', ibmBorder: '#b794f4', ibmColor: '#553c9a', thirdPartyBg: '#ebf8ff', thirdPartyBorder: '#90cdf4', thirdPartyColor: '#2b6cb0', onDemandBg: '#f0fff4', onDemandBorder: '#68d391', onDemandColor: '#276749' },
+        'pastel-mint': { header: '#276749', footer: '#276749', summaryBg: '#f0fff4', summaryBorder: '#68d391', summaryLabelColor: '#276749', sectionHeaderColor: '#ffffff', sectionHeaderBg: '#276749', sectionHeaderBorder: '#9ae6b4', featured: '#68d391', ibmBg: '#f0fff4', ibmBorder: '#68d391', ibmColor: '#276749', thirdPartyBg: '#ebf8ff', thirdPartyBorder: '#90cdf4', thirdPartyColor: '#2b6cb0', onDemandBg: '#fffbeb', onDemandBorder: '#f6e05e', onDemandColor: '#744210' },
+        'pastel-peach': { header: '#c05621', footer: '#c05621', summaryBg: '#fffaf0', summaryBorder: '#fbd38d', summaryLabelColor: '#c05621', sectionHeaderColor: '#ffffff', sectionHeaderBg: '#c05621', sectionHeaderBorder: '#fbd38d', featured: '#ed8936', ibmBg: '#fff5f5', ibmBorder: '#fc8181', ibmColor: '#c53030', thirdPartyBg: '#fffaf0', thirdPartyBorder: '#ed8936', thirdPartyColor: '#c05621', onDemandBg: '#faf5ff', onDemandBorder: '#b794f4', onDemandColor: '#553c9a' },
+      };
+      return schemes[schemeKey] || schemes['navy-teal'];
+    })();
+
+    const ibmCount = events.filter(e => e.category === 'ibm').length;
+    const thirdPartyCount = events.filter(e => e.category === 'thirdParty').length;
+    const onDemandCount = events.filter(e => e.category === 'onDemand').length;
+
+    // ── Section ribbon helper ──────────────────────────────────────────────────
+    const sectionRibbon = (title, icon) => `
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;">
+        <tr>
+          <td bgcolor="${currentColors.sectionHeaderBg}" style="padding:14px 24px; border-radius:4px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="font-size:16px; font-weight:700; color:${currentColors.sectionHeaderColor}; font-family:Arial,sans-serif;">${title}</td>
+                <td align="right" style="font-size:22px; color:${currentColors.sectionHeaderColor};">${icon}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>`;
+
+    // ── 2-column card grid helper ──────────────────────────────────────────────
+    const twoColumnCards = (items) => {
+      if (!items || items.length === 0) return '';
+      let rows = '';
+      for (let i = 0; i < items.length; i += 2) {
+        const a = items[i];
+        const b = items[i + 1];
+        const cardStyle = `padding:20px; background:#ffffff; border-radius:6px; border:1px solid #e5e7eb; vertical-align:top;`;
+        const cardA = `
+          <td width="48%" style="${cardStyle}">
+            <p style="margin:0 0 6px 0; font-size:20px; color:${currentColors.ibmBorder};">&#9660;</p>
+            <p style="margin:0 0 8px 0; font-size:14px; font-weight:700; color:#1f2328; font-family:Arial,sans-serif;">${a.title || a.name || ''}</p>
+            <p style="margin:0; font-size:13px; color:#57606a; font-family:Arial,sans-serif; line-height:1.5;">${a.description || a.content || ''}</p>
+          </td>`;
+        const cardB = b ? `
+          <td width="4%">&nbsp;</td>
+          <td width="48%" style="${cardStyle}">
+            <p style="margin:0 0 6px 0; font-size:20px; color:${currentColors.ibmBorder};">&#9660;</p>
+            <p style="margin:0 0 8px 0; font-size:14px; font-weight:700; color:#1f2328; font-family:Arial,sans-serif;">${b.title || b.name || ''}</p>
+            <p style="margin:0; font-size:13px; color:#57606a; font-family:Arial,sans-serif; line-height:1.5;">${b.description || b.content || ''}</p>
+          </td>` : `<td width="4%">&nbsp;</td><td width="48%">&nbsp;</td>`;
+        rows += `
+          <tr>
+            ${cardA}
+            ${cardB}
+          </tr>
+          <tr><td colspan="3" style="padding-top:12px;"></td></tr>`;
+      }
+      return `
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:16px; background:${currentColors.summaryBg}; padding:20px; border-radius:4px;">
+          <tr><td style="padding:0 4px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">${rows}</table>
+          </td></tr>
+        </table>`;
+    };
+
+    // ── Event card helper (single event) ──────────────────────────────────────
+    const eventCard = (ev, borderColor) => `
+      <td style="padding:20px; background:#ffffff; border-radius:6px; border:1px solid #e5e7eb; border-left:4px solid ${borderColor}; vertical-align:top;">
+        <p style="margin:0 0 6px 0; font-size:13px; font-weight:700; color:#1f2328; font-family:Arial,sans-serif;">${ev.title || ''}</p>
+        ${ev.date ? `<p style="margin:0 0 4px 0; font-size:12px; color:#57606a; font-family:Arial,sans-serif;">&#128197; ${ev.date}</p>` : ''}
+        ${ev.location ? `<p style="margin:0 0 4px 0; font-size:12px; color:#57606a; font-family:Arial,sans-serif;">&#128205; ${ev.location}</p>` : ''}
+        ${ev.audience ? `<p style="margin:0 0 8px 0; font-size:12px; color:#57606a; font-family:Arial,sans-serif;">${ev.audience}</p>` : ''}
+        ${ev.registrationLink ? `<a href="${ev.registrationLink}" style="display:inline-block; padding:6px 14px; background:${borderColor}; color:#ffffff; font-size:11px; font-weight:600; text-decoration:none; border-radius:3px; font-family:Arial,sans-serif;">Register</a>` : ''}
+      </td>`;
+
+    // ── 2-column event grid helper ─────────────────────────────────────────────
+    const twoColumnEventGrid = (eventsList, borderColor, bgColor) => {
+      if (!eventsList || eventsList.length === 0) return '';
+      let rows = '';
+      for (let i = 0; i < eventsList.length; i += 2) {
+        const a = eventsList[i];
+        const b = eventsList[i + 1];
+        rows += `
+          <tr>
+            ${eventCard(a, borderColor)}
+            <td width="12" style="font-size:0;">&nbsp;</td>
+            ${b ? eventCard(b, borderColor) : '<td>&nbsp;</td>'}
+          </tr>
+          <tr><td colspan="3" style="padding-top:12px; font-size:0;">&nbsp;</td></tr>`;
+      }
+      return `
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:16px; background:${bgColor}; padding:16px; border-radius:4px;">
+          <tr><td>
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">${rows}</table>
+          </td></tr>
+        </table>`;
+    };
+
+    const ibmEvents = events.filter(e => e.category === 'ibm');
+    const thirdPartyEvents = events.filter(e => e.category === 'thirdParty');
+    const onDemandEvents = events.filter(e => e.category === 'onDemand');
+    const featuredEvents = events.filter(e => e.featured);
+
+    const ibmEventsHTML = ibmEvents.length > 0 ? `
+      ${sectionRibbon('IBM Events', '&#127775;')}
+      ${twoColumnEventGrid(ibmEvents, currentColors.ibmBorder, currentColors.ibmBg)}` : '';
+
+    const thirdPartyEventsHTML = thirdPartyEvents.length > 0 ? `
+      ${sectionRibbon('3rd Party Events', '&#127942;')}
+      ${twoColumnEventGrid(thirdPartyEvents, currentColors.thirdPartyBorder, currentColors.thirdPartyBg)}` : '';
+
+    const onDemandEventsHTML = onDemandEvents.length > 0 ? `
+      ${sectionRibbon('On-Demand Webinars', '&#127909;')}
+      ${twoColumnEventGrid(onDemandEvents, currentColors.onDemandBorder, currentColors.onDemandBg)}` : '';
+
+    const featuredEventsHTML = featuredEvents.length > 0 ? `
+      ${sectionRibbon('&#11088; Featured Events', '&#127942;')}
+      ${twoColumnEventGrid(featuredEvents, currentColors.featured, currentColors.summaryBg)}` : '';
+
+    // ── Custom sections HTML ───────────────────────────────────────────────────
+    const customSectionsHTML = customSections.map(sec => {
+      const items = (sec.links && sec.links.length > 0) ? sec.links
+        : (sec.events && sec.events.length > 0) ? sec.events.map(e => ({ title: e.title, description: e.date ? `${e.date}${e.location ? ' · ' + e.location : ''}` : '' }))
+        : [];
+      return `
+        ${sectionRibbon(sec.title || 'Section', '&#10033;')}
+        ${twoColumnCards(items)}`;
+    }).join('');
+
+    // ── News links HTML ────────────────────────────────────────────────────────
+    const newsHTML = newsLinks.length > 0 ? `
+      ${sectionRibbon('Thought Leadership &amp; Resources', '&#128218;')}
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:16px;">
+        ${newsLinks.map(l => `
+          <tr>
+            <td style="padding:12px 0; border-top:1px solid #e5e7eb; font-family:Arial,sans-serif;">
+              <a href="${l.url}" style="font-size:14px; font-weight:600; color:${currentColors.ibmBorder}; text-decoration:none;">${l.title}</a>
+              ${l.description ? `<p style="margin:4px 0 0 0; font-size:12px; color:#57606a;">${l.description}</p>` : ''}
+            </td>
+          </tr>`).join('')}
+      </table>` : '';
+
+    // ── Podcast links HTML ─────────────────────────────────────────────────────
+    const podcastHTML = podcastLinks.length > 0 ? `
+      ${sectionRibbon('Podcasts &amp; Webinars', '&#127911;')}
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:16px;">
+        ${podcastLinks.map(l => `
+          <tr>
+            <td style="padding:12px 0; border-top:1px solid #e5e7eb; font-family:Arial,sans-serif;">
+              <a href="${l.url}" style="font-size:14px; font-weight:600; color:${currentColors.ibmBorder}; text-decoration:none;">${l.title}</a>
+              ${l.description ? `<p style="margin:4px 0 0 0; font-size:12px; color:#57606a;">${l.description}</p>` : ''}
+            </td>
+          </tr>`).join('')}
+      </table>` : '';
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>${bannerTitle} — ${month} ${year}</title>
+  <style>
+    body { margin:0; padding:0; background:#f4f4f4; }
+    .email-wrapper { background:#f4f4f4; padding:24px 0; }
+    @media only screen and (max-width:620px) {
+      .email-container { width:100% !important; }
+    }
+  </style>
+</head>
+<body>
+<div class="email-wrapper">
+<!-- Hidden preheader -->
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">${month} ${year} ${bannerTitle} — ${bannerSubtitle} ${quarter}</div>
+
+<!-- Outer container -->
+<table class="email-container" width="600" cellpadding="0" cellspacing="0" border="0" align="center" style="width:600px;background:#ffffff;border-radius:8px;overflow:hidden;font-family:Arial,sans-serif;border:1px solid #d0d7de;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
+
+  <!-- ── HERO HEADER ─────────────────────────────────────────────────────── -->
+  <tr>
+    <td style="padding:0; background-color:${currentColors.header};">
+      <div style="position:relative; width:600px; height:240px; overflow:hidden; background-color:${currentColors.header}; display:block; line-height:0; font-size:0;">
+        ${heroImageUrl ? `
+        <!-- Full-bleed image -->
+        <img src="${heroImageUrl}" width="600" height="240" alt="" role="presentation" border="0"
+          style="display:block; width:600px; height:240px; object-fit:cover; object-position:center top; position:absolute; top:0; left:0; z-index:0;">
+        <!-- Colour overlay at 75% opacity — covers image with theme colour -->
+        <div style="position:absolute; top:0; left:0; width:600px; height:240px; background-color:${currentColors.header}; opacity:0.75; z-index:1;"></div>` : ''}
+        <!-- Text layer — always on top -->
+        <div style="position:absolute; top:0; left:0; width:600px; height:240px; z-index:2; box-sizing:border-box; padding:40px 32px 32px 32px; display:flex; flex-direction:column; justify-content:flex-end;">
+          <div style="display:inline-block; background:rgba(255,255,255,0.20); border:1px solid rgba(255,255,255,0.40); border-radius:20px; padding:4px 14px; font-size:11px; color:#ffffff; font-family:Arial,sans-serif; margin-bottom:14px; letter-spacing:0.5px; width:fit-content;">${month} ${year}</div>
+          <div style="font-size:30px; font-weight:700; color:#ffffff; font-family:Arial,sans-serif; line-height:1.2; margin-bottom:8px; text-shadow:0 1px 4px rgba(0,0,0,0.4);">${bannerTitle}</div>
+          <div style="font-size:14px; color:rgba(255,255,255,0.92); font-family:Arial,sans-serif; text-shadow:0 1px 3px rgba(0,0,0,0.3);">${bannerSubtitle} ${quarter} ${year}</div>
+        </div>
+      </div>
+    </td>
+  </tr>
+
+  <!-- ── INTRO TEXT ─────────────────────────────────────────────────────── -->
+  <tr>
+    <td style="padding:28px 32px 20px 32px; background:#ffffff;">
+      <p style="margin:0 0 12px 0; font-size:15px; color:#1f2328; font-family:Arial,sans-serif;">Hi team,</p>
+      <p style="margin:0; font-size:13px; color:#57606a; font-family:Arial,sans-serif; line-height:1.7;">${introText}</p>
+    </td>
+  </tr>
+
+  <!-- ── STATS SUMMARY ──────────────────────────────────────────────────── -->
+  <tr>
+    <td style="padding:0 32px 8px 32px; background:#ffffff;">
+      ${sectionRibbon('A little data we can feel good about', '&#9641;')}
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:16px; background:${currentColors.summaryBg}; border-radius:4px; border:1px solid ${currentColors.summaryBorder};">
+        <tr>
+          <td width="33%" align="center" style="padding:20px 8px;">
+            <p style="margin:0; font-size:28px; font-weight:700; color:${currentColors.ibmColor}; font-family:Arial,sans-serif;">${ibmCount}</p>
+            <p style="margin:4px 0 0 0; font-size:11px; color:#57606a; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:0.5px;">IBM Events</p>
+          </td>
+          <td width="33%" align="center" style="padding:20px 8px; border-left:1px solid ${currentColors.summaryBorder}; border-right:1px solid ${currentColors.summaryBorder};">
+            <p style="margin:0; font-size:28px; font-weight:700; color:${currentColors.thirdPartyColor}; font-family:Arial,sans-serif;">${thirdPartyCount}</p>
+            <p style="margin:4px 0 0 0; font-size:11px; color:#57606a; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:0.5px;">3rd Party Events</p>
+          </td>
+          <td width="33%" align="center" style="padding:20px 8px;">
+            <p style="margin:0; font-size:28px; font-weight:700; color:${currentColors.onDemandColor}; font-family:Arial,sans-serif;">${onDemandCount}</p>
+            <p style="margin:4px 0 0 0; font-size:11px; color:#57606a; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:0.5px;">On-Demand</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- ── FEATURED EVENTS ───────────────────────────────────────────────── -->
+  ${featuredEventsHTML ? `<tr><td style="padding:0 32px 8px 32px; background:#ffffff;">${featuredEventsHTML}</td></tr>` : ''}
+
+  <!-- ── IBM EVENTS ────────────────────────────────────────────────────── -->
+  ${ibmEventsHTML ? `<tr><td style="padding:0 32px 8px 32px; background:#ffffff;">${ibmEventsHTML}</td></tr>` : ''}
+
+  <!-- ── 3RD PARTY EVENTS ──────────────────────────────────────────────── -->
+  ${thirdPartyEventsHTML ? `<tr><td style="padding:0 32px 8px 32px; background:#ffffff;">${thirdPartyEventsHTML}</td></tr>` : ''}
+
+  <!-- ── ON-DEMAND EVENTS ──────────────────────────────────────────────── -->
+  ${onDemandEventsHTML ? `<tr><td style="padding:0 32px 8px 32px; background:#ffffff;">${onDemandEventsHTML}</td></tr>` : ''}
+
+  <!-- ── CUSTOM SECTIONS ────────────────────────────────────────────────── -->
+  ${customSectionsHTML ? `<tr><td style="padding:0 32px 8px 32px; background:#ffffff;">${customSectionsHTML}</td></tr>` : ''}
+
+  <!-- ── NEWS LINKS ─────────────────────────────────────────────────────── -->
+  ${newsHTML ? `<tr><td style="padding:0 32px 8px 32px; background:#ffffff;">${newsHTML}</td></tr>` : ''}
+
+  <!-- ── PODCAST LINKS ──────────────────────────────────────────────────── -->
+  ${podcastHTML ? `<tr><td style="padding:0 32px 8px 32px; background:#ffffff;">${podcastHTML}</td></tr>` : ''}
+
+  <!-- ── SPACER ─────────────────────────────────────────────────────────── -->
+  <tr><td style="height:24px; background:#ffffff;"></td></tr>
+
+  <!-- ── FOOTER ─────────────────────────────────────────────────────────── -->
+  <tr>
+    <td bgcolor="${currentColors.footer}" style="padding:24px 32px; border-top:4px solid ${currentColors.sectionHeaderBorder};">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="font-size:12px; color:rgba(255,255,255,0.9); font-family:Arial,sans-serif; line-height:1.6;">
+            Questions? Reply to this email.<br>
+            <span style="color:rgba(255,255,255,0.6);">© ${year} IBM Corporation. All rights reserved.</span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+</table>
+<!-- End outer container -->
+</div>
+</body>
+</html>`;
+  };
+
 
   // Helper function to parse and sort events by date
   const parseEventDate = (dateString) => {
@@ -1979,6 +2240,18 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                 <SelectItem value="montserrat" text="Montserrat" />
               </Select>
             </div>
+            <div style={{ marginTop: '1rem' }}>
+              <p style={{ fontSize: '12px', fontWeight: '600', color: '#525252', marginBottom: '0.5rem' }}>📐 Layout Style</p>
+              <RadioButtonGroup
+                name="layoutStyle"
+                valueSelected={layoutStyle}
+                onChange={(val) => setLayoutStyle(val)}
+                orientation="horizontal"
+              >
+                <RadioButton id="layout-classic" labelText="Classic" value="classic" />
+                <RadioButton id="layout-modern" labelText="Modern" value="modern" />
+              </RadioButtonGroup>
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
               <TextInput
                 id="bannerTitle"
@@ -1995,6 +2268,18 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                 placeholder="Don't miss what's coming up in"
               />
             </div>
+            {layoutStyle === 'modern' && (
+              <div style={{ marginTop: '1rem' }}>
+                <TextInput
+                  id="heroImageUrl"
+                  labelText="🖼️ Hero Image URL (Modern layout)"
+                  value={heroImageUrl}
+                  onChange={(e) => setHeroImageUrl(e.target.value)}
+                  placeholder="https://images.unsplash.com/..."
+                  helperText="Paste any image URL. Leave blank for a solid colour header."
+                />
+              </div>
+            )}
             
             {/* Custom Color Overrides */}
             <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid #e0e0e0' }}>
@@ -2070,7 +2355,7 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
               </div>
               <div>
                 <div style={{ fontSize: '24px', fontWeight: '600', color: currentColors.onDemandColor }}>{onDemandEvents.length}</div>
-                <div style={{ fontSize: '14px', color: '#525252' }}>On-Demand Resources</div>
+                <div style={{ fontSize: '14px', color: '#525252' }}>Webinars</div>
               </div>
               <div>
                 <div style={{ fontSize: '24px', fontWeight: '600', color: '#fdd13a' }}>{events.filter(e => e.featured).length}</div>
@@ -2078,6 +2363,15 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
               </div>
             </div>
           </Tile>
+        </Column>
+
+        {/* Inline Editable Intro Text */}
+        <Column lg={16}>
+          <div style={{ marginBottom: '1rem' }}>
+            {introText !== null && (
+              <InlineEditableIntroText value={introText} onChange={setIntroText} />
+            )}
+          </div>
         </Column>
 
         {/* Events List */}
@@ -2819,9 +3113,12 @@ const MarketingSpotlightTab = forwardRef((props, ref) => {
                       const endDay = end.getDate();
                       const startMonth = monthNames[start.getMonth()];
                       const endMonth = monthNames[end.getMonth()];
-                      const formattedDate = startMonth === endMonth
-                        ? `${startDay}–${endDay} ${startMonth}`
-                        : `${startDay} ${startMonth}–${endDay} ${endMonth}`;
+                      const sameDay = start.getDate() === end.getDate() && start.getMonth() === end.getMonth();
+                      const formattedDate = sameDay
+                        ? `${startDay} ${startMonth}`
+                        : startMonth === endMonth
+                          ? `${startDay}–${endDay} ${startMonth}`
+                          : `${startDay} ${startMonth}–${endDay} ${endMonth}`;
                       setEventForm({ ...eventForm, date: formattedDate });
                     } else if (dates && dates.length >= 1 && dates[0]) {
                       // Only start date picked so far
