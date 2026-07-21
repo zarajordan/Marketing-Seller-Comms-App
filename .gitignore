@@ -35,4 +35,4 @@ node_modules
 # Secrets & build output
 .env
 /dist
-/docs
+
