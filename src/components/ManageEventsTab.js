@@ -59,6 +59,7 @@ const EMPTY_FORM = {
   targetRoles: [],
   status: 'Active',
   postEventFollowUp: '',
+  category: 'ibm',
 };
 
 const SECTION_STYLE = {
@@ -208,6 +209,7 @@ const ManageEventsTab = () => {
       targetRoles: event.targetRoles || [],
       status: event.status || 'Active',
       postEventFollowUp: event.postEventFollowUp || '',
+      category: event.category || 'ibm',
     });
     setBriefSummaryCount((event.briefSummary || event.description || '').length);
     setIsEditing(true);
@@ -471,6 +473,12 @@ const ManageEventsTab = () => {
               ))}
             </Select>
 
+            <Select id="category" name="category" labelText="Category" value={formData.category} onChange={handleInputChange}>
+              <SelectItem value="ibm" text="IBM Event" />
+              <SelectItem value="thirdParty" text="3rd Party Event" />
+              <SelectItem value="onDemand" text="On-Demand/Webinar" />
+            </Select>
+
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '16px' }}>
               <Select id="eventType" name="eventType" labelText="Event Type" value={formData.eventType} onChange={handleInputChange}>
                 <SelectItem value="Webinar" text="Webinar" />
@@ -484,6 +492,7 @@ const ManageEventsTab = () => {
                 <SelectItem value="All" text="All" />
                 <SelectItem value="Sellers" text="Sellers" />
                 <SelectItem value="Clients" text="Clients" />
+                <SelectItem value="Clients & Partners" text="Clients & Partners" />
                 <SelectItem value="Partners" text="Partners" />
               </Select>
               <Select id="industry" name="industry" labelText="Industry *" value={formData.industry} onChange={handleInputChange}>

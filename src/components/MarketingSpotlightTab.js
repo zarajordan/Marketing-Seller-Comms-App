@@ -1,5 +1,5 @@
-import React, { useState, useImperativeHandle, forwardRef } from 'react';
-import { saveDraft, updateDraft } from '../lib/supabaseData';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
+import { saveDraft, updateDraft, listEvents } from '../lib/supabaseData';
 import {
   Grid,
   Column,
@@ -19,6 +19,7 @@ import {
   DatePickerInput,
   RadioButtonGroup,
   RadioButton,
+  Search,
 } from '@carbon/react';
 import {
   Star,
@@ -87,6 +88,10 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
   const [events, setEvents] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [importEvents, setImportEvents] = useState([]);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importSearch, setImportSearch] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [currentDraftId, setCurrentDraftId] = useState(null); // Track which draft is being edited
   const [showSaveDraftModal, setShowSaveDraftModal] = useState(false);
@@ -542,6 +547,58 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
     });
     setEditingEvent(null);
   };
+
+  // Helper: format a date range from startDate/endDate into a display string
+  const formatLibraryDateRange = (startDate, endDate) => {
+    if (!startDate) return '';
+    const months = ['January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'];
+    // Parse YYYY-MM-DD directly to avoid UTC/local timezone offset issues
+    const [sYear, sMonth, sDay] = startDate.split('-').map(Number);
+    const startDay = sDay;
+    const startMonth = months[sMonth - 1];
+    if (!endDate || endDate === startDate) {
+      return `${startDay} ${startMonth}`;
+    }
+    const [, eMonth, eDay] = endDate.split('-').map(Number);
+    const endDay = eDay;
+    const endMonth = months[eMonth - 1];
+    if (startMonth === endMonth) {
+      return `${startDay}–${endDay} ${endMonth}`;
+    }
+    return `${startDay} ${startMonth} – ${endDay} ${endMonth}`;
+  };
+
+  // Helper: map an Event Library event object into the eventForm shape
+  const mapLibraryEventToForm = (libraryEvent) => ({
+    title: libraryEvent.title || '',
+    date: formatLibraryDateRange(libraryEvent.startDate, libraryEvent.endDate),
+    location: libraryEvent.locationDetails || '',
+    registrationLink: libraryEvent.registrationLink || '',
+    seismicLink: libraryEvent.seismicLink || '',
+    category: libraryEvent.category || 'ibm',
+    audience: libraryEvent.targetAudience === 'All' ? '' : (libraryEvent.targetAudience || ''),
+    contactEmail: libraryEvent.contacts?.[0]?.email ?? '',
+    featured: false,
+  });
+
+  // Fetch active upcoming events when the import modal opens
+  useEffect(() => {
+    if (!importModalOpen) return;
+    setImportLoading(true);
+    setImportSearch('');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    listEvents()
+      .then((all) => {
+        const filtered = all.filter(
+          (e) => e.status === 'Active' && e.startDate && new Date(e.startDate) >= today
+        );
+        setImportEvents(filtered);
+      })
+      .catch(() => setImportEvents([]))
+      .finally(() => setImportLoading(false));
+  }, [importModalOpen]);
 
   const handleAddEvent = () => {
     if (!eventForm.title || !eventForm.date) {
@@ -2379,13 +2436,22 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
           <Tile style={{ marginBottom: '1rem', padding: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <h3 style={{ margin: 0 }}>📅 Events ({events.length})</h3>
-              <Button
-                kind="primary"
-                renderIcon={Add}
-                onClick={() => setShowAddModal(true)}
-              >
-                Add Event
-              </Button>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <Button
+                  kind="secondary"
+                  renderIcon={Download}
+                  onClick={() => setImportModalOpen(true)}
+                >
+                  Import from Event Library
+                </Button>
+                <Button
+                  kind="primary"
+                  renderIcon={Add}
+                  onClick={() => setShowAddModal(true)}
+                >
+                  Add Event
+                </Button>
+              </div>
             </div>
 
             {events.length === 0 ? (
@@ -3075,6 +3141,78 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
         </Column>
       </Grid>
 
+      {/* Import from Event Library Modal */}
+      <Modal
+        open={importModalOpen}
+        onRequestClose={() => setImportModalOpen(false)}
+        modalHeading="Import from Event Library"
+        passiveModal
+        size="sm"
+      >
+        <div style={{ marginBottom: '1rem' }}>
+          <input
+            type="text"
+            placeholder="Search events..."
+            value={importSearch}
+            onChange={(e) => setImportSearch(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '0.5rem 0.75rem',
+              fontSize: '14px',
+              border: '1px solid #e0e0e0',
+              borderRadius: '4px',
+              outline: 'none',
+              boxSizing: 'border-box',
+            }}
+          />
+        </div>
+        {importLoading ? (
+          <p style={{ color: '#525252', fontSize: '14px' }}>Loading events...</p>
+        ) : (() => {
+          const filtered = importEvents.filter((e) =>
+            e.title.toLowerCase().includes(importSearch.toLowerCase())
+          );
+          if (filtered.length === 0) {
+            return (
+              <p style={{ color: '#525252', fontSize: '14px', textAlign: 'center', padding: '1rem 0' }}>
+                No active upcoming events found.
+              </p>
+            );
+          }
+          return (
+            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+              {filtered.map((e) => (
+                <div
+                  key={e.id}
+                  onClick={() => {
+                    setEventForm(mapLibraryEventToForm(e));
+                    setEditingEvent(null);
+                    setImportModalOpen(false);
+                    setShowAddModal(true);
+                  }}
+                  style={{
+                    padding: '0.75rem 1rem',
+                    marginBottom: '0.5rem',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    backgroundColor: '#fff',
+                  }}
+                  onMouseEnter={(ev) => ev.currentTarget.style.backgroundColor = '#f4f4f4'}
+                  onMouseLeave={(ev) => ev.currentTarget.style.backgroundColor = '#fff'}
+                >
+                  <div style={{ fontWeight: '600', fontSize: '14px', marginBottom: '2px' }}>{e.title}</div>
+                  <div style={{ fontSize: '12px', color: '#525252' }}>
+                    {formatLibraryDateRange(e.startDate, e.endDate)}
+                    {e.locationDetails ? ` · ${e.locationDetails}` : ''}
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+      </Modal>
+
       {/* Add/Edit Event Modal */}
       <Modal
         open={showAddModal}
@@ -3100,45 +3238,52 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
               <div>
-                <DatePicker
-                  datePickerType="range"
-                  onChange={(dates) => {
-                    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                                       'July', 'August', 'September', 'October', 'November', 'December'];
-                    if (dates && dates.length === 2 && dates[1]) {
-                      // Range selected: format as "10–12 June" or "30 June–2 July"
-                      const start = new Date(dates[0]);
-                      const end = new Date(dates[1]);
-                      const startDay = start.getDate();
-                      const endDay = end.getDate();
-                      const startMonth = monthNames[start.getMonth()];
-                      const endMonth = monthNames[end.getMonth()];
-                      const sameDay = start.getDate() === end.getDate() && start.getMonth() === end.getMonth();
-                      const formattedDate = sameDay
-                        ? `${startDay} ${startMonth}`
-                        : startMonth === endMonth
-                          ? `${startDay}–${endDay} ${startMonth}`
-                          : `${startDay} ${startMonth}–${endDay} ${endMonth}`;
-                      setEventForm({ ...eventForm, date: formattedDate });
-                    } else if (dates && dates.length >= 1 && dates[0]) {
-                      // Only start date picked so far
-                      const start = new Date(dates[0]);
-                      const formattedDate = `${start.getDate()} ${monthNames[start.getMonth()]}`;
-                      setEventForm({ ...eventForm, date: formattedDate });
-                    }
-                  }}
-                >
-                  <DatePickerInput
-                    id="event-date-start"
+                {eventForm.date ? (
+                  <TextInput
+                    id="event-date-display"
                     labelText="Date *"
-                    placeholder="Start date"
+                    value={eventForm.date}
+                    onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })}
                   />
-                  <DatePickerInput
-                    id="event-date-end"
-                    labelText="End Date (optional)"
-                    placeholder="End date"
-                  />
-                </DatePicker>
+                ) : (
+                  <DatePicker
+                    datePickerType="range"
+                    onChange={(dates) => {
+                      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                                         'July', 'August', 'September', 'October', 'November', 'December'];
+                      if (dates && dates.length === 2 && dates[1]) {
+                        const start = new Date(dates[0]);
+                        const end = new Date(dates[1]);
+                        const startDay = start.getDate();
+                        const endDay = end.getDate();
+                        const startMonth = monthNames[start.getMonth()];
+                        const endMonth = monthNames[end.getMonth()];
+                        const sameDay = start.getDate() === end.getDate() && start.getMonth() === end.getMonth();
+                        const formattedDate = sameDay
+                          ? `${startDay} ${startMonth}`
+                          : startMonth === endMonth
+                            ? `${startDay}–${endDay} ${startMonth}`
+                            : `${startDay} ${startMonth}–${endDay} ${endMonth}`;
+                        setEventForm({ ...eventForm, date: formattedDate });
+                      } else if (dates && dates.length >= 1 && dates[0]) {
+                        const start = new Date(dates[0]);
+                        const formattedDate = `${start.getDate()} ${monthNames[start.getMonth()]}`;
+                        setEventForm({ ...eventForm, date: formattedDate });
+                      }
+                    }}
+                  >
+                    <DatePickerInput
+                      id="event-date-start"
+                      labelText="Date *"
+                      placeholder="Start date"
+                    />
+                    <DatePickerInput
+                      id="event-date-end"
+                      labelText="End Date (optional)"
+                      placeholder="End date"
+                    />
+                  </DatePicker>
+                )}
               </div>
               <Select
                 id="event-category"

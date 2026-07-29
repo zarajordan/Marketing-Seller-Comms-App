@@ -214,6 +214,7 @@ export const mapEventRowToAppEvent = (row) => ({
   targetRoles: row.target_roles || [],
   status: row.status || 'Active',
   postEventFollowUp: row.post_event_follow_up || '',
+  category: row.category || 'ibm',
 });
 
 export const mapEventFormToRow = (event) => ({
@@ -236,6 +237,7 @@ export const mapEventFormToRow = (event) => ({
   target_roles: event.targetRoles || [],
   status: event.status || 'Active',
   post_event_follow_up: event.postEventFollowUp || '',
+  category: event.category || 'ibm',
   // keep legacy column populated for backwards compat
   description: event.briefSummary || event.description || '',
   event_date: event.startDate || event.date || null,
