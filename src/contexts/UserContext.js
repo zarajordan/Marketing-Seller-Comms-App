@@ -63,17 +63,15 @@ export const UserProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Seller login — no Supabase auth needed, just verify the user exists and is a seller
+  // Step 1 check — look up email: if seller, log in directly; otherwise signal password needed
   const loginAsSeller = async (email) => {
     const user = await findUserByEmail(email);
-    if (!user) {
-      return { success: false, error: 'Email not recognised. Please contact an administrator.' };
+    // Not in the users table, or not a seller — send to password step
+    if (!user || user.role !== 'seller') {
+      return { success: false, needsPassword: true };
     }
     if (!user.active) {
       return { success: false, error: 'Account is inactive. Please contact an administrator.' };
-    }
-    if (user.role !== 'seller') {
-      return { success: false, needsPassword: true };
     }
     setCurrentUser(user);
     setIsAuthenticated(true);
