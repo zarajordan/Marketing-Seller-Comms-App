@@ -63,19 +63,36 @@ export const UserProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Step 1 check — look up email: if seller, log in directly; otherwise signal password needed
+  // Step 1 check — anyone can enter an email and get Event Library access.
+  // If they are an admin/marketer in the DB they'll be prompted for a password instead.
   const loginAsSeller = async (email) => {
     const user = await findUserByEmail(email);
-    // Not in the users table, or not a seller — send to password step
-    if (!user || user.role !== 'seller') {
-      return { success: false, needsPassword: true };
+    if (user) {
+      // Known user — if they need a password (admin-manager or marketer), prompt for it
+      if ((user.role || '').toLowerCase() !== 'seller') {
+        return { success: false, needsPassword: true };
+      }
+      // Known seller in DB
+      if (!user.active) {
+        return { success: false, error: 'Account is inactive. Please contact an administrator.' };
+      }
+      setCurrentUser(user);
+      setIsAuthenticated(true);
+      return { success: true, user };
     }
-    if (!user.active) {
-      return { success: false, error: 'Account is inactive. Please contact an administrator.' };
-    }
-    setCurrentUser(user);
+
+    // Not in the DB — give them guest seller access (Event Library only)
+    const guestUser = {
+      id: null,
+      name: email.split('@')[0],
+      email,
+      role: 'seller',
+      active: true,
+      permissions: { 'event-library': true },
+    };
+    setCurrentUser(guestUser);
     setIsAuthenticated(true);
-    return { success: true, user };
+    return { success: true, user: guestUser };
   };
 
   const login = async (email, password) => {
