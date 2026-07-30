@@ -63,9 +63,24 @@ export const UserProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const login = async (email, password) => {
-    console.log('UserContext.login: calling signInWithPassword');
+  // Seller login — no Supabase auth needed, just verify the user exists and is a seller
+  const loginAsSeller = async (email) => {
+    const user = await findUserByEmail(email);
+    if (!user) {
+      return { success: false, error: 'Email not recognised. Please contact an administrator.' };
+    }
+    if (!user.active) {
+      return { success: false, error: 'Account is inactive. Please contact an administrator.' };
+    }
+    if (user.role !== 'seller') {
+      return { success: false, needsPassword: true };
+    }
+    setCurrentUser(user);
+    setIsAuthenticated(true);
+    return { success: true, user };
+  };
 
+  const login = async (email, password) => {
     const signInPromise = supabase.auth.signInWithPassword({ email, password });
     const timeoutPromise = new Promise((_, reject) =>
       setTimeout(() => reject(new Error('Sign-in timed out. Please check your connection and try again.')), 15000)
@@ -78,19 +93,16 @@ export const UserProvider = ({ children }) => {
       return { success: false, error: timeoutErr.message };
     }
 
-    console.log('UserContext.login: result', { data, error });
-
     if (error) {
       return { success: false, error: error.message };
     }
 
     try {
       const userPromise = findUserByEmail(data.user.email);
-      const timeoutPromise = new Promise((_, reject) =>
+      const timeoutPromise2 = new Promise((_, reject) =>
         setTimeout(() => reject(new Error('User lookup timed out. Please try again.')), 10000)
       );
-      const user = await Promise.race([userPromise, timeoutPromise]);
-      console.log('UserContext.login: findUserByEmail result', user);
+      const user = await Promise.race([userPromise, timeoutPromise2]);
       if (!user) {
         await supabase.auth.signOut();
         return { success: false, error: 'Account not found or inactive. Contact an administrator.' };
@@ -99,7 +111,6 @@ export const UserProvider = ({ children }) => {
       setIsAuthenticated(true);
       return { success: true, user };
     } catch (err) {
-      console.error('UserContext.login: findUserByEmail error', err);
       await supabase.auth.signOut();
       return { success: false, error: err.message };
     }
@@ -159,6 +170,7 @@ export const UserProvider = ({ children }) => {
     loading,
     passwordRecoveryMode,
     login,
+    loginAsSeller,
     logout,
     resetPassword,
     updatePassword,

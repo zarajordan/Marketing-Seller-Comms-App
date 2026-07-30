@@ -47,14 +47,27 @@ const TAB_CONFIG = [
 ];
 
 function AppContent() {
-  const { currentUser, isAuthenticated, loading, passwordRecoveryMode, login, logout, updatePassword } = useUser();
+  const { currentUser, isAuthenticated, loading, passwordRecoveryMode, login, loginAsSeller, logout, updatePassword } = useUser();
 
   const handleLogin = async (userData) => {
-    const result = await login(userData.email, userData.password);
-    if (result.success) {
-      toast.success(`Welcome back, ${result.user.name}!`);
+    if (userData.step === 'check') {
+      // Step 1 — email only: check if seller (no password) or needs password
+      const result = await loginAsSeller(userData.email);
+      if (result.success) {
+        toast.success(`Welcome, ${result.user.name}!`);
+      } else if (result.needsPassword) {
+        throw new Error('NEEDS_PASSWORD');
+      } else {
+        throw new Error(result.error || 'Login failed');
+      }
     } else {
-      throw new Error(result.error || 'Login failed');
+      // Step 2 — password provided: full Supabase auth
+      const result = await login(userData.email, userData.password);
+      if (result.success) {
+        toast.success(`Welcome back, ${result.user.name}!`);
+      } else {
+        throw new Error(result.error || 'Login failed');
+      }
     }
   };
 
