@@ -527,6 +527,7 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
     location: '',
     audience: '',
     category: 'ibm',
+    industry: 'Cross-Industry',
     featured: false,
     registrationLink: '',
     contactEmail: '',
@@ -540,6 +541,7 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
       location: '',
       audience: '',
       category: 'ibm',
+      industry: 'Cross-Industry',
       featured: false,
       registrationLink: '',
       contactEmail: '',
@@ -577,6 +579,7 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
     registrationLink: libraryEvent.registrationLink || '',
     seismicLink: libraryEvent.seismicLink || '',
     category: libraryEvent.category || 'ibm',
+    industry: libraryEvent.industry || 'Cross-Industry',
     audience: libraryEvent.targetAudience === 'All' ? '' : (libraryEvent.targetAudience || ''),
     contactEmail: libraryEvent.contacts?.[0]?.email ?? '',
     featured: false,
@@ -2490,7 +2493,12 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
                         </p>
                         {event.audience && (
                           <p style={{ margin: '0.25rem 0', fontSize: '14px', color: '#525252' }}>
-                            👥 {event.audience}
+                            👥 {event.audience}{event.industry ? ` · ${event.industry}` : ''}
+                          </p>
+                        )}
+                        {!event.audience && event.industry && (
+                          <p style={{ margin: '0.25rem 0', fontSize: '14px', color: '#525252' }}>
+                            🏭 {event.industry}
                           </p>
                         )}
                       </div>
@@ -3294,6 +3302,32 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
                 <SelectItem value="ibm" text="IBM Event" />
                 <SelectItem value="thirdParty" text="3rd Party Event" />
                 <SelectItem value="onDemand" text="On-Demand/Webinar" />
+              </Select>
+              <Select
+                id="event-industry"
+                labelText="Industry"
+                value={eventForm.industry}
+                onChange={(e) => setEventForm({ ...eventForm, industry: e.target.value })}
+              >
+                <SelectItem value="Cross-Industry" text="Cross-Industry" />
+                <SelectItem value="Automotive" text="Automotive" />
+                <SelectItem value="Banking & Financial Markets" text="Banking & Financial Markets" />
+                <SelectItem value="Chemical & Petroleum" text="Chemical & Petroleum" />
+                <SelectItem value="Consumer Goods" text="Consumer Goods" />
+                <SelectItem value="Education" text="Education" />
+                <SelectItem value="Electronics" text="Electronics" />
+                <SelectItem value="Energy & Utilities" text="Energy & Utilities" />
+                <SelectItem value="Financial Services" text="Financial Services" />
+                <SelectItem value="Government" text="Government" />
+                <SelectItem value="Healthcare" text="Healthcare" />
+                <SelectItem value="Insurance" text="Insurance" />
+                <SelectItem value="Life Sciences" text="Life Sciences" />
+                <SelectItem value="Manufacturing" text="Manufacturing" />
+                <SelectItem value="Media & Entertainment" text="Media & Entertainment" />
+                <SelectItem value="Public Sector" text="Public Sector" />
+                <SelectItem value="Retail" text="Retail" />
+                <SelectItem value="Telecommunications" text="Telecommunications" />
+                <SelectItem value="Travel & Transport" text="Travel & Transport" />
               </Select>
             </div>
 

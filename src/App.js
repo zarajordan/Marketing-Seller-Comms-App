@@ -26,6 +26,8 @@ import DashboardTab from './components/DashboardTab';
 import AIAssistantTab from './components/AIAssistantTab';
 import MarketingSpotlightTab from './components/MarketingSpotlightTab';
 import UserAccessTab from './components/UserAccessTab';
+import SubmitEventTab from './components/SubmitEventTab';
+import ForReviewTab from './components/ForReviewTab';
 import ThemeSelector from './components/ThemeSelector';
 import LoginPage from './components/LoginPage';
 import SetNewPasswordPage from './components/SetNewPasswordPage';
@@ -38,6 +40,8 @@ const TAB_CONFIG = [
   { id: 'templates', label: '📚 Templates', component: TemplatesTab },
   { id: 'event-library', label: '🎯 Event Library', component: EventsTab },
   { id: 'manage-events', label: '📅 Manage Events', component: ManageEventsTab },
+  { id: 'for-review', label: '🔍 For Review', component: ForReviewTab },
+  { id: 'submit-event', label: '📝 Submit Event', component: SubmitEventTab },
   { id: 'drafts', label: 'My Drafts', component: DraftsTab },
   { id: 'user-access', label: '👥 User Access', component: UserAccessTab },
 ];

@@ -6,6 +6,8 @@ export const TAB_PERMISSIONS = [
   'templates',
   'event-library',
   'manage-events',
+  'for-review',
+  'submit-event',
   'drafts',
   'user-access',
 ];

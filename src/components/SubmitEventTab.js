@@ -1,25 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   ButtonSet,
   Checkbox,
-  Modal,
   Select,
   SelectItem,
   Stack,
-  StructuredListBody,
-  StructuredListCell,
-  StructuredListHead,
-  StructuredListRow,
-  StructuredListWrapper,
+  Tag,
   TextInput,
   Tile,
-  Tag,
 } from '@carbon/react';
-import { Add, Edit, TrashCan, View, Checkmark, UserFollow, Copy } from '@carbon/icons-react';
+import { Add, TrashCan, Checkmark, UserFollow, SendAlt } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
-import { createEvent, deleteEvent, listEvents, updateEvent } from '../lib/supabaseData';
+import { createEvent } from '../lib/supabaseData';
 import RichTextEditor from './RichTextEditor';
+import { useUser } from '../contexts/UserContext';
 
 const PRODUCT_AREAS = [
   { id: 'hybrid-cloud', label: '☁️ Hybrid Cloud & Infrastructure Management' },
@@ -39,6 +34,8 @@ const TARGET_ROLES = [
   { id: 'it-practitioners', label: 'IT Practitioners' }, { id: 'other', label: 'Other' },
 ];
 
+const DEFAULT_POST_EVENT_FOLLOW_UP = `<p><strong>For Select:</strong></p><p>For Select T clients, the BAU follow up process in ISC will apply.</p><p><strong>For Named:</strong></p><ol><li><p><strong>Locate the attendee in ISC:</strong> Access the relevant dashboard for your client segment and account (linked in the enablement deck) to identify event attendees.</p></li><li><p><strong>View the individual's interactions:</strong> Open the individual record and go to the Marketo Sales Insights tab to explore the individual's timeline, historical insights, and their latest score.</p></li><li><p><strong>Agree on follow‑up:</strong> Agree who from the account team is most appropriate to follow up with the individual, checking their email and phone permissions before.</p></li><li><p><strong>Update status:</strong> When Sales is actively engaging, update the Contact Status to 'Prospecting'. This step is crucial for tracking progression and ROI from events.</p></li></ol><p>For more detailed guidance, links to the ISC dashboards, and FAQ's, please refer to the UKI RevTech Enablement for Named Accounts deck.</p><p>If you have any questions, please contact the Marketing Lead that is aligned to your client segment or platform.</p>`;
+
 const EMPTY_FORM = {
   title: '',
   startDate: '',
@@ -57,13 +54,13 @@ const EMPTY_FORM = {
   targetAudience: 'All',
   industry: 'Cross-Industry',
   targetRoles: [],
-  status: 'Active',
-  postEventFollowUp: '',
+  status: 'Draft',
+  postEventFollowUp: DEFAULT_POST_EVENT_FOLLOW_UP,
   category: 'ibm',
 };
 
 const SECTION_STYLE = {
-  background: '#0f62fe',
+  background: '#6929c4',
   color: '#fff',
   padding: '10px 16px',
   borderRadius: '4px',
@@ -90,33 +87,12 @@ const INFO_BOX_STYLE = {
   alignItems: 'flex-start',
 };
 
-const ManageEventsTab = () => {
-  const [events, setEvents] = useState([]);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentEvent, setCurrentEvent] = useState(null);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewEvent, setPreviewEvent] = useState(null);
+const SubmitEventTab = () => {
+  const { currentUser } = useUser();
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [briefSummaryCount, setBriefSummaryCount] = useState(0);
-
-  useEffect(() => {
-    loadEvents();
-    const handleEventsUpdate = () => loadEvents();
-    window.addEventListener('eventsUpdated', handleEventsUpdate);
-    return () => window.removeEventListener('eventsUpdated', handleEventsUpdate);
-  }, []);
-
-  const loadEvents = async () => {
-    try {
-      const data = await listEvents();
-      setEvents(data);
-    } catch {
-      toast.error('Failed to load events');
-    }
-  };
-
-  const notifyEventUpdate = () => window.dispatchEvent(new Event('eventsUpdated'));
+  const [submitted, setSubmitted] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -163,143 +139,104 @@ const ManageEventsTab = () => {
     }));
   };
 
+  const validate = () => {
+    const e = {};
+    if (!formData.title.trim())                                          e.title = 'Event title is required';
+    if (!formData.startDate)                                             e.startDate = 'Start date is required';
+    if (!formData.eventTime)                                             e.eventTime = 'Event time is required';
+    if (!formData.locationDetails.trim())                                e.locationDetails = 'Location details are required';
+    if (!formData.briefSummary || formData.briefSummary.replace(/<[^>]*>/g, '').trim() === '')
+                                                                         e.briefSummary = 'Brief summary is required';
+    if (!formData.detailedDescription || formData.detailedDescription.replace(/<[^>]*>/g, '').trim() === '')
+                                                                         e.detailedDescription = 'Detailed description is required';
+    if (!formData.eventAgenda || formData.eventAgenda.replace(/<[^>]*>/g, '').trim() === '')
+                                                                         e.eventAgenda = 'Event agenda is required';
+    if (!formData.registrationLink.trim())                               e.registrationLink = 'Registration link is required';
+    if (!formData.seismicLink.trim())                                    e.seismicLink = 'Seismic page link is required';
+    if (!formData.productAreas[0])                                       e.productAreas = 'Please select a product area';
+    if (formData.targetRoles.length === 0)                               e.targetRoles = 'Please select at least one target role';
+    return e;
+  };
+
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
 
-    if (!formData.title || !formData.startDate || !formData.registrationLink) {
-      toast.warning('Please fill in Event Title, Start Date, and Registration Link');
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      toast.warning('Please fill in all required fields');
       return;
     }
 
     try {
-      if (isEditing && currentEvent) {
-        await updateEvent({ ...currentEvent, ...formData });
-        toast.success('Event updated successfully', { icon: <Checkmark size={24} />, autoClose: 3000 });
-      } else {
-        await createEvent(formData);
-        toast.success('Event added successfully', { icon: <Checkmark size={24} />, autoClose: 3000 });
-      }
-      await loadEvents();
-      notifyEventUpdate();
-      handleCloseForm();
-    } catch (error) {
-      toast.error(error.message || 'Failed to save event');
-    }
-  };
-
-  const handleEdit = (event) => {
-    setCurrentEvent(event);
-    setFormData({
-      title: event.title || '',
-      startDate: event.startDate || event.date || '',
-      endDate: event.endDate || '',
-      eventTime: event.eventTime || '',
-      locationType: event.locationType || 'Virtual',
-      locationDetails: event.locationDetails || event.location || '',
-      contacts: event.contacts || [],
-      briefSummary: event.briefSummary || event.description || '',
-      detailedDescription: event.detailedDescription || '',
-      eventAgenda: event.eventAgenda || '',
-      registrationLink: event.registrationLink || '',
-      seismicLink: event.seismicLink || '',
-      productAreas: event.productAreas || [],
-      eventType: event.eventType || 'Webinar',
-      targetAudience: event.targetAudience || 'All',
-      industry: event.industry || 'Cross-Industry',
-      targetRoles: event.targetRoles || [],
-      status: event.status || 'Active',
-      postEventFollowUp: event.postEventFollowUp || '',
-      category: event.category || 'ibm',
-    });
-    setBriefSummaryCount((event.briefSummary || event.description || '').length);
-    setIsEditing(true);
-    setIsFormOpen(true);
-  };
-
-  const handleDuplicate = async (event) => {
-    try {
-      const duplicate = {
-        ...event,
-        title: `${event.title} (Copy)`,
+      await createEvent({
+        ...formData,
         status: 'Draft',
-      };
-      // Remove id so createEvent generates a new one
-      delete duplicate.id;
-      await createEvent(duplicate);
-      await loadEvents();
-      notifyEventUpdate();
-      toast.success('Event duplicated as Draft');
+        ownerEmail: currentUser?.email || '',
+      });
+      toast.success('Event submitted for review!', { icon: <Checkmark size={24} />, autoClose: 3000 });
+      setFormData(EMPTY_FORM);
+      setBriefSummaryCount(0);
+      setErrors({});
+      setSubmitted(true);
     } catch (error) {
-      toast.error(error.message || 'Failed to duplicate event');
+      toast.error(error.message || 'Failed to submit event');
     }
   };
 
-  const handleDelete = async (eventId) => {
-    if (!window.confirm('Are you sure you want to delete this event?')) return;
-    try {
-      await deleteEvent(eventId);
-      await loadEvents();
-      notifyEventUpdate();
-      toast.success('Event deleted successfully', { icon: <TrashCan size={24} />, autoClose: 3000 });
-    } catch (error) {
-      toast.error(error.message || 'Failed to delete event');
-    }
+  const handleSubmitAnother = () => {
+    setSubmitted(false);
   };
 
-  const handlePreview = (event) => {
-    setPreviewEvent(event);
-    setPreviewOpen(true);
-  };
-
-  const handleCloseForm = () => {
-    setIsFormOpen(false);
-    setIsEditing(false);
-    setCurrentEvent(null);
-    setFormData(EMPTY_FORM);
-    setBriefSummaryCount(0);
-  };
-
-  // Group events by month
-  const groupedEvents = events.reduce((groups, event) => {
-    const date = event.startDate || event.date;
-    const month = date
-      ? new Date(date).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
-      : 'Date TBD';
-    if (!groups[month]) groups[month] = [];
-    groups[month].push(event);
-    return groups;
-  }, {});
+  if (submitted) {
+    return (
+      <div className="submit-event-tab">
+        <Tile style={{ textAlign: 'center', padding: '64px 24px', maxWidth: '600px', margin: '48px auto' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
+          <h2 style={{ marginBottom: '12px' }}>Event Submitted for Review</h2>
+          <p style={{ color: '#525252', marginBottom: '8px' }}>
+            Your event has been saved as a <strong>Draft</strong> and is now awaiting review by an admin or manager.
+          </p>
+          <p style={{ color: '#525252', marginBottom: '32px' }}>
+            Once approved it will be published to the Event Library.
+          </p>
+          <ButtonSet>
+            <Button kind="primary" renderIcon={Add} onClick={handleSubmitAnother}>
+              Submit Another Event
+            </Button>
+          </ButtonSet>
+        </Tile>
+      </div>
+    );
+  }
 
   return (
-    <div className="manage-events-tab">
+    <div className="submit-event-tab">
       <div style={{ marginBottom: '24px' }}>
-        <h2>📅 Manage Events</h2>
-        <p style={{ color: '#525252', marginTop: '8px' }}>Create and manage events for the UKI Marketing team.</p>
+        <h2>📝 Submit an Event</h2>
+        <p style={{ color: '#525252', marginTop: '8px' }}>
+          Fill in the details below to submit an event for admin review. It will be saved as a Draft until approved.
+        </p>
       </div>
 
-      <ButtonSet style={{ marginBottom: '24px' }}>
-        <Button kind="primary" renderIcon={Add} onClick={() => setIsFormOpen(true)}>
-          Create New Event
-        </Button>
-      </ButtonSet>
+      <div style={{ background: '#f6f2ff', border: '1px solid #d4bbff', borderRadius: '4px', padding: '12px 16px', fontSize: '13px', color: '#6929c4', marginBottom: '24px', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+        ℹ️ Your submission will be reviewed by an admin or manager before it appears in the Event Library. Fields marked <strong>*</strong> are required.
+      </div>
 
-      {/* ── Create / Edit Form Panel ── */}
-      {isFormOpen && (
-        <div style={{
-          border: '1px solid #e0e0e0',
-          borderRadius: '4px',
-          marginBottom: '32px',
-          background: '#fff',
-          width: '100%',
-          maxWidth: '1200px',
-        }}>
-          {/* Header */}
-          <div style={{ background: '#161616', color: '#fff', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '18px', fontWeight: '400' }}>{isEditing ? 'Edit Event' : 'Create New Event'}</span>
-            <button type="button" onClick={handleCloseForm} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '20px', padding: '0 4px', lineHeight: 1 }}>✕</button>
-          </div>
-          {/* Body */}
-          <div style={{ padding: '24px' }}>
+      <div style={{
+        border: '1px solid #e0e0e0',
+        borderRadius: '4px',
+        background: '#fff',
+        width: '100%',
+        maxWidth: '1200px',
+      }}>
+        {/* Header */}
+        <div style={{ background: '#161616', color: '#fff', padding: '16px 24px' }}>
+          <span style={{ fontSize: '18px', fontWeight: '400' }}>New Event Submission</span>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: '24px' }}>
 
           {/* ── Basic Information ── */}
           <div style={SECTION_STYLE}>🗓 Basic Information</div>
@@ -312,34 +249,40 @@ const ManageEventsTab = () => {
               placeholder="e.g., IBM Think 2026"
               value={formData.title}
               onChange={handleInputChange}
+              invalid={!!errors.title}
+              invalidText={errors.title}
             />
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '16px' }}>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: '600', color: '#525252', display: 'block', marginBottom: '8px' }}>Start Date *</label>
                 <input type="date" name="startDate" value={formData.startDate} onChange={handleInputChange}
-                  style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #8d8d8d', fontSize: '14px', background: '#fff', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', height: '40px', padding: '0 12px', border: `1px solid ${errors.startDate ? '#da1e28' : '#8d8d8d'}`, fontSize: '14px', background: '#fff', boxSizing: 'border-box' }} />
+                {errors.startDate && <p style={{ fontSize: '12px', color: '#da1e28', marginTop: '4px' }}>{errors.startDate}</p>}
               </div>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: '600', color: '#525252', display: 'block', marginBottom: '8px' }}>End Date (Optional)</label>
+                <label style={{ fontSize: '12px', fontWeight: '600', color: '#525252', display: 'block', marginBottom: '8px' }}>End Date <span style={{ fontWeight: '400' }}>(Optional)</span></label>
                 <input type="date" name="endDate" value={formData.endDate} onChange={handleInputChange}
                   style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #8d8d8d', fontSize: '14px', background: '#fff', boxSizing: 'border-box' }} />
                 <p style={{ fontSize: '12px', color: '#6f6f6f', marginTop: '4px' }}>Leave empty for single-day events</p>
               </div>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: '600', color: '#525252', display: 'block', marginBottom: '8px' }}>Event Time</label>
+                <label style={{ fontSize: '12px', fontWeight: '600', color: '#525252', display: 'block', marginBottom: '8px' }}>Event Time *</label>
                 <input type="time" name="eventTime" value={formData.eventTime} onChange={handleInputChange}
-                  style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #8d8d8d', fontSize: '14px', background: '#fff', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', height: '40px', padding: '0 12px', border: `1px solid ${errors.eventTime ? '#da1e28' : '#8d8d8d'}`, fontSize: '14px', background: '#fff', boxSizing: 'border-box' }} />
+                {errors.eventTime && <p style={{ fontSize: '12px', color: '#da1e28', marginTop: '4px' }}>{errors.eventTime}</p>}
               </div>
             </div>
 
             <TextInput
               id="locationDetails"
               name="locationDetails"
-              labelText="Location Details"
+              labelText="Location Details *"
               placeholder="e.g., London, UK or Zoom"
               value={formData.locationDetails}
               onChange={handleInputChange}
+              invalid={!!errors.locationDetails}
+              invalidText={errors.locationDetails}
             />
           </Stack>
 
@@ -404,25 +347,29 @@ const ManageEventsTab = () => {
                 minHeight="160px"
               />
               <p style={{ fontSize: '12px', color: '#6f6f6f', marginTop: '4px' }}>{briefSummaryCount} / 500 characters</p>
+              {errors.briefSummary && <p style={{ fontSize: '12px', color: '#da1e28', marginTop: '4px' }}>{errors.briefSummary}</p>}
             </div>
 
-            <RichTextEditor
-              label="Detailed Description (Optional)"
-              value={formData.detailedDescription}
-              onChange={(val) => setFormData((prev) => ({ ...prev, detailedDescription: val }))}
-              placeholder="Add more detail about the event..."
-              minHeight="160px"
-            />
+            <div>
+              <RichTextEditor
+                label="Detailed Description *"
+                value={formData.detailedDescription}
+                onChange={(val) => setFormData((prev) => ({ ...prev, detailedDescription: val }))}
+                placeholder="Add more detail about the event..."
+                minHeight="160px"
+              />
+              {errors.detailedDescription && <p style={{ fontSize: '12px', color: '#da1e28', marginTop: '4px' }}>{errors.detailedDescription}</p>}
+            </div>
 
             <div>
-              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Event Agenda (Optional - Seller Reference Only)</p>
-              <p style={{ fontSize: '13px', color: '#525252', marginBottom: '8px' }}>Provide agenda details for sellers. This will NOT appear in client communications.</p>
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Event Agenda * <span style={{ fontSize: '13px', fontWeight: '400', color: '#525252' }}>(Seller Reference Only — will NOT appear in client communications)</span></p>
               <RichTextEditor
                 value={formData.eventAgenda}
                 onChange={(val) => setFormData((prev) => ({ ...prev, eventAgenda: val }))}
                 placeholder="Outline the event agenda..."
                 minHeight="160px"
               />
+              {errors.eventAgenda && <p style={{ fontSize: '12px', color: '#da1e28', marginTop: '4px' }}>{errors.eventAgenda}</p>}
             </div>
           </Stack>
 
@@ -437,15 +384,19 @@ const ManageEventsTab = () => {
               placeholder="https://..."
               value={formData.registrationLink}
               onChange={handleInputChange}
+              invalid={!!errors.registrationLink}
+              invalidText={errors.registrationLink}
             />
             <div>
               <TextInput
                 id="seismicLink"
                 name="seismicLink"
-                labelText="Seismic Page Link (Optional)"
+                labelText="Seismic Page Link *"
                 placeholder="https://seismic.com/..."
                 value={formData.seismicLink}
                 onChange={handleInputChange}
+                invalid={!!errors.seismicLink}
+                invalidText={errors.seismicLink}
               />
               <p style={{ fontSize: '12px', color: '#6f6f6f', marginTop: '4px' }}>Link to Seismic page with more event details for sellers</p>
             </div>
@@ -460,20 +411,24 @@ const ManageEventsTab = () => {
           <div style={{ ...SECTION_STYLE, marginTop: '28px' }}>🎯 Targeting & Audience</div>
 
           <Stack gap={5}>
-            <Select
-              id="productAreas"
-              name="productAreas"
-              labelText="Product Areas * (Select all that apply)"
-              value={formData.productAreas[0] || ''}
-              onChange={(e) => setFormData((prev) => ({ ...prev, productAreas: [e.target.value] }))}
-            >
-              <SelectItem value="" text="Select product areas" />
-              {PRODUCT_AREAS.map((a) => (
-                <SelectItem key={a.id} value={a.id} text={a.label} />
-              ))}
-            </Select>
+            <div>
+              <Select
+                id="productAreas"
+                name="productAreas"
+                labelText="Product Areas * (Select all that apply)"
+                value={formData.productAreas[0] || ''}
+                onChange={(e) => setFormData((prev) => ({ ...prev, productAreas: [e.target.value] }))}
+                invalid={!!errors.productAreas}
+                invalidText={errors.productAreas}
+              >
+                <SelectItem value="" text="Select product areas" />
+                {PRODUCT_AREAS.map((a) => (
+                  <SelectItem key={a.id} value={a.id} text={a.label} />
+                ))}
+              </Select>
+            </div>
 
-            <Select id="category" name="category" labelText="Category" value={formData.category} onChange={handleInputChange}>
+            <Select id="category" name="category" labelText="Category *" value={formData.category} onChange={handleInputChange}>
               <SelectItem value="ibm" text="IBM Event" />
               <SelectItem value="thirdParty" text="3rd Party Event" />
               <SelectItem value="onDemand" text="On-Demand/Webinar" />
@@ -519,7 +474,7 @@ const ManageEventsTab = () => {
             </div>
 
             <div>
-              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Target Roles (Select all that apply)</p>
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Target Roles * <span style={{ fontSize: '13px', fontWeight: '400', color: '#525252' }}>(Select all that apply)</span></p>
               <p style={{ fontSize: '13px', color: '#525252', marginBottom: '12px' }}>Select which roles this event is targeting for invitations</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '8px' }}>
                 {TARGET_ROLES.map((role) => (
@@ -532,19 +487,14 @@ const ManageEventsTab = () => {
                   />
                 ))}
               </div>
+              {errors.targetRoles && <p style={{ fontSize: '12px', color: '#da1e28', marginTop: '8px' }}>{errors.targetRoles}</p>}
             </div>
           </Stack>
 
-          {/* ── Marketing & Status ── */}
-          <div style={{ ...SECTION_STYLE, marginTop: '28px' }}>📊 Marketing & Status</div>
+          {/* ── Additional Notes ── */}
+          <div style={{ ...SECTION_STYLE, marginTop: '28px' }}>📊 Additional Notes</div>
 
           <Stack gap={5}>
-            <Select id="status" name="status" labelText="Status" value={formData.status} onChange={handleInputChange}>
-              <SelectItem value="Active" text="Active (Visible to sellers)" />
-              <SelectItem value="Draft" text="Draft (Hidden from sellers)" />
-              <SelectItem value="Archived" text="Archived" />
-            </Select>
-
             <div>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Post Event Follow-up (Optional)</p>
               <p style={{ fontSize: '13px', color: '#525252', marginBottom: '8px' }}>Add follow-up notes, resources, or action items after the event has concluded.</p>
@@ -564,88 +514,30 @@ const ManageEventsTab = () => {
             </div>
           </Stack>
 
+          {/* Submitted by notice */}
+          <div style={{ marginTop: '28px', padding: '12px 16px', background: '#f4f4f4', borderRadius: '4px', fontSize: '13px', color: '#525252' }}>
+            Submitting as: <strong>{currentUser?.name}</strong> ({currentUser?.email})
+            <Tag type="gray" size="sm" style={{ marginLeft: '8px' }}>Draft — Pending Review</Tag>
+          </div>
+
           {/* Footer */}
           <div style={{ display: 'flex', gap: '0', borderTop: '1px solid #e0e0e0', marginTop: '32px' }}>
-            <Button kind="secondary" onClick={handleCloseForm} style={{ flex: 1 }}>Cancel</Button>
-            <Button kind="primary" onClick={handleSubmit} style={{ flex: 1 }}>{isEditing ? 'Update Event' : 'Create Event'}</Button>
+            <Button
+              kind="secondary"
+              style={{ flex: 1 }}
+              onClick={() => { setFormData(EMPTY_FORM); setBriefSummaryCount(0); setErrors({}); }}
+            >
+              Clear Form
+            </Button>
+            <Button kind="primary" renderIcon={SendAlt} style={{ flex: 1 }} onClick={handleSubmit}>
+              Submit for Review
+            </Button>
           </div>
 
-          </div>
         </div>
-      )}
-
-      {/* ── Preview Modal ── */}
-      <Modal open={previewOpen} onRequestClose={() => setPreviewOpen(false)} modalHeading="Event Preview" passiveModal preventCloseOnClickOutside={false} size="sm">
-        {previewEvent && (
-          <div style={{ padding: '16px 0' }}>
-            <p><strong>Title:</strong> {previewEvent.title}</p>
-            <p><strong>Date:</strong> {previewEvent.startDate || previewEvent.date ? new Date(previewEvent.startDate || previewEvent.date).toLocaleDateString('en-GB') : 'TBD'}</p>
-            <p><strong>Location:</strong> {previewEvent.locationType || ''} {previewEvent.locationDetails ? `— ${previewEvent.locationDetails}` : ''}</p>
-            <p><strong>Status:</strong> {previewEvent.status || 'Active'}</p>
-            <p style={{ marginTop: '12px' }}><strong>Summary:</strong></p>
-            <div className="event-summary-preview" style={{ color: '#525252' }} dangerouslySetInnerHTML={{ __html: previewEvent.briefSummary || previewEvent.description || 'No summary provided' }} />
-            {previewEvent.registrationLink && (
-              <p style={{ marginTop: '12px' }}><strong>Registration:</strong> <a href={previewEvent.registrationLink} target="_blank" rel="noreferrer">{previewEvent.registrationLink}</a></p>
-            )}
-          </div>
-        )}
-      </Modal>
-
-      {/* ── Events List ── */}
-      {events.length === 0 ? (
-        <Tile style={{ textAlign: 'center', padding: '48px 24px' }}>
-          <h3 style={{ marginBottom: '16px' }}>No Events Yet</h3>
-          <p style={{ color: '#525252', marginBottom: '24px' }}>Create your first event to get started.</p>
-          <Button kind="primary" renderIcon={Add} onClick={() => setIsFormOpen(true)}>Create New Event</Button>
-        </Tile>
-      ) : (
-        Object.entries(groupedEvents).map(([month, monthEvents]) => (
-          <div key={month} style={{ marginBottom: '32px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-              <span style={{ fontSize: '13px', fontWeight: '600', color: '#525252' }}>📅 {month} ({monthEvents.length} event{monthEvents.length !== 1 ? 's' : ''})</span>
-            </div>
-            <StructuredListWrapper>
-              <StructuredListHead>
-                <StructuredListRow head>
-                  <StructuredListCell head>Event Title</StructuredListCell>
-                  <StructuredListCell head>Date</StructuredListCell>
-                  <StructuredListCell head>Event Type</StructuredListCell>
-                  <StructuredListCell head>Status</StructuredListCell>
-                  <StructuredListCell head>Actions</StructuredListCell>
-                </StructuredListRow>
-              </StructuredListHead>
-              <StructuredListBody>
-                {monthEvents.map((event) => (
-                  <StructuredListRow key={event.id}>
-                    <StructuredListCell>{event.title}</StructuredListCell>
-                    <StructuredListCell>
-                      {event.startDate || event.date ? new Date(event.startDate || event.date).toLocaleDateString('en-GB') : 'TBD'}
-                    </StructuredListCell>
-                    <StructuredListCell>{event.eventType || '—'}</StructuredListCell>
-                    <StructuredListCell>
-                      <Tag type={event.status === 'Active' ? 'green' : event.status === 'Draft' ? 'gray' : 'cool-gray'} size="sm">
-                        {event.status || 'Active'}
-                      </Tag>
-                    </StructuredListCell>
-                    <StructuredListCell>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <Button kind="ghost" size="sm" renderIcon={View} iconDescription="Preview" hasIconOnly onClick={() => handlePreview(event)} />
-                        <Button kind="ghost" size="sm" renderIcon={Edit} iconDescription="Edit" hasIconOnly onClick={() => handleEdit(event)} />
-                        <Button kind="ghost" size="sm" renderIcon={Copy} iconDescription="Duplicate" hasIconOnly onClick={() => handleDuplicate(event)} />
-                        <Button kind="danger--ghost" size="sm" renderIcon={TrashCan} iconDescription="Delete" hasIconOnly onClick={() => handleDelete(event.id)} />
-                      </div>
-                    </StructuredListCell>
-                  </StructuredListRow>
-                ))}
-              </StructuredListBody>
-            </StructuredListWrapper>
-          </div>
-        ))
-      )}
+      </div>
     </div>
   );
 };
 
-export default ManageEventsTab;
-
-// Made with Bob
+export default SubmitEventTab;
