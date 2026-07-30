@@ -13,8 +13,8 @@ import { useUser } from '../contexts/UserContext';
 const LoginPage = ({ onLogin }) => {
   const { resetPassword } = useUser();
 
-  // 'email' | 'password' | 'forgot' | 'reset-sent'
-  const [view, setView] = useState('email');
+  // authStage: 'email' | 'password' | 'forgot' | 'reset-sent'
+  const [authStage, setAuthStage] = useState('email');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,20 +32,24 @@ const LoginPage = ({ onLogin }) => {
     if (rememberedEmail) setEmail(rememberedEmail);
   }, []);
 
-  // ── Step 1: email submitted — look up role ────────────────────────────────
-  const handleEmailSubmit = async (e) => {
+  // ── Step 1: checkEmail() — look up role in users table ───────────────────
+  const checkEmail = async (e) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
 
+    if (!email.toLowerCase().endsWith('@ibm.com')) {
+      setError('Please enter a valid IBM email address (firstname.lastname@ibm.com)');
+      return;
+    }
+
+    setIsLoading(true);
     try {
       await onLogin({ email, step: 'check' });
-      // onLogin resolves for sellers (no password needed) — if we reach here
-      // the seller is already logged in and App.js will unmount this page.
+      // authStage → 'seller': already logged in, App.js unmounts this page
     } catch (err) {
       if (err.message === 'NEEDS_PASSWORD') {
-        // admin-manager or marketer — show password step
-        setView('password');
+        // authStage → 'password': marketer or admin-manager
+        setAuthStage('password');
       } else {
         setError(err.message || 'Unable to sign in');
       }
@@ -80,7 +84,7 @@ const LoginPage = ({ onLogin }) => {
     if (!result.success) {
       setResetError(result.error || 'Failed to send reset email');
     } else {
-      setView('reset-sent');
+      setAuthStage('reset-sent');
     }
   };
 
@@ -121,13 +125,13 @@ const LoginPage = ({ onLogin }) => {
   ) : null;
 
   // ── Forgot password form ──────────────────────────────────────────────────
-  if (view === 'forgot') {
+  if (authStage === 'forgot') {
     return (
       <div style={pageStyle}>
         <div style={cardStyle}>
           <button
             type="button"
-            onClick={() => { setView('password'); setResetError(''); setResetEmail(''); }}
+            onClick={() => { setAuthStage('password'); setResetError(''); setResetEmail(''); }}
             style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: '#0f62fe', fontSize: '14px', padding: 0, marginBottom: '24px' }}
           >
             <ArrowLeft size={16} /> Back to sign in
@@ -160,7 +164,7 @@ const LoginPage = ({ onLogin }) => {
   }
 
   // ── Reset email sent ──────────────────────────────────────────────────────
-  if (view === 'reset-sent') {
+  if (authStage === 'reset-sent') {
     return (
       <div style={pageStyle}>
         <div style={cardStyle}>
@@ -174,7 +178,7 @@ const LoginPage = ({ onLogin }) => {
             <p style={{ fontSize: '14px', color: '#525252', marginBottom: '8px' }}>We sent a reset link to:</p>
             <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '24px' }}>{resetEmail}</p>
             <p style={{ fontSize: '13px', color: '#525252', marginBottom: '32px' }}>The link expires after 1 hour.</p>
-            <Button kind="tertiary" size="md" onClick={() => { setView('password'); setResetEmail(''); }} style={{ width: '100%' }}>
+            <Button kind="tertiary" size="md" onClick={() => { setAuthStage('password'); setResetEmail(''); }} style={{ width: '100%' }}>
               Back to sign in
             </Button>
           </div>
@@ -184,13 +188,13 @@ const LoginPage = ({ onLogin }) => {
   }
 
   // ── Step 2: password form (admin-manager / marketer) ─────────────────────
-  if (view === 'password') {
+  if (authStage === 'password') {
     return (
       <div style={pageStyle}>
         <div style={cardStyle}>
           <button
             type="button"
-            onClick={() => { setView('email'); setPassword(''); setError(''); }}
+            onClick={() => { setAuthStage('email'); setPassword(''); setError(''); }}
             style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: '#0f62fe', fontSize: '14px', padding: 0, marginBottom: '24px' }}
           >
             <ArrowLeft size={16} /> Back
@@ -226,7 +230,7 @@ const LoginPage = ({ onLogin }) => {
               <div style={{ textAlign: 'right' }}>
                 <Link
                   href="#"
-                  onClick={(e) => { e.preventDefault(); setError(''); setResetEmail(email); setView('forgot'); }}
+                  onClick={(e) => { e.preventDefault(); setError(''); setResetEmail(email); setAuthStage('forgot'); }}
                   style={{ fontSize: '14px' }}
                 >
                   Forgot password?
@@ -248,18 +252,18 @@ const LoginPage = ({ onLogin }) => {
     );
   }
 
-  // ── Step 1: email form (default) ──────────────────────────────────────────
-  return (
+  // ── Step 1: EmailStep — authStage 'email' (default) ──────────────────────
+  const EmailStep = () => (
     <div style={pageStyle}>
       <div style={cardStyle}>
         <Header />
         <ErrorBanner msg={error} />
-        <Form onSubmit={handleEmailSubmit}>
+        <Form onSubmit={checkEmail}>
           <Stack gap={6}>
             <TextInput
               id="email"
               labelText="Email address"
-              placeholder="Enter your email"
+              placeholder="firstname.lastname@ibm.com"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -281,6 +285,8 @@ const LoginPage = ({ onLogin }) => {
       </div>
     </div>
   );
+
+  return <EmailStep />;
 };
 
 export default LoginPage;

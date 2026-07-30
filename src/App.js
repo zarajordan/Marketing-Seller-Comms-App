@@ -47,15 +47,15 @@ const TAB_CONFIG = [
 ];
 
 function AppContent() {
-  const { currentUser, isAuthenticated, loading, passwordRecoveryMode, login, loginAsSeller, logout, updatePassword } = useUser();
+  const { currentUser, isAuthenticated, loading, passwordRecoveryMode, login, checkEmail, logout, updatePassword } = useUser();
 
   const handleLogin = async (userData) => {
     if (userData.step === 'check') {
-      // Step 1 — email only: check if seller (no password) or needs password
-      const result = await loginAsSeller(userData.email);
-      if (result.success) {
+      // Step 1 — checkEmail() determines authStage
+      const result = await checkEmail(userData.email);
+      if (result.authStage === 'seller') {
         toast.success(`Welcome, ${result.user.name}!`);
-      } else if (result.needsPassword) {
+      } else if (result.authStage === 'password') {
         throw new Error('NEEDS_PASSWORD');
       } else {
         throw new Error(result.error || 'Login failed');

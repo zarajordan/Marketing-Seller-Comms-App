@@ -63,25 +63,25 @@ export const UserProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Step 1 check — anyone can enter an email and get Event Library access.
-  // If they are an admin/marketer in the DB they'll be prompted for a password instead.
-  const loginAsSeller = async (email) => {
+  // Step 1 — checkEmail(): query users table and determine authStage.
+  // Returns authStage 'seller' (direct access) or 'password' (needs Step 2).
+  const checkEmail = async (email) => {
     const user = await findUserByEmail(email);
     if (user) {
-      // Known user — if they need a password (admin-manager or marketer), prompt for it
+      // Known user — non-sellers need a password
       if ((user.role || '').toLowerCase() !== 'seller') {
-        return { success: false, needsPassword: true };
+        return { authStage: 'password' };
       }
-      // Known seller in DB
+      // Known seller in DB — direct access
       if (!user.active) {
         return { success: false, error: 'Account is inactive. Please contact an administrator.' };
       }
       setCurrentUser(user);
       setIsAuthenticated(true);
-      return { success: true, user };
+      return { authStage: 'seller', user };
     }
 
-    // Not in the DB — give them guest seller access (Event Library only)
+    // Not in the DB — treat as regular IBM employee, Event Library only
     const guestUser = {
       id: null,
       name: email.split('@')[0],
@@ -92,7 +92,7 @@ export const UserProvider = ({ children }) => {
     };
     setCurrentUser(guestUser);
     setIsAuthenticated(true);
-    return { success: true, user: guestUser };
+    return { authStage: 'seller', user: guestUser };
   };
 
   const login = async (email, password) => {
@@ -185,7 +185,7 @@ export const UserProvider = ({ children }) => {
     loading,
     passwordRecoveryMode,
     login,
-    loginAsSeller,
+    checkEmail,
     logout,
     resetPassword,
     updatePassword,
