@@ -57,13 +57,28 @@ const INDUSTRIES = [
   { id: 'Telecoms', label: 'Telecoms' },
 ];
 
+const highlight = (text, term) => {
+  if (!term || !text) return text;
+  const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const parts = text.split(regex);
+  return parts.map((part, i) =>
+    part.toLowerCase() === term.toLowerCase() ? <mark key={i} style={{ background: '#f1c21b', color: '#161616', padding: '0 1px', borderRadius: '2px' }}>{part}</mark> : part
+  );
+};
+
+const highlightHtml = (html, term) => {
+  if (!term || !html) return html;
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return html.replace(new RegExp(`(${escaped})`, 'gi'), '<mark style="background:#f1c21b;color:#161616;padding:0 1px;border-radius:2px">$1</mark>');
+};
+
 const EventsTab = ({ onGenerateComm }) => {
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [selectedEvents, setSelectedEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProductAreas, setSelectedProductAreas] = useState([]);
-  const [selectedEventTypes, setSelectedEventTypes] = useState([]);
+  const [selectedRegions, setSelectedRegions] = useState([]);
   const [selectedIndustries, setSelectedIndustries] = useState([]);
   const [dateFilter, setDateFilter] = useState('upcoming');
   const [previewEvent, setPreviewEvent] = useState(null);
@@ -92,7 +107,7 @@ const EventsTab = ({ onGenerateComm }) => {
 
   useEffect(() => {
     applyFilters();
-  }, [events, searchTerm, selectedProductAreas, selectedEventTypes, selectedIndustries, dateFilter]);
+  }, [events, searchTerm, selectedProductAreas, selectedRegions, selectedIndustries, dateFilter]);
 
   const loadEvents = async () => {
     setLoading(true);
@@ -128,8 +143,10 @@ const EventsTab = ({ onGenerateComm }) => {
       );
     }
 
-    if (selectedEventTypes.length > 0) {
-      filtered = filtered.filter(event => selectedEventTypes.includes(event.eventType));
+    if (selectedRegions.length > 0) {
+      filtered = filtered.filter(event =>
+        event.regions?.some(r => selectedRegions.includes(r))
+      );
     }
 
     if (selectedIndustries.length > 0) {
@@ -339,7 +356,7 @@ const EventsTab = ({ onGenerateComm }) => {
   const handleClearFilters = () => {
     setSearchTerm('');
     setSelectedProductAreas([]);
-    setSelectedEventTypes([]);
+    setSelectedRegions([]);
     setSelectedIndustries([]);
     setDateFilter('all');
   };
@@ -405,12 +422,12 @@ const EventsTab = ({ onGenerateComm }) => {
               </div>
               <div style={{ flex: '1.5', minWidth: '180px' }}>
                 <FilterableMultiSelect
-                  id="event-type-filter"
-                  titleText="Event Type"
-                  placeholder="Filter by type"
-                  items={EVENT_TYPES}
+                  id="region-filter"
+                  titleText="Region"
+                  placeholder="Filter by region"
+                  items={['North', 'South', 'Midlands (Birmingham)', 'Ireland', 'Scotland', 'Wales', 'Europe', 'London'].map(r => ({ id: r, label: r }))}
                   itemToString={(item) => item ? item.label : ''}
-                  onChange={({ selectedItems }) => setSelectedEventTypes(selectedItems.map(i => i.id))}
+                  onChange={({ selectedItems }) => setSelectedRegions(selectedItems.map(i => i.id))}
                   size="lg"
                 />
               </div>
@@ -433,7 +450,7 @@ const EventsTab = ({ onGenerateComm }) => {
                 </Select>
               </div>
             </div>
-            {(searchTerm || selectedProductAreas.length > 0 || selectedEventTypes.length > 0 || selectedIndustries.length > 0 || dateFilter !== 'all') && (
+            {(searchTerm || selectedProductAreas.length > 0 || selectedRegions.length > 0 || selectedIndustries.length > 0 || dateFilter !== 'all') && (
               <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
                 <Button kind="ghost" size="sm" renderIcon={Close} onClick={handleClearFilters}>
                   Clear all filters
@@ -536,14 +553,14 @@ const EventsTab = ({ onGenerateComm }) => {
 
                         {/* Title */}
                         <div style={{ marginBottom: '10px', paddingRight: '40px' }}>
-                          <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>{event.title}</h4>
+                          <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>{highlight(event.title, searchTerm)}</h4>
                         </div>
 
                         {/* Summary — rendered HTML to preserve line breaks */}
                         <div
                           className="event-summary-preview"
                           style={{ color: '#525252', fontSize: '14px', lineHeight: '1.5', marginBottom: '12px' }}
-                          dangerouslySetInnerHTML={{ __html: event.briefSummary || event.description || '<p>No description provided</p>' }}
+                          dangerouslySetInnerHTML={{ __html: highlightHtml(event.briefSummary || event.description || '<p>No description provided</p>', searchTerm) }}
                         />
 
                         {/* Date / Location */}
@@ -564,7 +581,7 @@ const EventsTab = ({ onGenerateComm }) => {
                           {(event.locationDetails || event.location) && (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <Location size={16} />
-                              <span>{event.locationDetails || event.location}</span>
+                              <span>{highlight((event.locationDetails || event.location).replace(/\s*\(Virtual\)\s*$/i, ''), searchTerm)}{event.locationType === 'Virtual' ? ' (Virtual)' : ''}</span>
                             </div>
                           )}
                         </div>
@@ -798,7 +815,7 @@ const EventsTab = ({ onGenerateComm }) => {
                 )}
                 {(previewEvent.locationDetails || previewEvent.location) && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Location size={16} /><span><strong>Location:</strong> {previewEvent.locationDetails || previewEvent.location} ({previewEvent.locationType})</span>
+                    <Location size={16} /><span><strong>Location:</strong> {previewEvent.locationDetails || previewEvent.location}{previewEvent.locationType === 'Virtual' ? ' (Virtual)' : ''}</span>
                   </div>
                 )}
                 {previewEvent.eventType && <div><strong>Type:</strong> {previewEvent.eventType}</div>}
@@ -841,9 +858,12 @@ const EventsTab = ({ onGenerateComm }) => {
               <div style={{ marginBottom: '24px' }}>
                 <h5 style={{ marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Target Roles</h5>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {previewEvent.targetRoles.map(roleId => (
-                    <Tag key={roleId} type="cyan" size="md">{roleId.toUpperCase()}</Tag>
-                  ))}
+                  {previewEvent.targetRoles.map(roleId => {
+                    const label = roleId === 'other'
+                      ? (previewEvent.otherRole || 'Other')
+                      : roleId.toUpperCase();
+                    return <Tag key={roleId} type="cyan" size="md">{label}</Tag>;
+                  })}
                 </div>
               </div>
             )}

@@ -22,6 +22,7 @@ import { createEvent, deleteEvent, listEvents, updateEvent } from '../lib/supaba
 import RichTextEditor from './RichTextEditor';
 
 const PRODUCT_AREAS = [
+  { id: 'all-products', label: '🌐 All Products' },
   { id: 'hybrid-cloud', label: '☁️ Hybrid Cloud & Infrastructure Management' },
   { id: 'data-ai', label: '🤖 Data & AI' },
   { id: 'automation', label: '⚙️ Business Automation' },
@@ -46,17 +47,20 @@ const EMPTY_FORM = {
   eventTime: '',
   locationType: 'Virtual',
   locationDetails: '',
+  regions: [],
   contacts: [],
   briefSummary: '',
   detailedDescription: '',
   eventAgenda: '',
   registrationLink: '',
   seismicLink: '',
+  inviteProcess: '',
   productAreas: [],
   eventType: 'Webinar',
   targetAudience: 'All',
   industry: 'Cross-Industry',
   targetRoles: [],
+  otherRole: '',
   status: 'Active',
   postEventFollowUp: '',
   category: 'ibm',
@@ -196,6 +200,7 @@ const ManageEventsTab = () => {
       eventTime: event.eventTime || '',
       locationType: event.locationType || 'Virtual',
       locationDetails: event.locationDetails || event.location || '',
+      regions: event.regions || [],
       contacts: event.contacts || [],
       briefSummary: event.briefSummary || event.description || '',
       detailedDescription: event.detailedDescription || '',
@@ -207,6 +212,7 @@ const ManageEventsTab = () => {
       targetAudience: event.targetAudience || 'All',
       industry: event.industry || 'Cross-Industry',
       targetRoles: event.targetRoles || [],
+      otherRole: event.otherRole || '',
       status: event.status || 'Active',
       postEventFollowUp: event.postEventFollowUp || '',
       category: event.category || 'ibm',
@@ -341,6 +347,20 @@ const ManageEventsTab = () => {
               value={formData.locationDetails}
               onChange={handleInputChange}
             />
+            <div>
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Region <span style={{ fontSize: '13px', fontWeight: '400', color: '#525252' }}>(Select all that apply)</span></p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '8px' }}>
+                {['North', 'South', 'Midlands (Birmingham)', 'Ireland', 'Scotland', 'Wales', 'Europe', 'London'].map((region) => (
+                  <Checkbox
+                    key={region}
+                    id={`region-manage-${region}`}
+                    labelText={region}
+                    checked={formData.regions.includes(region)}
+                    onChange={() => handleCheckboxToggle('regions', region)}
+                  />
+                ))}
+              </div>
+            </div>
           </Stack>
 
           {/* ── Event Contacts ── */}
@@ -454,24 +474,50 @@ const ManageEventsTab = () => {
               <p style={{ fontSize: '13px', color: '#525252', marginBottom: '8px' }}>Upload a Word document that sellers can download to invite clients to this event</p>
               <input type="file" accept=".doc,.docx" style={{ width: '100%', padding: '8px', border: '1px solid #8d8d8d', background: '#fff', fontSize: '14px', boxSizing: 'border-box' }} />
             </div>
+            <div>
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Business Partner Invite Document (Optional)</p>
+              <p style={{ fontSize: '13px', color: '#525252', marginBottom: '8px' }}>Upload a Word document that business partners can download to invite clients to this event</p>
+              <input type="file" accept=".doc,.docx" style={{ width: '100%', padding: '8px', border: '1px solid #8d8d8d', background: '#fff', fontSize: '14px', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Invite Process (Optional)</p>
+              <p style={{ fontSize: '13px', color: '#525252', marginBottom: '8px' }}>Describe the process sellers should follow to invite clients to this event</p>
+              <RichTextEditor
+                value={formData.inviteProcess}
+                onChange={(val) => setFormData((prev) => ({ ...prev, inviteProcess: val }))}
+                placeholder="Outline the invite process..."
+                minHeight="140px"
+              />
+            </div>
           </Stack>
 
           {/* ── Targeting & Audience ── */}
-          <div style={{ ...SECTION_STYLE, marginTop: '28px' }}>🎯 Targeting & Audience</div>
+          <div style={{ ...SECTION_STYLE, marginTop: '28px' }}>🎯 Target Audience & Products</div>
 
           <Stack gap={5}>
-            <Select
-              id="productAreas"
-              name="productAreas"
-              labelText="Product Areas * (Select all that apply)"
-              value={formData.productAreas[0] || ''}
-              onChange={(e) => setFormData((prev) => ({ ...prev, productAreas: [e.target.value] }))}
-            >
-              <SelectItem value="" text="Select product areas" />
-              {PRODUCT_AREAS.map((a) => (
-                <SelectItem key={a.id} value={a.id} text={a.label} />
-              ))}
-            </Select>
+            <div>
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Product Areas <span style={{ fontSize: '13px', fontWeight: '400', color: '#525252' }}>(Select all that apply)</span></p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '8px' }}>
+                {PRODUCT_AREAS.map((area) => (
+                  <Checkbox
+                    key={area.id}
+                    id={`product-${area.id}`}
+                    labelText={area.label}
+                    checked={formData.productAreas.includes(area.id)}
+                    onChange={() => {
+                      if (area.id === 'all-products') {
+                        setFormData((prev) => ({ ...prev, productAreas: prev.productAreas.includes('all-products') ? [] : ['all-products'] }));
+                      } else {
+                        setFormData((prev) => {
+                          const without = prev.productAreas.filter((x) => x !== 'all-products');
+                          return { ...prev, productAreas: without.includes(area.id) ? without.filter((x) => x !== area.id) : [...without, area.id] };
+                        });
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
 
             <Select id="category" name="category" labelText="Category" value={formData.category} onChange={handleInputChange}>
               <SelectItem value="ibm" text="IBM Event" />
@@ -532,6 +578,17 @@ const ManageEventsTab = () => {
                   />
                 ))}
               </div>
+              {formData.targetRoles.includes('other') && (
+                <TextInput
+                  id="otherRole"
+                  name="otherRole"
+                  labelText="Please specify role"
+                  placeholder="Enter role..."
+                  value={formData.otherRole}
+                  onChange={handleInputChange}
+                  style={{ marginTop: '12px' }}
+                />
+              )}
             </div>
           </Stack>
 
