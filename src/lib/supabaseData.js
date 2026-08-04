@@ -21,6 +21,10 @@ export const ROLE_CONFIG = {
     label: 'Marketer',
     color: 'purple',
   },
+  marketing: {
+    label: 'Marketing',
+    color: 'teal',
+  },
   seller: {
     label: 'Seller',
     color: 'cyan',
@@ -31,6 +35,13 @@ export const getDefaultPermissions = (role) => {
   if (role === 'admin-manager') {
     return TAB_PERMISSIONS.reduce((permissions, tabId) => {
       permissions[tabId] = true;
+      return permissions;
+    }, {});
+  }
+
+  if (role === 'marketing') {
+    return TAB_PERMISSIONS.reduce((permissions, tabId) => {
+      permissions[tabId] = tabId === 'event-library' || tabId === 'submit-event';
       return permissions;
     }, {});
   }

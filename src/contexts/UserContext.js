@@ -68,11 +68,12 @@ export const UserProvider = ({ children }) => {
   const checkEmail = async (email) => {
     const user = await findUserByEmail(email);
     if (user) {
-      // Known user — non-sellers need a password
-      if ((user.role || '').toLowerCase() !== 'seller') {
+      const role = (user.role || '').toLowerCase();
+      // admin-manager and marketer need a password
+      if (role !== 'seller' && role !== 'marketing') {
         return { authStage: 'password' };
       }
-      // Known seller in DB — direct access
+      // seller / marketing — direct access
       if (!user.active) {
         return { success: false, error: 'Account is inactive. Please contact an administrator.' };
       }

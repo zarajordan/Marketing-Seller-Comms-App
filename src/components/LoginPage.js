@@ -37,8 +37,8 @@ const LoginPage = ({ onLogin }) => {
     e.preventDefault();
     setError('');
 
-    if (!email.toLowerCase().endsWith('@ibm.com')) {
-      setError('Please enter a valid IBM email address (firstname.lastname@ibm.com)');
+    if (!email.toLowerCase().match(/@([a-z]+\.)?ibm\.com$/)) {
+      setError('Please enter a valid IBM email address (e.g. firstname.lastname@ibm.com or @uk.ibm.com)');
       return;
     }
 
