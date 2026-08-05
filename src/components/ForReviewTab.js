@@ -139,7 +139,7 @@ const ForReviewTab = () => {
                   <div>
                     <p style={{ fontSize: '11px', fontWeight: '600', color: '#6f6f6f', marginBottom: '2px', textTransform: 'uppercase' }}>Location</p>
                     <p style={{ fontSize: '14px', color: '#161616' }}>
-                      {(event.locationDetails || '—').replace(/\s*\(Virtual\)\s*/gi, '')}{event.locationType === 'Virtual' ? ' (Virtual)' : ''}
+                      {(event.locationDetails || '—').replace(/\s*\(Virtual\)\s*/gi, '')}
                     </p>
                   </div>
                   <div>

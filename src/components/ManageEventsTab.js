@@ -779,7 +779,7 @@ const ManageEventsTab = () => {
           <div style={{ padding: '16px 0' }}>
             <p><strong>Title:</strong> {previewEvent.title}</p>
             <p><strong>Date:</strong> {previewEvent.startDate || previewEvent.date ? new Date(previewEvent.startDate || previewEvent.date).toLocaleDateString('en-GB') : 'TBD'}</p>
-            <p><strong>Location:</strong> {(previewEvent.locationDetails || '').replace(/\s*\(Virtual\)\s*/gi, '')}{previewEvent.locationType === 'Virtual' ? ' (Virtual)' : ''}</p>
+            <p><strong>Location:</strong> {(previewEvent.locationDetails || '').replace(/\s*\(Virtual\)\s*/gi, '')}</p>
             <p><strong>Status:</strong> {previewEvent.status || 'Active'}</p>
             <p style={{ marginTop: '12px' }}><strong>Summary:</strong></p>
             <div className="event-summary-preview" style={{ color: '#525252' }} dangerouslySetInnerHTML={{ __html: previewEvent.briefSummary || previewEvent.description || 'No summary provided' }} />
