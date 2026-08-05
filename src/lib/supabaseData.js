@@ -277,8 +277,8 @@ export const mapEventFormToRow = (event) => ({
 });
 
 export const uploadEventDocument = async (file, folder) => {
-  const ext = file.name.split('.').pop();
-  const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const fileName = `${folder}/${Date.now()}-${safeName}`;
   const { error } = await supabase.storage.from('event-documents').upload(fileName, file, { upsert: true });
   if (error) throw error;
   const { data } = supabase.storage.from('event-documents').getPublicUrl(fileName);
