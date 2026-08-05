@@ -223,6 +223,8 @@ export const mapEventRowToAppEvent = (row) => ({
   registrationLink: row.registration_link || '',
   seismicLink: row.seismic_link || '',
   seismicPageRequired: row.seismic_page_required ?? null,
+  sellerInviteUrl: row.seller_invite_url || '',
+  partnerInviteUrl: row.partner_invite_url || '',
   productAreas: row.product_areas || [],
   eventType: row.event_type || 'Webinar',
   targetAudience: row.target_audience || 'All',
@@ -253,6 +255,8 @@ export const mapEventFormToRow = (event) => ({
   registration_link: event.registrationLink || '',
   seismic_link: event.seismicLink || '',
   seismic_page_required: event.seismicPageRequired ?? null,
+  seller_invite_url: event.sellerInviteUrl || '',
+  partner_invite_url: event.partnerInviteUrl || '',
   product_areas: event.productAreas || [],
   event_type: event.eventType || 'Webinar',
   target_audience: event.targetAudience || 'All',
@@ -271,6 +275,15 @@ export const mapEventFormToRow = (event) => ({
   location: event.locationDetails || event.location || '',
   owner_email: event.ownerEmail || null,
 });
+
+export const uploadEventDocument = async (file, folder) => {
+  const ext = file.name.split('.').pop();
+  const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error } = await supabase.storage.from('event-documents').upload(fileName, file, { upsert: true });
+  if (error) throw error;
+  const { data } = supabase.storage.from('event-documents').getPublicUrl(fileName);
+  return data.publicUrl;
+};
 
 export const listEvents = async () => {
   const { data, error } = await supabase.from('events').select('*').order('event_date', { ascending: true });

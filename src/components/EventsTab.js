@@ -977,6 +977,18 @@ const EventsTab = ({ onGenerateComm }) => {
                   View on Seismic →
                 </a>
               )}
+              {previewEvent.sellerInviteUrl && (
+                <a href={previewEvent.sellerInviteUrl} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'inline-block', backgroundColor: '#6929c4', color: '#fff', padding: '10px 16px', textDecoration: 'none', borderRadius: '4px', fontWeight: 500 }}>
+                  📄 Download Seller Invite
+                </a>
+              )}
+              {previewEvent.partnerInviteUrl && (
+                <a href={previewEvent.partnerInviteUrl} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'inline-block', backgroundColor: '#005d5d', color: '#fff', padding: '10px 16px', textDecoration: 'none', borderRadius: '4px', fontWeight: 500 }}>
+                  📄 Download Partner Invite
+                </a>
+              )}
             </div>
 
             {/* Post Event Follow-up */}

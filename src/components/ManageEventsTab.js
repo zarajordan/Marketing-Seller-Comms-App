@@ -20,7 +20,7 @@ import {
 } from '@carbon/react';
 import { Add, Edit, TrashCan, View, Checkmark, UserFollow, Copy } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
-import { createEvent, deleteEvent, listEvents, updateEvent } from '../lib/supabaseData';
+import { createEvent, deleteEvent, listEvents, updateEvent, uploadEventDocument } from '../lib/supabaseData';
 import RichTextEditor from './RichTextEditor';
 
 const PRODUCT_AREAS = [
@@ -58,6 +58,8 @@ const EMPTY_FORM = {
   eventAgenda: '',
   registrationLink: '',
   seismicLink: '',
+  sellerInviteUrl: '',
+  partnerInviteUrl: '',
   seismicPageRequired: null,
   eventStream: '',
   inviteProcess: '',
@@ -244,6 +246,8 @@ const ManageEventsTab = () => {
       eventAgenda: event.eventAgenda || '',
       registrationLink: event.registrationLink || '',
       seismicLink: event.seismicLink || '',
+      sellerInviteUrl: event.sellerInviteUrl || '',
+      partnerInviteUrl: event.partnerInviteUrl || '',
       seismicPageRequired: event.seismicPageRequired ?? null,
       eventStream: event.eventStream || '',
       productAreas: event.productAreas || [],
@@ -576,12 +580,34 @@ const ManageEventsTab = () => {
             <div>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Seller Invite Document (Optional)</p>
               <p style={{ fontSize: '13px', color: '#525252', marginBottom: '8px' }}>Upload a Word document that sellers can download to invite clients to this event</p>
-              <input type="file" accept=".doc,.docx" style={{ width: '100%', padding: '8px', border: '1px solid #8d8d8d', background: '#fff', fontSize: '14px', boxSizing: 'border-box' }} />
+              {formData.sellerInviteUrl && <p style={{ fontSize: '12px', color: '#198038', marginBottom: '6px' }}>✓ Uploaded: <a href={formData.sellerInviteUrl} target="_blank" rel="noopener noreferrer">View document</a></p>}
+              <input type="file" accept=".doc,.docx" style={{ width: '100%', padding: '8px', border: '1px solid #8d8d8d', background: '#fff', fontSize: '14px', boxSizing: 'border-box' }}
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  try {
+                    const url = await uploadEventDocument(file, 'seller-invites');
+                    setFormData((prev) => ({ ...prev, sellerInviteUrl: url }));
+                    toast.success('Seller invite uploaded');
+                  } catch (err) { toast.error('Upload failed: ' + err.message); }
+                }}
+              />
             </div>
             <div>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Business Partner Invite Document (Optional)</p>
               <p style={{ fontSize: '13px', color: '#525252', marginBottom: '8px' }}>Upload a Word document that business partners can download to invite clients to this event</p>
-              <input type="file" accept=".doc,.docx" style={{ width: '100%', padding: '8px', border: '1px solid #8d8d8d', background: '#fff', fontSize: '14px', boxSizing: 'border-box' }} />
+              {formData.partnerInviteUrl && <p style={{ fontSize: '12px', color: '#198038', marginBottom: '6px' }}>✓ Uploaded: <a href={formData.partnerInviteUrl} target="_blank" rel="noopener noreferrer">View document</a></p>}
+              <input type="file" accept=".doc,.docx" style={{ width: '100%', padding: '8px', border: '1px solid #8d8d8d', background: '#fff', fontSize: '14px', boxSizing: 'border-box' }}
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  try {
+                    const url = await uploadEventDocument(file, 'partner-invites');
+                    setFormData((prev) => ({ ...prev, partnerInviteUrl: url }));
+                    toast.success('Partner invite uploaded');
+                  } catch (err) { toast.error('Upload failed: ' + err.message); }
+                }}
+              />
             </div>
             <div>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Invite Process (Optional)</p>
