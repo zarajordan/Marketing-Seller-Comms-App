@@ -206,14 +206,14 @@ export const mapEventRowToAppEvent = (row) => ({
   // legacy fields
   description: row.brief_summary || row.description || '',
   date: row.start_date || row.event_date || '',
-  location: (row.location_details || row.location || '').replace(/\s*\(Virtual\)\s*/gi, ''),
+  location: (row.location_details || row.location || '').replace(/\s*\(Virtual\)\s*/gi, '').trim(),
   ownerEmail: row.owner_email || '',
   // new fields
   startDate: row.start_date || row.event_date || '',
   endDate: row.end_date || '',
   eventTime: row.event_time || '',
   locationType: row.location_type || 'Virtual',
-  locationDetails: (row.location_details || row.location || '').replace(/\s*\(Virtual\)\s*/gi, ''),
+  locationDetails: (row.location_details || row.location || '').replace(/\s*\(Virtual\)\s*/gi, '').trim(),
   inviteOnly: row.invite_only || false,
   contacts: row.contacts || [],
   speakers: row.speakers || [],

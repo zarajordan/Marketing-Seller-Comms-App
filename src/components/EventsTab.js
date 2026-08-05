@@ -587,7 +587,7 @@ const EventsTab = ({ onGenerateComm }) => {
                           {(event.locationDetails || event.location) && (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <Location size={16} />
-                              <span>{highlight((event.locationDetails || event.location).replace(/\s*\(Virtual\)\s*/gi, ''), searchTerm)}{event.locationType === 'Virtual' ? ' (Virtual)' : ''}</span>
+                              <span>{highlight((event.locationDetails || event.location).replace(/\s*\(Virtual\)\s*/gi, '').trim(), searchTerm)}{event.locationType === 'Virtual' && !/virtual/i.test((event.locationDetails || event.location).replace(/\s*\(Virtual\)\s*/gi, '')) ? ' (Virtual)' : ''}</span>
                             </div>
                           )}
                         </div>
@@ -821,7 +821,7 @@ const EventsTab = ({ onGenerateComm }) => {
                 )}
                 {(previewEvent.locationDetails || previewEvent.location) && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Location size={16} /><span><strong>Location:</strong> {(previewEvent.locationDetails || previewEvent.location).replace(/\s*\(Virtual\)\s*/gi, '')}{previewEvent.locationType === 'Virtual' ? ' (Virtual)' : ''}</span>
+                    <Location size={16} /><span><strong>Location:</strong> {(previewEvent.locationDetails || previewEvent.location).replace(/\s*\(Virtual\)\s*/gi, '').trim()}{previewEvent.locationType === 'Virtual' && !/virtual/i.test((previewEvent.locationDetails || previewEvent.location).replace(/\s*\(Virtual\)\s*/gi, '')) ? ' (Virtual)' : ''}</span>
                   </div>
                 )}
                 {previewEvent.eventType && <div><strong>Type:</strong> {previewEvent.eventType}</div>}
