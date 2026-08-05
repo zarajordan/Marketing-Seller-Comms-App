@@ -4,6 +4,8 @@ import {
   ButtonSet,
   Checkbox,
   Modal,
+  RadioButton,
+  RadioButtonGroup,
   Select,
   SelectItem,
   Stack,
@@ -53,7 +55,7 @@ const EMPTY_FORM = {
   detailedDescription: '',
   eventAgenda: '',
   registrationLink: '',
-  seismicLink: '',
+  seismicPageRequired: null,
   inviteProcess: '',
   productAreas: [],
   eventType: 'Webinar',
@@ -206,7 +208,7 @@ const ManageEventsTab = () => {
       detailedDescription: event.detailedDescription || '',
       eventAgenda: event.eventAgenda || '',
       registrationLink: event.registrationLink || '',
-      seismicLink: event.seismicLink || '',
+      seismicPageRequired: event.seismicPageRequired ?? null,
       productAreas: event.productAreas || [],
       eventType: event.eventType || 'Webinar',
       targetAudience: event.targetAudience || 'All',
@@ -459,15 +461,16 @@ const ManageEventsTab = () => {
               onChange={handleInputChange}
             />
             <div>
-              <TextInput
-                id="seismicLink"
-                name="seismicLink"
-                labelText="Seismic Page Link (Optional)"
-                placeholder="https://seismic.com/..."
-                value={formData.seismicLink}
-                onChange={handleInputChange}
-              />
-              <p style={{ fontSize: '12px', color: '#6f6f6f', marginTop: '4px' }}>Link to Seismic page with more event details for sellers</p>
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '8px' }}>Do you want a Seismic page created?</p>
+              <RadioButtonGroup
+                name="seismicPageRequired"
+                valueSelected={formData.seismicPageRequired}
+                onChange={(val) => setFormData((prev) => ({ ...prev, seismicPageRequired: val }))}
+                orientation="horizontal"
+              >
+                <RadioButton labelText="Yes" value="yes" id="seismic-yes" />
+                <RadioButton labelText="No" value="no" id="seismic-no" />
+              </RadioButtonGroup>
             </div>
             <div>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Seller Invite Document (Optional)</p>
