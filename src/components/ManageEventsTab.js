@@ -50,12 +50,14 @@ const EMPTY_FORM = {
   locationType: 'Virtual',
   locationDetails: '',
   regions: [],
+  inviteOnly: false,
   contacts: [],
   speakers: [],
   briefSummary: '',
   detailedDescription: '',
   eventAgenda: '',
   registrationLink: '',
+  seismicLink: '',
   seismicPageRequired: null,
   eventStream: '',
   inviteProcess: '',
@@ -203,8 +205,8 @@ const ManageEventsTab = () => {
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
 
-    if (!formData.title || !formData.startDate || !formData.registrationLink) {
-      toast.warning('Please fill in Event Title, Start Date, and Registration Link');
+    if (!formData.title || !formData.startDate) {
+      toast.warning('Please fill in Event Title and Start Date');
       return;
     }
 
@@ -234,12 +236,14 @@ const ManageEventsTab = () => {
       locationType: event.locationType || 'Virtual',
       locationDetails: event.locationDetails || event.location || '',
       regions: event.regions || [],
+      inviteOnly: event.inviteOnly || false,
       contacts: event.contacts || [],
       speakers: event.speakers || [],
       briefSummary: event.briefSummary || event.description || '',
       detailedDescription: event.detailedDescription || '',
       eventAgenda: event.eventAgenda || '',
       registrationLink: event.registrationLink || '',
+      seismicLink: event.seismicLink || '',
       seismicPageRequired: event.seismicPageRequired ?? null,
       eventStream: event.eventStream || '',
       productAreas: event.productAreas || [],
@@ -396,6 +400,18 @@ const ManageEventsTab = () => {
                 ))}
               </div>
             </div>
+            <div>
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '8px' }}>Is this an invite only event?</p>
+              <RadioButtonGroup
+                name="inviteOnly"
+                valueSelected={formData.inviteOnly ? 'yes' : 'no'}
+                onChange={(val) => setFormData((prev) => ({ ...prev, inviteOnly: val === 'yes' }))}
+                orientation="horizontal"
+              >
+                <RadioButton labelText="Yes" value="yes" id="invite-only-yes-manage" />
+                <RadioButton labelText="No" value="no" id="invite-only-no-manage" />
+              </RadioButtonGroup>
+            </div>
           </Stack>
 
           {/* ── Event Contacts ── */}
@@ -529,11 +545,22 @@ const ManageEventsTab = () => {
             <TextInput
               id="registrationLink"
               name="registrationLink"
-              labelText="Registration Link *"
+              labelText="Registration Link (Optional)"
               placeholder="https://..."
               value={formData.registrationLink}
               onChange={handleInputChange}
             />
+            <div>
+              <TextInput
+                id="seismicLink"
+                name="seismicLink"
+                labelText="Seismic Page Link (Optional)"
+                placeholder="https://seismic.com/..."
+                value={formData.seismicLink}
+                onChange={handleInputChange}
+              />
+              <p style={{ fontSize: '12px', color: '#6f6f6f', marginTop: '4px' }}>Link to Seismic page with more event details for sellers</p>
+            </div>
             <div>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '8px' }}>Do you want a Seismic page created?</p>
               <RadioButtonGroup

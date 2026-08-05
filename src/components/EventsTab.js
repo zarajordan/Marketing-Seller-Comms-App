@@ -591,6 +591,7 @@ const EventsTab = ({ onGenerateComm }) => {
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px' }}>
                           {event.eventType && <Tag type="blue" size="sm">{event.eventType}</Tag>}
                           {event.industry && event.industry !== 'Cross-Industry' && <Tag type="green" size="sm">{event.industry}</Tag>}
+                          {event.inviteOnly && <Tag type="red" size="sm">🔒 Invite Only</Tag>}
                         </div>
 
                         {/* Event Contacts */}
@@ -892,6 +893,36 @@ const EventsTab = ({ onGenerateComm }) => {
                       <div>
                         <div style={{ fontWeight: 600, fontSize: '14px' }}>{contact.name || '—'}</div>
                         {contact.email && <div style={{ fontSize: '12px', color: '#525252' }}>{contact.email}</div>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Speakers */}
+            {previewEvent.speakers && previewEvent.speakers.length > 0 && (
+              <div style={{ marginBottom: '24px' }}>
+                <h5 style={{ marginBottom: '12px', fontSize: '14px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <UserFollow size={16} /> Speakers
+                </h5>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+                  {previewEvent.speakers.map((speaker, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', background: '#f4f4f4', borderRadius: '4px', minWidth: '220px' }}>
+                      {speaker.imageUrl ? (
+                        <img
+                          src={speaker.imageUrl}
+                          alt={speaker.name}
+                          style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #e0e0e0', flexShrink: 0 }}
+                        />
+                      ) : (
+                        <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#6929c4', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '18px', fontWeight: 600, flexShrink: 0 }}>
+                          {speaker.name ? speaker.name.charAt(0).toUpperCase() : '?'}
+                        </div>
+                      )}
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: '14px' }}>{speaker.name || '—'}</div>
+                        {speaker.role && <div style={{ fontSize: '12px', color: '#525252' }}>{speaker.role}</div>}
                       </div>
                     </div>
                   ))}

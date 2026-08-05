@@ -47,6 +47,7 @@ const EMPTY_FORM = {
   locationType: 'Virtual',
   locationDetails: '',
   regions: [],
+  inviteOnly: false,
   contacts: [],
   speakers: [],
   briefSummary: '',
@@ -199,7 +200,6 @@ const SubmitEventTab = forwardRef((props, ref) => {
                                                                          e.detailedDescription = 'Detailed description is required';
     if (!formData.eventAgenda || formData.eventAgenda.replace(/<[^>]*>/g, '').trim() === '')
                                                                          e.eventAgenda = 'Event agenda is required';
-    if (!formData.registrationLink.trim())                               e.registrationLink = 'Registration link is required';
     if (!formData.productAreas[0])                                       e.productAreas = 'Please select a product area';
     if (formData.targetRoles.length === 0)                               e.targetRoles = 'Please select at least one target role';
     return e;
@@ -367,6 +367,18 @@ const SubmitEventTab = forwardRef((props, ref) => {
                 ))}
               </div>
             </div>
+            <div>
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '8px' }}>Is this an invite only event?</p>
+              <RadioButtonGroup
+                name="inviteOnly"
+                valueSelected={formData.inviteOnly ? 'yes' : 'no'}
+                onChange={(val) => setFormData((prev) => ({ ...prev, inviteOnly: val === 'yes' }))}
+                orientation="horizontal"
+              >
+                <RadioButton labelText="Yes" value="yes" id="invite-only-yes-submit" />
+                <RadioButton labelText="No" value="no" id="invite-only-no-submit" />
+              </RadioButtonGroup>
+            </div>
           </Stack>
 
           {/* ── Event Contacts ── */}
@@ -504,12 +516,10 @@ const SubmitEventTab = forwardRef((props, ref) => {
             <TextInput
               id="registrationLink"
               name="registrationLink"
-              labelText="Registration Link *"
+              labelText="Registration Link (Optional)"
               placeholder="https://..."
               value={formData.registrationLink}
               onChange={handleInputChange}
-              invalid={!!errors.registrationLink}
-              invalidText={errors.registrationLink}
             />
             <div>
               <TextInput
