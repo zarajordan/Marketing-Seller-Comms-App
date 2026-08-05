@@ -406,15 +406,12 @@ const ManageEventsTab = () => {
             </div>
             <div>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '8px' }}>Is this an invite only event?</p>
-              <RadioButtonGroup
-                name="inviteOnly"
-                valueSelected={formData.inviteOnly ? 'yes' : 'no'}
-                onChange={(val) => setFormData((prev) => ({ ...prev, inviteOnly: val === 'yes' }))}
-                orientation="horizontal"
-              >
-                <RadioButton labelText="Yes" value="yes" id="invite-only-yes-manage" />
-                <RadioButton labelText="No" value="no" id="invite-only-no-manage" />
-              </RadioButtonGroup>
+              <Checkbox
+                id="inviteOnly-manage"
+                labelText="Yes, this is an invite only event"
+                checked={!!formData.inviteOnly}
+                onChange={(_, { checked }) => setFormData((prev) => ({ ...prev, inviteOnly: checked }))}
+              />
             </div>
           </Stack>
 
@@ -782,7 +779,7 @@ const ManageEventsTab = () => {
           <div style={{ padding: '16px 0' }}>
             <p><strong>Title:</strong> {previewEvent.title}</p>
             <p><strong>Date:</strong> {previewEvent.startDate || previewEvent.date ? new Date(previewEvent.startDate || previewEvent.date).toLocaleDateString('en-GB') : 'TBD'}</p>
-            <p><strong>Location:</strong> {previewEvent.locationType || ''} {previewEvent.locationDetails ? `— ${previewEvent.locationDetails}` : ''}</p>
+            <p><strong>Location:</strong> {(previewEvent.locationDetails || '').replace(/\s*\(Virtual\)\s*/gi, '')}{previewEvent.locationType === 'Virtual' ? ' (Virtual)' : ''}</p>
             <p><strong>Status:</strong> {previewEvent.status || 'Active'}</p>
             <p style={{ marginTop: '12px' }}><strong>Summary:</strong></p>
             <div className="event-summary-preview" style={{ color: '#525252' }} dangerouslySetInnerHTML={{ __html: previewEvent.briefSummary || previewEvent.description || 'No summary provided' }} />

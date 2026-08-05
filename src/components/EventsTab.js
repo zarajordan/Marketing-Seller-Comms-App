@@ -555,6 +555,11 @@ const EventsTab = ({ onGenerateComm }) => {
                         {/* Title */}
                         <div style={{ marginBottom: '10px', paddingRight: '40px' }}>
                           <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>{highlight(event.title, searchTerm)}</h4>
+                          {event.inviteOnly && (
+                            <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#da1e28', fontWeight: 600 }}>
+                              🔒 Invite Only — contact event owner to include in your comm
+                            </p>
+                          )}
                         </div>
 
                         {/* Summary — rendered HTML to preserve line breaks */}
@@ -582,7 +587,7 @@ const EventsTab = ({ onGenerateComm }) => {
                           {(event.locationDetails || event.location) && (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <Location size={16} />
-                              <span>{highlight((event.locationDetails || event.location).replace(/\s*\(Virtual\)\s*$/i, ''), searchTerm)}{event.locationType === 'Virtual' ? ' (Virtual)' : ''}</span>
+                              <span>{highlight((event.locationDetails || event.location).replace(/\s*\(Virtual\)\s*/gi, ''), searchTerm)}{event.locationType === 'Virtual' ? ' (Virtual)' : ''}</span>
                             </div>
                           )}
                         </div>
@@ -591,7 +596,6 @@ const EventsTab = ({ onGenerateComm }) => {
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px' }}>
                           {event.eventType && <Tag type="blue" size="sm">{event.eventType}</Tag>}
                           {event.industry && event.industry !== 'Cross-Industry' && <Tag type="green" size="sm">{event.industry}</Tag>}
-                          {event.inviteOnly && <Tag type="red" size="sm">🔒 Invite Only</Tag>}
                         </div>
 
                         {/* Event Contacts */}
@@ -817,7 +821,7 @@ const EventsTab = ({ onGenerateComm }) => {
                 )}
                 {(previewEvent.locationDetails || previewEvent.location) && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Location size={16} /><span><strong>Location:</strong> {previewEvent.locationDetails || previewEvent.location}{previewEvent.locationType === 'Virtual' ? ' (Virtual)' : ''}</span>
+                    <Location size={16} /><span><strong>Location:</strong> {(previewEvent.locationDetails || previewEvent.location).replace(/\s*\(Virtual\)\s*/gi, '')}{previewEvent.locationType === 'Virtual' ? ' (Virtual)' : ''}</span>
                   </div>
                 )}
                 {previewEvent.eventType && <div><strong>Type:</strong> {previewEvent.eventType}</div>}

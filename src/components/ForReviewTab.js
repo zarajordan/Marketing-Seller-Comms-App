@@ -139,7 +139,7 @@ const ForReviewTab = () => {
                   <div>
                     <p style={{ fontSize: '11px', fontWeight: '600', color: '#6f6f6f', marginBottom: '2px', textTransform: 'uppercase' }}>Location</p>
                     <p style={{ fontSize: '14px', color: '#161616' }}>
-                      {event.locationType || '—'}{event.locationDetails ? ` · ${event.locationDetails}` : ''}
+                      {(event.locationDetails || '—').replace(/\s*\(Virtual\)\s*/gi, '')}{event.locationType === 'Virtual' ? ' (Virtual)' : ''}
                     </p>
                   </div>
                   <div>
@@ -203,7 +203,7 @@ const ForReviewTab = () => {
           <div style={{ padding: '16px 0' }}>
             <p><strong>Title:</strong> {previewEvent.title}</p>
             <p><strong>Date:</strong> {previewEvent.startDate ? new Date(previewEvent.startDate).toLocaleDateString('en-GB') : 'TBD'}</p>
-            <p><strong>Location:</strong> {previewEvent.locationType || ''} {previewEvent.locationDetails ? `— ${previewEvent.locationDetails}` : ''}</p>
+            <p><strong>Location:</strong> {(previewEvent.locationDetails || '').replace(/\s*\(Virtual\)\s*/gi, '')}{previewEvent.locationType === 'Virtual' ? ' (Virtual)' : ''}</p>
             <p><strong>Industry:</strong> {previewEvent.industry || '—'}</p>
             <p><strong>Event Type:</strong> {previewEvent.eventType || '—'}</p>
             <p><strong>Target Audience:</strong> {previewEvent.targetAudience || '—'}</p>

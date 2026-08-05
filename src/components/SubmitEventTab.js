@@ -371,15 +371,12 @@ const SubmitEventTab = forwardRef((props, ref) => {
             </div>
             <div>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '8px' }}>Is this an invite only event?</p>
-              <RadioButtonGroup
-                name="inviteOnly"
-                valueSelected={formData.inviteOnly ? 'yes' : 'no'}
-                onChange={(val) => setFormData((prev) => ({ ...prev, inviteOnly: val === 'yes' }))}
-                orientation="horizontal"
-              >
-                <RadioButton labelText="Yes" value="yes" id="invite-only-yes-submit" />
-                <RadioButton labelText="No" value="no" id="invite-only-no-submit" />
-              </RadioButtonGroup>
+              <Checkbox
+                id="inviteOnly-submit"
+                labelText="Yes, this is an invite only event"
+                checked={!!formData.inviteOnly}
+                onChange={(_, { checked }) => setFormData((prev) => ({ ...prev, inviteOnly: checked }))}
+              />
             </div>
           </Stack>
 
