@@ -350,7 +350,7 @@ const ManageEventsTab = () => {
             <div>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Region <span style={{ fontSize: '13px', fontWeight: '400', color: '#525252' }}>(Select all that apply)</span></p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '8px' }}>
-                {['North', 'South', 'Midlands (Birmingham)', 'Ireland', 'Scotland', 'Wales', 'Europe', 'London'].map((region) => (
+                {['North', 'South', 'Midlands (Birmingham)', 'Ireland', 'Scotland', 'Wales', 'Europe', 'London', 'Virtual'].map((region) => (
                   <Checkbox
                     key={region}
                     id={`region-manage-${region}`}
@@ -547,6 +547,7 @@ const ManageEventsTab = () => {
                 <SelectItem value="Banking & Financial Markets" text="Banking & Financial Markets" />
                 <SelectItem value="Chemical & Petroleum" text="Chemical & Petroleum" />
                 <SelectItem value="Consumer Goods" text="Consumer Goods" />
+                <SelectItem value="Defence" text="Defence" />
                 <SelectItem value="Education" text="Education" />
                 <SelectItem value="Electronics" text="Electronics" />
                 <SelectItem value="Energy & Utilities" text="Energy & Utilities" />

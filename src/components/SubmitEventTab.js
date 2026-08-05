@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useImperativeHandle, forwardRef } from 'react';
 import {
   Button,
   ButtonSet,
@@ -10,9 +10,9 @@ import {
   TextInput,
   Tile,
 } from '@carbon/react';
-import { Add, TrashCan, Checkmark, UserFollow, SendAlt } from '@carbon/icons-react';
+import { Add, TrashCan, Checkmark, UserFollow, SendAlt, Save } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
-import { createEvent } from '../lib/supabaseData';
+import { createEvent, saveDraft, updateDraft } from '../lib/supabaseData';
 import RichTextEditor from './RichTextEditor';
 import { useUser } from '../contexts/UserContext';
 
@@ -91,12 +91,23 @@ const INFO_BOX_STYLE = {
   alignItems: 'flex-start',
 };
 
-const SubmitEventTab = () => {
+const SubmitEventTab = forwardRef((props, ref) => {
   const { currentUser } = useUser();
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [briefSummaryCount, setBriefSummaryCount] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
+  const [currentDraftId, setCurrentDraftId] = useState(null);
+
+  useImperativeHandle(ref, () => ({
+    loadDraft: (draftData, draftId) => {
+      setFormData({ ...EMPTY_FORM, ...draftData });
+      setBriefSummaryCount((draftData.briefSummary || '').replace(/<[^>]*>/g, '').length);
+      setCurrentDraftId(draftId);
+      setSubmitted(false);
+      setErrors({});
+    },
+  }));
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -156,7 +167,6 @@ const SubmitEventTab = () => {
     if (!formData.eventAgenda || formData.eventAgenda.replace(/<[^>]*>/g, '').trim() === '')
                                                                          e.eventAgenda = 'Event agenda is required';
     if (!formData.registrationLink.trim())                               e.registrationLink = 'Registration link is required';
-    if (!formData.seismicLink.trim())                                    e.seismicLink = 'Seismic page link is required';
     if (!formData.productAreas[0])                                       e.productAreas = 'Please select a product area';
     if (formData.targetRoles.length === 0)                               e.targetRoles = 'Please select at least one target role';
     return e;
@@ -188,8 +198,30 @@ const SubmitEventTab = () => {
     }
   };
 
+  const handleSaveDraft = async () => {
+    if (!formData.title.trim()) {
+      toast.warning('Please enter an event title before saving a draft');
+      return;
+    }
+    try {
+      const draftData = { ...formData, type: 'Event Submission' };
+      if (currentDraftId) {
+        await updateDraft(currentDraftId, currentUser.email, draftData);
+        toast.success('Draft updated!', { icon: <Save size={20} />, autoClose: 2000 });
+      } else {
+        const saved = await saveDraft(currentUser.email, formData.title, draftData);
+        setCurrentDraftId(saved.id);
+        toast.success('Draft saved!', { icon: <Save size={20} />, autoClose: 2000 });
+      }
+      window.dispatchEvent(new Event('draftsUpdated'));
+    } catch (err) {
+      toast.error(err.message || 'Failed to save draft');
+    }
+  };
+
   const handleSubmitAnother = () => {
     setSubmitted(false);
+    setCurrentDraftId(null);
   };
 
   if (submitted) {
@@ -291,7 +323,7 @@ const SubmitEventTab = () => {
             <div>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Region <span style={{ fontSize: '13px', fontWeight: '400', color: '#525252' }}>(Select all that apply)</span></p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '8px' }}>
-                {['North', 'South', 'Midlands (Birmingham)', 'Ireland', 'Scotland', 'Wales', 'Europe', 'London'].map((region) => (
+                {['North', 'South', 'Midlands (Birmingham)', 'Ireland', 'Scotland', 'Wales', 'Europe', 'London', 'Virtual'].map((region) => (
                   <Checkbox
                     key={region}
                     id={`region-submit-${region}`}
@@ -409,12 +441,10 @@ const SubmitEventTab = () => {
               <TextInput
                 id="seismicLink"
                 name="seismicLink"
-                labelText="Seismic Page Link *"
+                labelText="Seismic Page Link (Optional)"
                 placeholder="https://seismic.com/..."
                 value={formData.seismicLink}
                 onChange={handleInputChange}
-                invalid={!!errors.seismicLink}
-                invalidText={errors.seismicLink}
               />
               <p style={{ fontSize: '12px', color: '#6f6f6f', marginTop: '4px' }}>Link to Seismic page with more event details for sellers</p>
             </div>
@@ -497,6 +527,7 @@ const SubmitEventTab = () => {
                 <SelectItem value="Banking & Financial Markets" text="Banking & Financial Markets" />
                 <SelectItem value="Chemical & Petroleum" text="Chemical & Petroleum" />
                 <SelectItem value="Consumer Goods" text="Consumer Goods" />
+                <SelectItem value="Defence" text="Defence" />
                 <SelectItem value="Education" text="Education" />
                 <SelectItem value="Electronics" text="Electronics" />
                 <SelectItem value="Energy & Utilities" text="Energy & Utilities" />
@@ -577,9 +608,12 @@ const SubmitEventTab = () => {
             <Button
               kind="secondary"
               style={{ flex: 1 }}
-              onClick={() => { setFormData(EMPTY_FORM); setBriefSummaryCount(0); setErrors({}); }}
+              onClick={() => { setFormData(EMPTY_FORM); setBriefSummaryCount(0); setErrors({}); setCurrentDraftId(null); }}
             >
               Clear Form
+            </Button>
+            <Button kind="tertiary" renderIcon={Save} style={{ flex: 1 }} onClick={handleSaveDraft}>
+              {currentDraftId ? 'Update Draft' : 'Save Draft'}
             </Button>
             <Button kind="primary" renderIcon={SendAlt} style={{ flex: 1 }} onClick={handleSubmit}>
               Submit for Review
@@ -590,6 +624,6 @@ const SubmitEventTab = () => {
       </div>
     </div>
   );
-};
+});
 
 export default SubmitEventTab;

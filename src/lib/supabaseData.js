@@ -41,7 +41,7 @@ export const getDefaultPermissions = (role) => {
 
   if (role === 'marketing') {
     return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-      permissions[tabId] = tabId === 'event-library' || tabId === 'submit-event';
+      permissions[tabId] = tabId === 'event-library' || tabId === 'submit-event' || tabId === 'drafts';
       return permissions;
     }, {});
   }

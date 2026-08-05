@@ -118,7 +118,7 @@ const DraftsTab = ({ onEditDraft, currentUser }) => {
       <div className="drafts-header" style={{ marginBottom: '24px' }}>
         <h2>My Drafts</h2>
         <p style={{ color: '#525252', marginTop: '8px' }}>
-          Manage your saved communication drafts — organized by month
+          Manage your saved drafts — communications and event submissions
         </p>
         {drafts.length > 0 && (
           <Tag type="blue" size="sm" style={{ marginTop: '12px' }}>
@@ -133,7 +133,7 @@ const DraftsTab = ({ onEditDraft, currentUser }) => {
           style={{ textAlign: 'center', padding: '48px', background: '#f4f4f4', borderRadius: '8px' }}
         >
           <p style={{ fontSize: '16px', color: '#525252' }}>
-            No drafts saved yet. Create a communication and save it as a draft.
+            No drafts saved yet. Create a communication or event submission and save it as a draft.
           </p>
         </div>
       ) : (
@@ -166,7 +166,12 @@ const DraftsTab = ({ onEditDraft, currentUser }) => {
                     {monthDrafts.map((draft) => (
                       <StructuredListRow key={draft.id}>
                         <StructuredListCell>
-                          {draft.name || draft.title || 'Untitled'}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {draft.name || draft.title || 'Untitled'}
+                            {draft.data?.type === 'Event Submission' && (
+                              <Tag type="purple" size="sm">Event</Tag>
+                            )}
+                          </div>
                         </StructuredListCell>
                         <StructuredListCell>
                           {new Date(draft.date || draft.savedAt).toLocaleDateString('en-US', {

@@ -320,7 +320,7 @@ const UserAccessTab = () => {
               <span style={{ fontSize: '14px', color: '#525252' }}>
                 {role.id === 'admin-manager' && 'Full access to all tabs and user management'}
                 {role.id === 'marketer' && 'Tab access assigned individually by admin manager'}
-                {role.id === 'marketing' && 'Event Library and Submit Event access only'}
+                {role.id === 'marketing' && 'Event Library, Submit Event and My Drafts access only'}
                 {role.id === 'seller' && 'Event Library access only'}
               </span>
             </div>

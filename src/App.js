@@ -102,6 +102,7 @@ function MainAppContent({ onLogout }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const createCommRef = useRef(null);
   const marketingSpotlightRef = useRef(null);
+  const submitEventRef = useRef(null);
 
   const handleLogout = () => {
     onLogout();
@@ -137,23 +138,24 @@ function MainAppContent({ onLogout }) {
   };
 
   const handleEditDraft = (draftData, draftId) => {
-    // Check if it's a Marketing Spotlight draft
     if (draftData.type === 'Marketing Spotlight') {
       if (marketingSpotlightRef.current && marketingSpotlightRef.current.loadDraft) {
         marketingSpotlightRef.current.loadDraft(draftData, draftId);
         const spotlightIndex = accessibleTabs.findIndex((tab) => tab.id === 'marketing-spotlight');
-        if (spotlightIndex !== -1) {
-          setSelectedIndex(spotlightIndex);
-        }
+        if (spotlightIndex !== -1) setSelectedIndex(spotlightIndex);
+      }
+    } else if (draftData.type === 'Event Submission') {
+      if (submitEventRef.current && submitEventRef.current.loadDraft) {
+        submitEventRef.current.loadDraft(draftData, draftId);
+        const submitIndex = accessibleTabs.findIndex((tab) => tab.id === 'submit-event');
+        if (submitIndex !== -1) setSelectedIndex(submitIndex);
       }
     } else {
       // Regular comm draft
       if (createCommRef.current && createCommRef.current.loadFormData) {
         createCommRef.current.loadFormData(draftData, draftId);
         const createCommIndex = accessibleTabs.findIndex((tab) => tab.id === 'create-comm');
-        if (createCommIndex !== -1) {
-          setSelectedIndex(createCommIndex);
-        }
+        if (createCommIndex !== -1) setSelectedIndex(createCommIndex);
       }
     }
   };
@@ -281,6 +283,8 @@ function MainAppContent({ onLogout }) {
                   } else if (tab.id === 'drafts') {
                     componentProps.onEditDraft = handleEditDraft;
                     componentProps.currentUser = currentUser;
+                  } else if (tab.id === 'submit-event') {
+                    componentProps.ref = submitEventRef;
                   } else if (tab.id === 'event-library') {
                     componentProps.onGenerateComm = handleGenerateComm;
                   }

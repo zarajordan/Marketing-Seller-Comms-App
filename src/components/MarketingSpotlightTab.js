@@ -3314,6 +3314,7 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
                 <SelectItem value="Banking & Financial Markets" text="Banking & Financial Markets" />
                 <SelectItem value="Chemical & Petroleum" text="Chemical & Petroleum" />
                 <SelectItem value="Consumer Goods" text="Consumer Goods" />
+                <SelectItem value="Defence" text="Defence" />
                 <SelectItem value="Education" text="Education" />
                 <SelectItem value="Electronics" text="Electronics" />
                 <SelectItem value="Energy & Utilities" text="Energy & Utilities" />
