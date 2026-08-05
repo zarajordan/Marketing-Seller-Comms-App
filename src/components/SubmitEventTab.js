@@ -48,6 +48,7 @@ const EMPTY_FORM = {
   locationDetails: '',
   regions: [],
   contacts: [],
+  speakers: [],
   briefSummary: '',
   detailedDescription: '',
   eventAgenda: '',
@@ -154,6 +155,35 @@ const SubmitEventTab = forwardRef((props, ref) => {
     setFormData((prev) => ({
       ...prev,
       contacts: prev.contacts.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleAddSpeaker = () => {
+    setFormData((prev) => ({
+      ...prev,
+      speakers: [...prev.speakers, { name: '', role: '', imageUrl: '' }],
+    }));
+  };
+
+  const handleSpeakerChange = (index, field, value) => {
+    setFormData((prev) => {
+      const speakers = [...prev.speakers];
+      speakers[index] = { ...speakers[index], [field]: value };
+      return { ...prev, speakers };
+    });
+  };
+
+  const handleSpeakerImageUpload = (index, file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => handleSpeakerChange(index, 'imageUrl', e.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveSpeaker = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      speakers: prev.speakers.filter((_, i) => i !== index),
     }));
   };
 
@@ -384,6 +414,47 @@ const SubmitEventTab = forwardRef((props, ref) => {
             </div>
           ))}
 
+          {/* ── Speakers ── */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '28px', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <UserFollow size={18} />
+              <span style={{ fontSize: '14px', fontWeight: '600', color: '#161616' }}>Speakers (Optional)</span>
+            </div>
+            <Button kind="tertiary" size="sm" renderIcon={Add} onClick={handleAddSpeaker}>
+              Add Speaker
+            </Button>
+          </div>
+
+          {formData.speakers.map((speaker, i) => (
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '12px', marginBottom: '12px', alignItems: 'flex-end' }}>
+              <TextInput
+                id={`speaker-name-${i}`}
+                labelText="Name"
+                value={speaker.name}
+                onChange={(e) => handleSpeakerChange(i, 'name', e.target.value)}
+              />
+              <TextInput
+                id={`speaker-role-${i}`}
+                labelText="Role"
+                value={speaker.role}
+                onChange={(e) => handleSpeakerChange(i, 'role', e.target.value)}
+              />
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: '600', color: '#525252', display: 'block', marginBottom: '8px' }}>Photo</label>
+                {speaker.imageUrl && (
+                  <img src={speaker.imageUrl} alt="Preview" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', marginBottom: '6px', display: 'block', border: '1px solid #e0e0e0' }} />
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleSpeakerImageUpload(i, e.target.files[0])}
+                  style={{ width: '100%', fontSize: '13px', padding: '6px', border: '1px solid #8d8d8d', background: '#fff', boxSizing: 'border-box' }}
+                />
+              </div>
+              <Button kind="danger--ghost" size="sm" renderIcon={TrashCan} iconDescription="Remove" hasIconOnly onClick={() => handleRemoveSpeaker(i)} />
+            </div>
+          ))}
+
           {/* ── Content & Description ── */}
           <div style={{ ...SECTION_STYLE, marginTop: '28px' }}>📝 Content & Description</div>
 
@@ -478,7 +549,7 @@ const SubmitEventTab = forwardRef((props, ref) => {
 
           <Stack gap={5}>
             <div>
-              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '8px' }}>Event Stream</p>
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '8px' }}>Area of Business</p>
               <RadioButtonGroup
                 name="eventStream"
                 valueSelected={formData.eventStream}
