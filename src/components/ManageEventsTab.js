@@ -56,6 +56,7 @@ const EMPTY_FORM = {
   eventAgenda: '',
   registrationLink: '',
   seismicPageRequired: null,
+  eventStream: '',
   inviteProcess: '',
   productAreas: [],
   eventType: 'Webinar',
@@ -209,6 +210,7 @@ const ManageEventsTab = () => {
       eventAgenda: event.eventAgenda || '',
       registrationLink: event.registrationLink || '',
       seismicPageRequired: event.seismicPageRequired ?? null,
+      eventStream: event.eventStream || '',
       productAreas: event.productAreas || [],
       eventType: event.eventType || 'Webinar',
       targetAudience: event.targetAudience || 'All',
@@ -498,6 +500,20 @@ const ManageEventsTab = () => {
           <div style={{ ...SECTION_STYLE, marginTop: '28px' }}>🎯 Target Audience & Products</div>
 
           <Stack gap={5}>
+            <div>
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '8px' }}>Event Stream</p>
+              <RadioButtonGroup
+                name="eventStream"
+                valueSelected={formData.eventStream}
+                onChange={(val) => setFormData((prev) => ({ ...prev, eventStream: val }))}
+                orientation="horizontal"
+              >
+                <RadioButton labelText="Consulting" value="Consulting" id="stream-consulting-manage" />
+                <RadioButton labelText="Technology" value="Technology" id="stream-technology-manage" />
+                <RadioButton labelText="Technology & Consulting" value="Technology & Consulting" id="stream-both-manage" />
+              </RadioButtonGroup>
+            </div>
+
             <div>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Product Areas <span style={{ fontSize: '13px', fontWeight: '400', color: '#525252' }}>(Select all that apply)</span></p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '8px' }}>
