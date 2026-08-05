@@ -827,6 +827,15 @@ const EventsTab = ({ onGenerateComm }) => {
                     <strong>Industry:</strong> <Tag type="green" size="sm">{previewEvent.industry}</Tag>
                   </div>
                 )}
+                {previewEvent.eventStream && <div><strong>Area of Business:</strong> {previewEvent.eventStream}</div>}
+                {previewEvent.regions && previewEvent.regions.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <strong>Regions:</strong>
+                    {previewEvent.regions.map(r => <Tag key={r} type="teal" size="sm">{r}</Tag>)}
+                  </div>
+                )}
+                {previewEvent.inviteOnly && <div><Tag type="red" size="sm">🔒 Invite Only</Tag></div>}
+                {previewEvent.seismicPageRequired && <div><strong>Seismic Page Required:</strong> {previewEvent.seismicPageRequired === 'yes' ? 'Yes' : 'No'}</div>}
               </div>
             </div>
 
@@ -938,6 +947,18 @@ const EventsTab = ({ onGenerateComm }) => {
                   className="event-summary-preview"
                   style={{ padding: '12px', backgroundColor: '#f4f4f4', borderRadius: '4px', fontSize: '13px', lineHeight: '1.6' }}
                   dangerouslySetInnerHTML={{ __html: previewEvent.eventAgenda }}
+                />
+              </div>
+            )}
+
+            {/* Invite Process */}
+            {previewEvent.inviteProcess && (
+              <div style={{ marginBottom: '24px' }}>
+                <h5 style={{ marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Invite Process</h5>
+                <div
+                  className="event-summary-preview"
+                  style={{ padding: '12px', backgroundColor: '#f4f4f4', borderRadius: '4px', fontSize: '13px', lineHeight: '1.6' }}
+                  dangerouslySetInnerHTML={{ __html: previewEvent.inviteProcess }}
                 />
               </div>
             )}
