@@ -28,6 +28,7 @@ import MarketingSpotlightTab from './components/MarketingSpotlightTab';
 import UserAccessTab from './components/UserAccessTab';
 import SubmitEventTab from './components/SubmitEventTab';
 import ForReviewTab from './components/ForReviewTab';
+import AnalyticsTab from './components/AnalyticsTab';
 import ThemeSelector from './components/ThemeSelector';
 import LoginPage from './components/LoginPage';
 import SetNewPasswordPage from './components/SetNewPasswordPage';
@@ -44,6 +45,7 @@ const TAB_CONFIG = [
   { id: 'submit-event', label: '📝 Submit Event', component: SubmitEventTab },
   { id: 'drafts', label: 'My Drafts', component: DraftsTab },
   { id: 'user-access', label: '👥 User Access', component: UserAccessTab },
+  { id: 'analytics', label: '📊 Analytics', component: AnalyticsTab },
 ];
 
 function AppContent() {
@@ -287,6 +289,7 @@ function MainAppContent({ onLogout }) {
                     componentProps.ref = submitEventRef;
                   } else if (tab.id === 'event-library') {
                     componentProps.onGenerateComm = handleGenerateComm;
+                    componentProps.currentUser = currentUser;
                   }
 
                   return (

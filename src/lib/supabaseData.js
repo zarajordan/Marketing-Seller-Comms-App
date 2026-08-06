@@ -10,6 +10,7 @@ export const TAB_PERMISSIONS = [
   'submit-event',
   'drafts',
   'user-access',
+  'analytics',
 ];
 
 export const ROLE_CONFIG = {
@@ -406,4 +407,118 @@ export const deleteDraft = async (draftId, ownerEmail) => {
   if (error) {
     throw error;
   }
+};
+
+// ---------------------------------------------------------------------------
+// Activity logging — writes to the activity_log table
+// ---------------------------------------------------------------------------
+
+export const logActivity = async (eventType, payload = {}) => {
+  try {
+    await supabase.from('activity_log').insert({
+      event_type: eventType,
+      user_email: payload.userEmail || null,
+      user_name: payload.userName || null,
+      user_role: payload.userRole || null,
+      metadata: payload.metadata || null,
+      created_at: new Date().toISOString(),
+    });
+  } catch {
+    // non-critical — never let logging break the app
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Analytics queries — read from activity_log
+// ---------------------------------------------------------------------------
+
+export const getAnalyticsSummary = async (days = 90) => {
+  const since = new Date(Date.now() - days * 86400000).toISOString();
+  const prevSince = new Date(Date.now() - days * 2 * 86400000).toISOString();
+
+  const [curr, prev] = await Promise.all([
+    supabase.from('activity_log').select('event_type, user_email, metadata, created_at').gte('created_at', since),
+    supabase.from('activity_log').select('event_type, user_email, created_at').gte('created_at', prevSince).lt('created_at', since),
+  ]);
+
+  const rows = curr.data || [];
+  const prevRows = prev.data || [];
+
+  const visits  = rows.filter((r) => r.event_type === 'login').length;
+  const comms   = rows.filter((r) => r.event_type === 'comm_generated').length;
+  const users   = new Set(rows.map((r) => r.user_email).filter(Boolean)).size;
+  const eventsArr = rows.filter((r) => r.event_type === 'comm_generated').map((r) => r.metadata?.eventCount || 0);
+  const avgEvents = eventsArr.length ? (eventsArr.reduce((a, b) => a + b, 0) / eventsArr.length).toFixed(1) : null;
+
+  const pVisits = prevRows.filter((r) => r.event_type === 'login').length;
+  const pComms  = prevRows.filter((r) => r.event_type === 'comm_generated').length;
+  const pUsers  = new Set(prevRows.map((r) => r.user_email).filter(Boolean)).size;
+
+  const pct = (a, b) => b === 0 ? null : Math.round(((a - b) / b) * 100);
+
+  // Day-of-week counts (0=Mon … 6=Sun)
+  const dowCounts = Array.from({ length: 7 }, (_, i) => ({ dow: i, count: 0 }));
+  rows.forEach((r) => {
+    const d = new Date(r.created_at).getDay(); // 0=Sun
+    const mon = (d + 6) % 7; // convert to Mon=0
+    dowCounts[mon].count++;
+  });
+
+  return { visits, comms, users, avgEvents, visitsDelta: pct(visits, pVisits), commsDelta: pct(comms, pComms), usersDelta: pct(users, pUsers), avgEventsDelta: null, dowCounts };
+};
+
+export const getAnalyticsMonthly = async (days = 90) => {
+  const since = new Date(Date.now() - days * 86400000).toISOString();
+  const { data } = await supabase.from('activity_log').select('event_type, created_at').gte('created_at', since);
+  const rows = data || [];
+
+  const map = {};
+  rows.forEach((r) => {
+    const m = new Date(r.created_at).toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });
+    if (!map[m]) map[m] = { month: m, visits: 0, comms: 0 };
+    if (r.event_type === 'login') map[m].visits++;
+    if (r.event_type === 'comm_generated') map[m].comms++;
+  });
+
+  return Object.values(map).sort((a, b) => new Date('1 ' + a.month) - new Date('1 ' + b.month));
+};
+
+export const getAnalyticsTopEvents = async (days = 90) => {
+  const since = new Date(Date.now() - days * 86400000).toISOString();
+  const { data } = await supabase.from('activity_log').select('metadata').eq('event_type', 'comm_generated').gte('created_at', since);
+  const rows = data || [];
+
+  const counts = {};
+  rows.forEach((r) => {
+    (r.metadata?.eventTitles || []).forEach((title) => {
+      counts[title] = (counts[title] || 0) + 1;
+    });
+  });
+
+  return Object.entries(counts)
+    .map(([title, count]) => ({ title, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+};
+
+export const getAnalyticsUserBreakdown = async (days = 90) => {
+  const since = new Date(Date.now() - days * 86400000).toISOString();
+  const { data } = await supabase.from('activity_log').select('event_type, user_email, user_name, user_role, metadata, created_at').gte('created_at', since);
+  const rows = data || [];
+
+  const map = {};
+  rows.forEach((r) => {
+    const key = r.user_email || 'unknown';
+    if (!map[key]) map[key] = { email: key, name: r.user_name || key, role: r.user_role || '—', visits: 0, comms: 0, totalEvents: 0, lastActive: null };
+    if (r.event_type === 'login') map[key].visits++;
+    if (r.event_type === 'comm_generated') {
+      map[key].comms++;
+      map[key].totalEvents += r.metadata?.eventCount || 0;
+    }
+    if (!map[key].lastActive || r.created_at > map[key].lastActive) map[key].lastActive = r.created_at;
+  });
+
+  return Object.values(map)
+    .map((u) => ({ ...u, avgEvents: u.comms ? (u.totalEvents / u.comms).toFixed(1) : null }))
+    .sort((a, b) => b.comms - a.comms);
 };

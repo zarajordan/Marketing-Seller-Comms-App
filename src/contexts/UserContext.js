@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { findUserByEmail } from '../lib/supabaseData';
+import { findUserByEmail, logActivity } from '../lib/supabaseData';
 
 const UserContext = createContext();
 
@@ -79,6 +79,7 @@ export const UserProvider = ({ children }) => {
       }
       setCurrentUser(user);
       setIsAuthenticated(true);
+      logActivity('login', { userEmail: user.email, userName: user.name, userRole: user.role });
       return { authStage: 'seller', user };
     }
 
@@ -93,6 +94,7 @@ export const UserProvider = ({ children }) => {
     };
     setCurrentUser(guestUser);
     setIsAuthenticated(true);
+    logActivity('login', { userEmail: guestUser.email, userName: guestUser.name, userRole: guestUser.role });
     return { authStage: 'seller', user: guestUser };
   };
 
@@ -125,6 +127,7 @@ export const UserProvider = ({ children }) => {
       }
       setCurrentUser(user);
       setIsAuthenticated(true);
+      logActivity('login', { userEmail: user.email, userName: user.name, userRole: user.role });
       return { success: true, user };
     } catch (err) {
       await supabase.auth.signOut();

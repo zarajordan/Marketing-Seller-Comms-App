@@ -27,7 +27,7 @@ import {
   Checkmark,
 } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
-import { listEvents } from '../lib/supabaseData';
+import { listEvents, logActivity } from '../lib/supabaseData';
 
 const PRODUCT_AREAS = [
   { id: 'hybrid-cloud', label: '☁️ Hybrid Cloud & Infrastructure Management' },
@@ -73,7 +73,7 @@ const highlightHtml = (html, term) => {
   return html.replace(new RegExp(`(${escaped})`, 'gi'), '<mark style="background:#f1c21b;color:#161616;padding:0 1px;border-radius:2px">$1</mark>');
 };
 
-const EventsTab = ({ onGenerateComm }) => {
+const EventsTab = ({ onGenerateComm, currentUser }) => {
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [selectedEvents, setSelectedEvents] = useState([]);
@@ -230,6 +230,17 @@ const EventsTab = ({ onGenerateComm }) => {
     const selectedEventData = events
       .filter(e => selectedEvents.includes(e.id))
       .sort((a, b) => new Date(a.startDate || a.date) - new Date(b.startDate || b.date));
+
+    // Log the comm generation activity
+    logActivity('comm_generated', {
+      userEmail: currentUser?.email,
+      userName: currentUser?.name,
+      userRole: currentUser?.role,
+      metadata: {
+        eventCount: selectedEventData.length,
+        eventTitles: selectedEventData.map(e => e.title),
+      },
+    });
 
     const greeting = useGenericGreeting
       ? 'Hi'
