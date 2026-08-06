@@ -214,7 +214,7 @@ export default function ArchiveTab() {
                   id="archive-region-filter"
                   titleText="Region"
                   placeholder="Filter by region"
-                  items={['North', 'South', 'Midlands (Birmingham)', 'Ireland', 'Scotland', 'Wales', 'Europe', 'London', 'Virtual'].map(r => ({ id: r, label: r }))}
+                  items={['North', 'South', 'Midlands (Birmingham)', 'Ireland', 'Scotland', 'Wales', 'Europe', 'London', 'Virtual', 'America', 'EMEA'].map(r => ({ id: r, label: r }))}
                   itemToString={(item) => item ? item.label : ''}
                   onChange={({ selectedItems }) => setSelectedRegions(selectedItems.map(i => i.id))}
                   size="lg"
