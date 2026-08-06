@@ -596,6 +596,7 @@ const EventsTab = ({ onGenerateComm }) => {
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px' }}>
                           {event.eventType && <Tag type="blue" size="sm">{event.eventType}</Tag>}
                           {event.industry && event.industry !== 'Cross-Industry' && <Tag type="green" size="sm">{event.industry}</Tag>}
+                          {event.promoteOurPresence && <Tag type="purple" size="sm">📣 Promote Our Presence</Tag>}
                         </div>
 
                         {/* Event Contacts */}
@@ -1004,6 +1005,38 @@ const EventsTab = ({ onGenerateComm }) => {
                   style={{ padding: '12px', backgroundColor: '#e8f4ff', borderRadius: '4px', fontSize: '13px', lineHeight: '1.6', borderLeft: '4px solid #0f62fe' }}
                   dangerouslySetInnerHTML={{ __html: previewEvent.postEventFollowUp }}
                 />
+              </div>
+            )}
+
+            {/* Promote Our Presence */}
+            {(previewEvent.promoteOurPresence || (previewEvent.promoteDocuments && previewEvent.promoteDocuments.length > 0)) && (
+              <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#f6f2ff', borderRadius: '4px', borderLeft: '4px solid #6929c4' }}>
+                <h5 style={{ marginBottom: '8px', fontSize: '14px', fontWeight: 600, color: '#6929c4' }}>📣 Promote Our Presence</h5>
+                {previewEvent.promoteOurPresence && (
+                  <div
+                    className="event-summary-preview"
+                    style={{ color: '#161616', fontSize: '13px', lineHeight: '1.6', marginBottom: previewEvent.promoteDocuments && previewEvent.promoteDocuments.length > 0 ? '12px' : '0' }}
+                    dangerouslySetInnerHTML={{ __html: previewEvent.promoteOurPresence }}
+                  />
+                )}
+                {previewEvent.promoteDocuments && previewEvent.promoteDocuments.length > 0 && (
+                  <div>
+                    <p style={{ fontSize: '12px', fontWeight: 600, color: '#525252', marginBottom: '6px' }}>Attached Documents:</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                      {previewEvent.promoteDocuments.map((doc, i) => (
+                        <a
+                          key={i}
+                          href={doc.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', backgroundColor: '#6929c4', color: '#fff', borderRadius: '4px', fontSize: '12px', fontWeight: 500, textDecoration: 'none' }}
+                        >
+                          <Document size={14} /> {doc.name}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

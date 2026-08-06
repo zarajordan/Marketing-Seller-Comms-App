@@ -72,6 +72,8 @@ const EMPTY_FORM = {
   status: 'Active',
   postEventFollowUp: '',
   category: 'ibm',
+  promoteOurPresence: '',
+  promoteDocuments: [],
 };
 
 const SECTION_STYLE = {
@@ -259,6 +261,8 @@ const ManageEventsTab = () => {
       status: event.status || 'Active',
       postEventFollowUp: event.postEventFollowUp || '',
       category: event.category || 'ibm',
+      promoteOurPresence: event.promoteOurPresence || '',
+      promoteDocuments: event.promoteDocuments || [],
     });
     setBriefSummaryCount((event.briefSummary || event.description || '').length);
     setIsEditing(true);
@@ -760,6 +764,58 @@ const ManageEventsTab = () => {
               <p style={{ fontSize: '13px', color: '#525252', marginBottom: '8px' }}>Upload documents related to the event follow-up (presentations, recordings, resources, etc.)</p>
               <input type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" style={{ width: '100%', padding: '8px', border: '1px solid #8d8d8d', background: '#fff', fontSize: '14px', boxSizing: 'border-box' }} />
               <p style={{ fontSize: '12px', color: '#6f6f6f', marginTop: '4px' }}>Accepted formats: PDF, Word, Excel, PowerPoint, Text. Max 5MB per file.</p>
+            </div>
+
+            {/* ── Promote Our Presence ── */}
+            <div>
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Promote Our Presence (Optional)</p>
+              <p style={{ fontSize: '13px', color: '#525252', marginBottom: '8px' }}>Describe how IBM's presence at this event should be promoted. This text will be available for sellers to share.</p>
+              <RichTextEditor
+                value={formData.promoteOurPresence}
+                onChange={(val) => setFormData((prev) => ({ ...prev, promoteOurPresence: val }))}
+                placeholder="e.g., Join us at stand 42 where we'll be showcasing our latest AI solutions..."
+                minHeight="160px"
+              />
+              <div style={{ marginTop: '12px' }}>
+                <p style={{ fontSize: '13px', fontWeight: '600', color: '#525252', marginBottom: '6px' }}>Attach Promotional Documents (Optional)</p>
+                <p style={{ fontSize: '13px', color: '#525252', marginBottom: '8px' }}>Upload supporting materials such as brochures, presentations, or slide decks.</p>
+                {formData.promoteDocuments && formData.promoteDocuments.length > 0 && (
+                  <ul style={{ listStyle: 'none', padding: 0, marginBottom: '8px' }}>
+                    {formData.promoteDocuments.map((doc, idx) => (
+                      <li key={idx} style={{ fontSize: '12px', color: '#198038', marginBottom: '4px' }}>
+                        ✓ <a href={doc.url} target="_blank" rel="noopener noreferrer">{doc.name}</a>
+                        <button type="button" onClick={() => setFormData((prev) => ({ ...prev, promoteDocuments: prev.promoteDocuments.filter((_, i) => i !== idx) }))}
+                          style={{ marginLeft: '8px', background: 'none', border: 'none', color: '#da1e28', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <input
+                  type="file"
+                  multiple
+                  accept=".pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx"
+                  style={{ width: '100%', padding: '8px', border: '1px solid #8d8d8d', background: '#fff', fontSize: '14px', boxSizing: 'border-box' }}
+                  onChange={async (e) => {
+                    const files = Array.from(e.target.files);
+                    if (!files.length) return;
+                    const uploaded = [];
+                    for (const file of files) {
+                      try {
+                        const url = await uploadEventDocument(file, 'promote-presence');
+                        uploaded.push({ name: file.name, url });
+                        toast.success(`Uploaded: ${file.name}`);
+                      } catch (err) {
+                        toast.error(`Failed to upload ${file.name}: ${err.message}`);
+                      }
+                    }
+                    if (uploaded.length) {
+                      setFormData((prev) => ({ ...prev, promoteDocuments: [...(prev.promoteDocuments || []), ...uploaded] }));
+                    }
+                    e.target.value = '';
+                  }}
+                />
+                <p style={{ fontSize: '12px', color: '#6f6f6f', marginTop: '4px' }}>Accepted formats: PDF, PowerPoint, Word, Excel. Max 5MB per file.</p>
+              </div>
             </div>
           </Stack>
 

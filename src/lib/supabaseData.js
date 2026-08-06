@@ -237,6 +237,8 @@ export const mapEventRowToAppEvent = (row) => ({
   category: row.category || 'ibm',
   regions: row.regions || [],
   inviteProcess: row.invite_process || '',
+  promoteOurPresence: row.promote_our_presence || '',
+  promoteDocuments: row.promote_documents || [],
 });
 
 export const mapEventFormToRow = (event) => ({
@@ -269,6 +271,8 @@ export const mapEventFormToRow = (event) => ({
   category: event.category || 'ibm',
   regions: event.regions || [],
   invite_process: event.inviteProcess || '',
+  promote_our_presence: event.promoteOurPresence || '',
+  promote_documents: event.promoteDocuments || [],
   // keep legacy column populated for backwards compat
   description: event.briefSummary || event.description || '',
   event_date: event.startDate || event.date || null,
