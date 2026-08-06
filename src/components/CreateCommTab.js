@@ -1,4 +1,5 @@
 import React, { useState, useImperativeHandle, forwardRef, useRef, useId } from 'react';
+import { logActivity } from '../lib/supabaseData';
 import {
   Form,
   Stack,
@@ -1232,6 +1233,10 @@ const CreateCommTab = forwardRef(({ currentUser, ...props }, ref) => {
   };
 
   const handleExportOutlook = () => {
+    logActivity('comm_generated', {
+      userEmail: currentUser?.email, userName: currentUser?.name, userRole: currentUser?.role,
+      metadata: { exportType: 'outlook', title: formData.title },
+    });
     setIsLoading(true);
     toast.info('📧 Opening Outlook...', { autoClose: 2000 });
     
@@ -1270,6 +1275,10 @@ ${htmlContent}`;
   };
 
   const handleExportHTML = () => {
+    logActivity('comm_generated', {
+      userEmail: currentUser?.email, userName: currentUser?.name, userRole: currentUser?.role,
+      metadata: { exportType: 'html', title: formData.title },
+    });
     setIsLoading(true);
     toast.info('📄 Generating HTML file...', { autoClose: 1500 });
     
@@ -1301,6 +1310,10 @@ ${htmlContent}`;
   };
 
   const handleCopyHTMLToClipboard = async () => {
+    logActivity('comm_generated', {
+      userEmail: currentUser?.email, userName: currentUser?.name, userRole: currentUser?.role,
+      metadata: { exportType: 'clipboard', title: formData.title },
+    });
     setIsLoading(true);
     toast.info('📋 Copying HTML to clipboard...', { autoClose: 1500 });
     
@@ -1342,6 +1355,10 @@ ${htmlContent}`;
   };
 
   const handleExportJPG = async () => {
+    logActivity('comm_generated', {
+      userEmail: currentUser?.email, userName: currentUser?.name, userRole: currentUser?.role,
+      metadata: { exportType: 'jpg', title: formData.title },
+    });
     setIsLoading(true);
     toast.info('🖼️ Generating JPG image...', { autoClose: 2000 });
     
