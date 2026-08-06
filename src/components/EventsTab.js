@@ -27,7 +27,7 @@ import {
   Checkmark,
 } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
-import { listEvents, logActivity } from '../lib/supabaseData';
+import { listEvents, logActivity, archiveExpiredEvents } from '../lib/supabaseData';
 
 const PRODUCT_AREAS = [
   { id: 'hybrid-cloud', label: '☁️ Hybrid Cloud & Infrastructure Management' },
@@ -113,6 +113,8 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
   const loadEvents = async () => {
     setLoading(true);
     try {
+      // Auto-archive any events whose date has passed
+      await archiveExpiredEvents().catch(() => {});
       const data = await listEvents();
       // Only show active events to sellers
       setEvents(data.filter(e => !e.status || e.status === 'Active'));

@@ -11,6 +11,7 @@ export const TAB_PERMISSIONS = [
   'drafts',
   'user-access',
   'analytics',
+  'archive',
 ];
 
 export const ROLE_CONFIG = {
@@ -42,7 +43,7 @@ export const getDefaultPermissions = (role) => {
 
   if (role === 'marketing') {
     return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-      permissions[tabId] = tabId === 'event-library' || tabId === 'submit-event' || tabId === 'drafts';
+      permissions[tabId] = tabId === 'event-library' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'archive';
       return permissions;
     }, {});
   }
@@ -521,4 +522,29 @@ export const getAnalyticsUserBreakdown = async (days = 90) => {
   return Object.values(map)
     .map((u) => ({ ...u, avgEvents: u.comms ? (u.totalEvents / u.comms).toFixed(1) : null }))
     .sort((a, b) => b.comms - a.comms);
+};
+
+export const archiveExpiredEvents = async () => {
+  const today = new Date().toISOString().split('T')[0];
+  // Find all Active events whose end_date (or start_date if no end) is before today
+  const { data, error } = await supabase
+    .from('events')
+    .select('id, start_date, end_date')
+    .eq('status', 'Active');
+
+  if (error || !data) return;
+
+  const expiredIds = data
+    .filter(row => {
+      const dateToCheck = row.end_date || row.start_date;
+      return dateToCheck && dateToCheck < today;
+    })
+    .map(row => row.id);
+
+  if (expiredIds.length === 0) return;
+
+  await supabase
+    .from('events')
+    .update({ status: 'Archived' })
+    .in('id', expiredIds);
 };
