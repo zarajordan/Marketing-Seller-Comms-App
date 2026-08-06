@@ -11,7 +11,6 @@ export const TAB_PERMISSIONS = [
   'drafts',
   'user-access',
   'analytics',
-  'archive',
 ];
 
 export const ROLE_CONFIG = {
@@ -43,7 +42,7 @@ export const getDefaultPermissions = (role) => {
 
   if (role === 'marketing') {
     return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-      permissions[tabId] = tabId === 'event-library' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'archive';
+      permissions[tabId] = tabId === 'event-library' || tabId === 'submit-event' || tabId === 'drafts';
       return permissions;
     }, {});
   }

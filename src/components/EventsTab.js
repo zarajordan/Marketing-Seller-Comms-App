@@ -75,6 +75,7 @@ const highlightHtml = (html, term) => {
 
 const EventsTab = ({ onGenerateComm, currentUser }) => {
   const [events, setEvents] = useState([]);
+  const [archivedEvents, setArchivedEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [selectedEvents, setSelectedEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -86,6 +87,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
   const [showFilters, setShowFilters] = useState(true);
   const [loading, setLoading] = useState(true);
   const [expandedMonths, setExpandedMonths] = useState({});
+  const [showArchive, setShowArchive] = useState(false);
 
   // Personalization modal state
   const [personalizationModalOpen, setPersonalizationModalOpen] = useState(false);
@@ -108,7 +110,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
 
   useEffect(() => {
     applyFilters();
-  }, [events, searchTerm, selectedProductAreas, selectedRegions, selectedIndustries, dateFilter]);
+  }, [events, archivedEvents, searchTerm, selectedProductAreas, selectedRegions, selectedIndustries, dateFilter, showArchive]);
 
   const loadEvents = async () => {
     setLoading(true);
@@ -116,8 +118,8 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
       // Auto-archive any events whose date has passed
       await archiveExpiredEvents().catch(() => {});
       const data = await listEvents();
-      // Only show active events to sellers
       setEvents(data.filter(e => !e.status || e.status === 'Active'));
+      setArchivedEvents(data.filter(e => e.status === 'Archived'));
     } catch (error) {
       console.error('Error loading events:', error);
       toast.error('Failed to load events');
@@ -126,8 +128,19 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
     }
   };
 
+  const handleRestoreEvent = async (event) => {
+    try {
+      const { updateEvent } = await import('../lib/supabaseData');
+      await updateEvent({ ...event, status: 'Active' });
+      toast.success(`"${event.title}" restored to Event Library`);
+      window.dispatchEvent(new Event('eventsUpdated'));
+    } catch (err) {
+      toast.error(err.message || 'Failed to restore event');
+    }
+  };
+
   const applyFilters = () => {
-    let filtered = [...events];
+    let filtered = showArchive ? [...archivedEvents] : [...events];
 
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
@@ -395,15 +408,33 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
       <div style={{ padding: '24px', borderBottom: '1px solid #e0e0e0', backgroundColor: '#ffffff' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
           <div>
-            <h2 style={{ marginBottom: '8px' }}>🎯 Event Library</h2>
+            <h2 style={{ marginBottom: '8px' }}>{showArchive ? '🗄️ Event Archive' : '🎯 Event Library'}</h2>
             <p style={{ color: '#525252', fontSize: '14px' }}>
-              Browse and select events to include in your communications
+              {showArchive
+                ? 'Past events are automatically archived here once their date has passed.'
+                : 'Browse and select events to include in your communications'}
             </p>
           </div>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            {selectedEvents.length > 0 && (
+            {!showArchive && selectedEvents.length > 0 && (
               <Tag type="blue" size="md">{selectedEvents.length} selected</Tag>
             )}
+            <Button
+              kind={showArchive ? 'primary' : 'ghost'}
+              size="sm"
+              onClick={() => { setShowArchive(false); setSearchTerm(''); }}
+              style={{ borderBottom: !showArchive ? '2px solid #0f62fe' : 'none' }}
+            >
+              🎯 Live Events ({events.length})
+            </Button>
+            <Button
+              kind={showArchive ? 'ghost' : 'ghost'}
+              size="sm"
+              onClick={() => { setShowArchive(true); setSearchTerm(''); setSelectedEvents([]); }}
+              style={{ borderBottom: showArchive ? '2px solid #393939' : 'none' }}
+            >
+              🗄️ Archive ({archivedEvents.length})
+            </Button>
             <Button kind="ghost" size="sm" renderIcon={Filter} onClick={() => setShowFilters(!showFilters)}>
               {showFilters ? 'Hide' : 'Show'} Filters
             </Button>
@@ -475,8 +506,8 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
         )}
       </div>
 
-      {/* Action Bar */}
-      {filteredEvents.length > 0 && (
+      {/* Action Bar — only for live events */}
+      {!showArchive && filteredEvents.length > 0 && (
         <div style={{ padding: '16px 24px', borderBottom: '1px solid #e0e0e0', backgroundColor: '#f4f4f4', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
             <Checkbox
@@ -508,6 +539,72 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
           <div style={{ textAlign: 'center', padding: '48px' }}>
             <Loading description="Loading events..." withOverlay={false} />
           </div>
+        ) : showArchive ? (
+          /* ── Archive view ── */
+          filteredEvents.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 24px', backgroundColor: '#f4f4f4', borderRadius: '8px' }}>
+              <div style={{ fontSize: '40px', marginBottom: '16px' }}>🗄️</div>
+              <h3 style={{ marginBottom: '8px' }}>{archivedEvents.length === 0 ? 'No Archived Events Yet' : 'No Events Match Your Filters'}</h3>
+              <p style={{ color: '#525252' }}>
+                {archivedEvents.length === 0 ? 'Events are automatically moved here once their date has passed.' : 'Try adjusting your filters.'}
+              </p>
+              {archivedEvents.length > 0 && <Button kind="tertiary" style={{ marginTop: '16px' }} onClick={handleClearFilters}>Clear filters</Button>}
+            </div>
+          ) : (
+            Object.entries(
+              filteredEvents.reduce((groups, e) => {
+                const year = e.startDate || e.date ? new Date(e.startDate || e.date).getFullYear().toString() : 'Unknown';
+                if (!groups[year]) groups[year] = [];
+                groups[year].push(e);
+                return groups;
+              }, {})
+            ).sort(([a], [b]) => Number(b) - Number(a)).map(([year, yearEvents]) => (
+              <div key={year} style={{ marginBottom: '32px' }}>
+                <div onClick={() => toggleMonth(year)}
+                  style={{ backgroundColor: '#393939', color: 'white', padding: '12px 20px', borderRadius: '4px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', userSelect: 'none' }}>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>🗄️ {year} ({yearEvents.length} event{yearEvents.length !== 1 ? 's' : ''})</h3>
+                  <span style={{ fontSize: '20px' }}>{expandedMonths[year] !== false ? '▼' : '▶'}</span>
+                </div>
+                {expandedMonths[year] !== false && (
+                  <Grid>
+                    {yearEvents.map(event => (
+                      <Column key={event.id} lg={8} md={8} sm={4}>
+                        <Tile style={{ padding: '20px', marginBottom: '16px', border: '1px solid #e0e0e0', backgroundColor: '#fafafa', display: 'flex', flexDirection: 'column', opacity: 0.9 }}>
+                          <div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                            <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#393939' }}>{highlight(event.title, searchTerm)}</h4>
+                            <Tag type="cool-gray" size="sm">Archived</Tag>
+                          </div>
+                          <div className="event-summary-preview"
+                            style={{ color: '#6f6f6f', fontSize: '13px', lineHeight: '1.5', marginBottom: '12px' }}
+                            dangerouslySetInnerHTML={{ __html: event.briefSummary || event.description || '<p>No description provided</p>' }} />
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '12px', fontSize: '13px', color: '#6f6f6f' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <Calendar size={16} />
+                              <span>{formatDate(event.startDate || event.date)}{event.endDate ? ` – ${formatDate(event.endDate)}` : ''}</span>
+                            </div>
+                            {(event.locationDetails || event.location) && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <Location size={16} />
+                                <span>{(event.locationDetails || event.location).replace(/\s*\(Virtual\)\s*/gi, '').trim()}</span>
+                              </div>
+                            )}
+                          </div>
+                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                            {event.eventType && <Tag type="gray" size="sm">{event.eventType}</Tag>}
+                            {event.industry && event.industry !== 'Cross-Industry' && <Tag type="gray" size="sm">{event.industry}</Tag>}
+                          </div>
+                          <div style={{ marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid #e0e0e0', display: 'flex', gap: '8px' }}>
+                            <Button kind="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setPreviewEvent(event); }}>View full details</Button>
+                            <Button kind="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleRestoreEvent(event); }}>Restore to Library</Button>
+                          </div>
+                        </Tile>
+                      </Column>
+                    ))}
+                  </Grid>
+                )}
+              </div>
+            ))
+          )
         ) : filteredEvents.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '48px 24px', backgroundColor: '#f4f4f4', borderRadius: '8px' }}>
             <h3 style={{ marginBottom: '16px' }}>
