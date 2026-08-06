@@ -53,15 +53,15 @@ export default function AnalyticsTab() {
     setLoading(true);
     try {
       const [s, u, m, t] = await Promise.all([
-        getAnalyticsSummary(days),
-        getAnalyticsUserBreakdown(days),
-        getAnalyticsMonthly(days),
-        getAnalyticsTopEvents(days),
+        getAnalyticsSummary(days).catch(() => null),
+        getAnalyticsUserBreakdown(days).catch(() => []),
+        getAnalyticsMonthly(days).catch(() => []),
+        getAnalyticsTopEvents(days).catch(() => []),
       ]);
-      setSummary(s);
-      setUsers(u);
-      setMonthly(m);
-      setTopEvents(t);
+      if (s) setSummary(s);
+      setUsers(u || []);
+      setMonthly(m || []);
+      setTopEvents(t || []);
     } catch (err) {
       console.error('Analytics load error', err);
     } finally {

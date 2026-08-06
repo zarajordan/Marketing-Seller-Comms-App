@@ -441,8 +441,8 @@ export const getAnalyticsSummary = async (days = 90) => {
     supabase.from('activity_log').select('event_type, user_email, created_at').gte('created_at', prevSince).lt('created_at', since),
   ]);
 
-  const rows = curr.data || [];
-  const prevRows = prev.data || [];
+  const rows = (curr.error ? [] : curr.data) || [];
+  const prevRows = (prev.error ? [] : prev.data) || [];
 
   const visits  = rows.filter((r) => r.event_type === 'login').length;
   const comms   = rows.filter((r) => r.event_type === 'comm_generated').length;
@@ -469,8 +469,8 @@ export const getAnalyticsSummary = async (days = 90) => {
 
 export const getAnalyticsMonthly = async (days = 90) => {
   const since = new Date(Date.now() - days * 86400000).toISOString();
-  const { data } = await supabase.from('activity_log').select('event_type, created_at').gte('created_at', since);
-  const rows = data || [];
+  const { data, error } = await supabase.from('activity_log').select('event_type, created_at').gte('created_at', since);
+  const rows = (error ? [] : data) || [];
 
   const map = {};
   rows.forEach((r) => {
@@ -485,8 +485,8 @@ export const getAnalyticsMonthly = async (days = 90) => {
 
 export const getAnalyticsTopEvents = async (days = 90) => {
   const since = new Date(Date.now() - days * 86400000).toISOString();
-  const { data } = await supabase.from('activity_log').select('metadata').eq('event_type', 'comm_generated').gte('created_at', since);
-  const rows = data || [];
+  const { data, error } = await supabase.from('activity_log').select('metadata').eq('event_type', 'comm_generated').gte('created_at', since);
+  const rows = (error ? [] : data) || [];
 
   const counts = {};
   rows.forEach((r) => {
@@ -503,8 +503,8 @@ export const getAnalyticsTopEvents = async (days = 90) => {
 
 export const getAnalyticsUserBreakdown = async (days = 90) => {
   const since = new Date(Date.now() - days * 86400000).toISOString();
-  const { data } = await supabase.from('activity_log').select('event_type, user_email, user_name, user_role, metadata, created_at').gte('created_at', since);
-  const rows = data || [];
+  const { data, error } = await supabase.from('activity_log').select('event_type, user_email, user_name, user_role, metadata, created_at').gte('created_at', since);
+  const rows = (error ? [] : data) || [];
 
   const map = {};
   rows.forEach((r) => {
