@@ -200,36 +200,26 @@ function MainAppContent({ onLogout }) {
 
   const handleEditDraft = (draftData, draftId) => {
     if (!draftData) return;
+    const poll = (ref, method, attempts = 0) => {
+      if (ref.current?.[method]) {
+        console.log('[poll] found ref after', attempts, 'attempts, calling', method);
+        ref.current[method](draftData, draftId);
+      } else if (attempts < 60) {
+        setTimeout(() => poll(ref, method, attempts + 1), 100);
+      } else {
+        console.error('[poll] ref never became ready after 6s:', method);
+        toast.error('Failed to load draft — please try again');
+      }
+    };
     if (draftData.type === 'Marketing Spotlight') {
       navigateTo('marketing-spotlight');
-      const tryLoad = (attempts = 0) => {
-        if (marketingSpotlightRef.current?.loadDraft) {
-          marketingSpotlightRef.current.loadDraft(draftData, draftId);
-        } else if (attempts < 20) {
-          setTimeout(() => tryLoad(attempts + 1), 50);
-        }
-      };
-      setTimeout(() => tryLoad(), 50);
+      setTimeout(() => poll(marketingSpotlightRef, 'loadDraft'), 100);
     } else if (draftData.type === 'Event Submission') {
       navigateTo('submit-event');
-      const tryLoad = (attempts = 0) => {
-        if (submitEventRef.current?.loadDraft) {
-          submitEventRef.current.loadDraft(draftData, draftId);
-        } else if (attempts < 20) {
-          setTimeout(() => tryLoad(attempts + 1), 50);
-        }
-      };
-      setTimeout(() => tryLoad(), 50);
+      setTimeout(() => poll(submitEventRef, 'loadDraft'), 100);
     } else {
       navigateTo('create-comm');
-      const tryLoad = (attempts = 0) => {
-        if (createCommRef.current?.loadFormData) {
-          createCommRef.current.loadFormData(draftData, draftId);
-        } else if (attempts < 20) {
-          setTimeout(() => tryLoad(attempts + 1), 50);
-        }
-      };
-      setTimeout(() => tryLoad(), 50);
+      setTimeout(() => poll(createCommRef, 'loadFormData'), 100);
     }
   };
 
