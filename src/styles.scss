@@ -390,6 +390,7 @@ $sidebar-item-active-bar: #4589ff;
   min-width: 0;
   background: transparent;
   overflow: auto;
+  border-left: 4px solid rgba(69, 137, 255, 0.35);
 }
 
 // Keep tab content panels white (for components that expect it)
@@ -1058,7 +1059,20 @@ $sidebar-item-active-bar: #4589ff;
 // Drafts Tab
 .drafts-tab {
   padding: 0;
-  
+
+  // Force accordion and structured list to fill full width
+  .cds--accordion,
+  .cds--accordion__item,
+  .cds--structured-list,
+  .cds--structured-list-wrapper {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .cds--accordion__content {
+    padding-right: 0 !important;
+  }
+
   .drafts-header {
     margin-bottom: $spacing-06;
     padding: $spacing-06;

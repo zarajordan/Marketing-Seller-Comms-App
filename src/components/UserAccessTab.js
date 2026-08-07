@@ -50,6 +50,7 @@ const TABS = [
   { id: 'manage-events', label: 'Manage Events', description: 'Create and manage events' },
   { id: 'drafts', label: 'My Drafts', description: 'View and edit drafts' },
   { id: 'user-access', label: 'User Access', description: 'Manage user permissions' },
+  { id: 'client-stories', label: 'Client Stories', description: 'View IBM client stories dashboard' },
 ];
 
 const ROLES = Object.entries(ROLE_CONFIG).map(([id, cfg]) => ({ id, ...cfg }));
@@ -281,10 +282,10 @@ const UserAccessTab = () => {
   }));
 
   return (
-    <div className="user-access-tab">
-      <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ marginBottom: '8px' }}>User Access Management</h2>
-        <p style={{ color: '#525252', marginBottom: '24px' }}>
+    <div className="user-access-tab" style={{ paddingBottom: '48px' }}>
+      <div style={{ padding: '24px', marginBottom: '24px', background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)', borderBottom: '2px solid rgba(69,137,255,0.3)' }}>
+        <h2 style={{ color: '#fff', fontWeight: 700, letterSpacing: '0.04em', marginBottom: '8px' }}>👥 USER ACCESS MANAGEMENT</h2>
+        <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '16px' }}>
           Manage user roles and tab access permissions
         </p>
 
@@ -311,13 +312,13 @@ const UserAccessTab = () => {
         </Grid>
       </div>
 
-      <Tile style={{ marginBottom: '24px', padding: '16px' }}>
-        <h4 style={{ marginBottom: '12px' }}>Role Definitions</h4>
-        <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+      <Tile style={{ marginBottom: '32px', padding: '24px' }}>
+        <h4 style={{ marginBottom: '16px', fontSize: '15px' }}>Role Definitions</h4>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px 32px' }}>
           {ROLES.map((role) => (
-            <div key={role.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Tag type={role.color} size="sm">{role.label}</Tag>
-              <span style={{ fontSize: '14px', color: '#525252' }}>
+            <div key={role.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}>
+              <Tag type={role.color} size="md">{role.label}</Tag>
+              <span style={{ fontSize: '13px', color: '#525252' }}>
                 {role.id === 'admin-manager' && 'Full access to all tabs and user management'}
                 {role.id === 'marketer' && 'Tab access assigned individually by admin manager'}
                 {role.id === 'marketing' && 'Event Library, Submit Event and My Drafts access only'}

@@ -73,7 +73,7 @@ const EMPTY_FORM = {
 };
 
 const SECTION_STYLE = {
-  background: '#6929c4',
+  background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)',
   color: '#fff',
   padding: '10px 16px',
   borderRadius: '4px',
@@ -285,14 +285,14 @@ const SubmitEventTab = forwardRef((props, ref) => {
 
   return (
     <div className="submit-event-tab">
-      <div style={{ marginBottom: '24px' }}>
-        <h2>📝 Submit an Event</h2>
-        <p style={{ color: '#525252', marginTop: '8px' }}>
+      <div style={{ padding: '24px', marginBottom: '24px', background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)', borderBottom: '2px solid rgba(69,137,255,0.3)' }}>
+        <h2 style={{ color: '#fff', fontWeight: 700, letterSpacing: '0.04em', marginBottom: '8px' }}>📝 SUBMIT AN EVENT</h2>
+        <p style={{ color: 'rgba(255,255,255,0.5)', marginTop: '0' }}>
           Fill in the details below to submit an event for admin review. It will be saved as a Draft until approved.
         </p>
       </div>
 
-      <div style={{ background: '#f6f2ff', border: '1px solid #d4bbff', borderRadius: '4px', padding: '12px 16px', fontSize: '13px', color: '#6929c4', marginBottom: '24px', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+      <div style={{ background: '#edf5ff', border: '1px solid rgba(69,137,255,0.4)', borderRadius: '4px', padding: '12px 16px', fontSize: '13px', color: '#0043ce', marginBottom: '24px', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
         ℹ️ Your submission will be reviewed by an admin or manager before it appears in the Event Library. Fields marked <strong>*</strong> are required.
       </div>
 
@@ -301,7 +301,6 @@ const SubmitEventTab = forwardRef((props, ref) => {
         borderRadius: '4px',
         background: '#fff',
         width: '100%',
-        maxWidth: '1200px',
       }}>
         {/* Header */}
         <div style={{ background: '#161616', color: '#fff', padding: '16px 24px' }}>
@@ -475,6 +474,7 @@ const SubmitEventTab = forwardRef((props, ref) => {
             <div>
               <RichTextEditor
                 label="Brief Summary * (500 characters)"
+                labelNote="(when drafting this summary please consider this will be included on the seller comm and sent to the client)"
                 value={formData.briefSummary}
                 onChange={(val) => {
                   setBriefSummaryCount(val.replace(/<[^>]*>/g, '').length);

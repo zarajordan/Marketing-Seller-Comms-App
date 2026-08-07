@@ -120,15 +120,16 @@ export default function AnalyticsTab() {
   const peakDow = dowBreakdown.reduce((a, b) => (b.count > a.count ? b : a), { label: '—', count: 0 });
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1100px' }}>
+    <div style={{ padding: '0' }}>
 
       {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
-        <h2>📊 Analytics</h2>
-        <p style={{ color: '#525252', marginTop: '8px', fontSize: '14px' }}>
+      <div style={{ padding: '24px', marginBottom: '24px', background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)', borderBottom: '2px solid rgba(69,137,255,0.3)' }}>
+        <h2 style={{ color: '#fff', fontWeight: 700, letterSpacing: '0.04em', marginBottom: '8px' }}>📊 ANALYTICS</h2>
+        <p style={{ color: 'rgba(255,255,255,0.5)', marginTop: '0', fontSize: '14px' }}>
           Track site activity, comm generation and user engagement across the IBM UKI Marketing Hub.
         </p>
       </div>
+      <div style={{ padding: '0 24px 48px' }}>
 
       {/* Period selector */}
       <div style={{ marginBottom: '24px', maxWidth: '220px' }}>
@@ -282,7 +283,7 @@ export default function AnalyticsTab() {
               <p style={{ color: '#6f6f6f', fontSize: '13px' }}>No user activity logged yet.</p>
             ) : (
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
                   <thead>
                     <tr style={{ borderBottom: '2px solid #e0e0e0' }}>
                       {['User', 'Role', 'Comms Generated', 'Site Visits', 'Avg. Events / Comm', 'Activity', 'Last Active'].map((h) => (
@@ -297,13 +298,15 @@ export default function AnalyticsTab() {
                       const roleColor = ROLE_COLORS[u.role] || '#525252';
                       return (
                         <tr key={u.email} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                          <td style={{ padding: '10px 12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: DONUT_COLORS[i % DONUT_COLORS.length], color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>
-                              {initials(u.name)}
-                            </div>
-                            <div>
-                              <div style={{ fontWeight: 500 }}>{u.name || u.email}</div>
-                              <div style={{ fontSize: '11px', color: '#6f6f6f' }}>{u.email}</div>
+                          <td style={{ padding: '10px 12px', fontSize: '13px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: DONUT_COLORS[i % DONUT_COLORS.length], color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>
+                                {initials(u.name)}
+                              </div>
+                              <div>
+                                <div style={{ fontWeight: 500 }}>{u.name || u.email}</div>
+                                <div style={{ fontSize: '11px', color: '#6f6f6f' }}>{u.email}</div>
+                              </div>
                             </div>
                           </td>
                           <td style={{ padding: '10px 12px' }}>
@@ -328,6 +331,7 @@ export default function AnalyticsTab() {
           </Tile>
         </>
       )}
+      </div>
     </div>
   );
 }

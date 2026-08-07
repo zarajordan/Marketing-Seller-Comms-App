@@ -117,7 +117,7 @@ const DraftsTab = ({ onEditDraft, currentUser }) => {
     <div className="drafts-tab">
       <div className="drafts-header" style={{ marginBottom: '24px' }}>
         <h2>My Drafts</h2>
-        <p style={{ color: '#525252', marginTop: '8px' }}>
+        <p style={{ color: 'rgba(255,255,255,0.5)', marginTop: '8px' }}>
           Manage your saved drafts — communications and event submissions
         </p>
         {drafts.length > 0 && (
