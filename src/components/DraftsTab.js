@@ -98,8 +98,10 @@ const DraftsTab = ({ onEditDraft, currentUser }) => {
   };
 
   const handleEdit = (draft) => {
+    console.log('[handleEdit] draft:', draft, 'draft.data:', draft.data, 'type:', typeof draft.data);
     if (onEditDraft) {
-      onEditDraft(draft.data, draft.id);
+      const draftData = typeof draft.data === 'string' ? JSON.parse(draft.data) : draft.data;
+      onEditDraft(draftData, draft.id);
       toast.info(`📝 Loading "${draft.name}" for editing...`, { autoClose: 2000 });
     }
   };
