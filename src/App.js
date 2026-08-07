@@ -199,20 +199,37 @@ function MainAppContent({ onLogout }) {
   };
 
   const handleEditDraft = (draftData, draftId) => {
-    console.log('[handleEditDraft] draftData:', draftData, 'draftId:', draftId);
-    if (!draftData) {
-      toast.error('Draft data is missing');
-      return;
-    }
+    if (!draftData) return;
     if (draftData.type === 'Marketing Spotlight') {
-      localStorage.setItem('load_draft_marketing_spotlight', JSON.stringify({ data: draftData, id: draftId }));
       navigateTo('marketing-spotlight');
+      const tryLoad = (attempts = 0) => {
+        if (marketingSpotlightRef.current?.loadDraft) {
+          marketingSpotlightRef.current.loadDraft(draftData, draftId);
+        } else if (attempts < 20) {
+          setTimeout(() => tryLoad(attempts + 1), 50);
+        }
+      };
+      setTimeout(() => tryLoad(), 50);
     } else if (draftData.type === 'Event Submission') {
-      localStorage.setItem('load_draft_submit_event', JSON.stringify({ data: draftData, id: draftId }));
       navigateTo('submit-event');
+      const tryLoad = (attempts = 0) => {
+        if (submitEventRef.current?.loadDraft) {
+          submitEventRef.current.loadDraft(draftData, draftId);
+        } else if (attempts < 20) {
+          setTimeout(() => tryLoad(attempts + 1), 50);
+        }
+      };
+      setTimeout(() => tryLoad(), 50);
     } else {
-      localStorage.setItem('load_draft_create_comm', JSON.stringify({ data: draftData, id: draftId }));
       navigateTo('create-comm');
+      const tryLoad = (attempts = 0) => {
+        if (createCommRef.current?.loadFormData) {
+          createCommRef.current.loadFormData(draftData, draftId);
+        } else if (attempts < 20) {
+          setTimeout(() => tryLoad(attempts + 1), 50);
+        }
+      };
+      setTimeout(() => tryLoad(), 50);
     }
   };
 

@@ -1126,30 +1126,6 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
     }
   }));
 
-  useEffect(() => {
-    const stored = localStorage.getItem('load_draft_marketing_spotlight');
-    if (stored) {
-      try {
-        const { data, id } = JSON.parse(stored);
-        setMonth(data.month || 'May');
-        setYear(data.year || '2026');
-        setQuarter(data.quarter || 'Q2');
-        setEvents(data.events || []);
-        setNewsLinks(data.newsLinks || []);
-        setPodcastLinks(data.podcastLinks || []);
-        setRevTechLinks(data.revTechLinks || []);
-        setBannerTitle(data.bannerTitle || 'UKI Marketing Spotlight');
-        setBannerSubtitle(data.bannerSubtitle || "Don't miss what's coming up in");
-        setUseCustomColors(data.useCustomColors || false);
-        if (data.customColors) setCustomColors(data.customColors);
-        setCustomSections(data.customSections || []);
-        setCurrentDraftId(id || null);
-        toast.success('Draft loaded successfully!');
-      } catch {}
-      localStorage.removeItem('load_draft_marketing_spotlight');
-    }
-  }, []);
-
   const generateEmailHTML = () => {
     // Get featured events from ALL categories first
     const featuredEvents = events.filter(e => e.featured).slice(0, 3); // Show up to 3 featured events

@@ -118,21 +118,6 @@ const SubmitEventTab = forwardRef((props, ref) => {
     },
   }));
 
-  useEffect(() => {
-    const stored = localStorage.getItem('load_draft_submit_event');
-    if (stored) {
-      try {
-        const { data, id } = JSON.parse(stored);
-        setFormData({ ...EMPTY_FORM, ...data });
-        setBriefSummaryCount((data.briefSummary || '').replace(/<[^>]*>/g, '').length);
-        setCurrentDraftId(id);
-        setSubmitted(false);
-        setErrors({});
-      } catch {}
-      localStorage.removeItem('load_draft_submit_event');
-    }
-  }, []);
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === 'briefSummary') setBriefSummaryCount(value.length);
