@@ -1,20 +1,23 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  Header,
-  HeaderName,
-  HeaderGlobalBar,
-  HeaderGlobalAction,
   Content,
   Theme,
-  Tabs,
-  TabList,
-  Tab,
-  TabPanels,
-  TabPanel,
-  Tag,
-  Button,
 } from '@carbon/react';
-import { ColorPalette, UserAvatar, Switcher, Logout } from '@carbon/icons-react';
+import {
+  UserAvatar,
+  Logout,
+  Edit,
+  Star,
+  Template,
+  EventsAlt,
+  Calendar,
+  CheckmarkOutline,
+  Upload,
+  Document,
+  Portfolio,
+  UserAdmin,
+  ChartBar,
+} from '@carbon/icons-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CreateCommTab from './components/CreateCommTab';
@@ -29,31 +32,71 @@ import UserAccessTab from './components/UserAccessTab';
 import SubmitEventTab from './components/SubmitEventTab';
 import ForReviewTab from './components/ForReviewTab';
 import AnalyticsTab from './components/AnalyticsTab';
+import ClientStoriesTab from './components/ClientStoriesTab';
 import ThemeSelector from './components/ThemeSelector';
 import LoginPage from './components/LoginPage';
 import SetNewPasswordPage from './components/SetNewPasswordPage';
 import { UserProvider, useUser } from './contexts/UserContext';
+import { listEvents } from './lib/supabaseData';
 
-// Tab configuration with IDs for permission checking
-const TAB_CONFIG = [
-  { id: 'create-comm', label: 'Create Comm', component: CreateCommTab },
-  { id: 'marketing-spotlight', label: '✨ Marketing Spotlight', component: MarketingSpotlightTab },
-  { id: 'templates', label: '📚 Templates', component: TemplatesTab },
-  { id: 'event-library', label: '🎯 Event Library', component: EventsTab },
-  { id: 'manage-events', label: '📅 Manage Events', component: ManageEventsTab },
-  { id: 'for-review', label: '🔍 For Review', component: ForReviewTab },
-  { id: 'submit-event', label: '📝 Submit Event', component: SubmitEventTab },
-  { id: 'drafts', label: 'My Drafts', component: DraftsTab },
-  { id: 'user-access', label: '👥 User Access', component: UserAccessTab },
-  { id: 'analytics', label: '📊 Analytics', component: AnalyticsTab },
+// ── Sidebar configuration ────────────────────────────────────────────────────
+const SIDEBAR_SECTIONS = [
+  {
+    label: 'Comms',
+    items: [
+      { id: 'create-comm',         label: 'Create Comm',         icon: Edit },
+      { id: 'marketing-spotlight', label: 'Marketing Spotlight', icon: Star },
+      { id: 'templates',           label: 'Templates',           icon: Template },
+    ],
+  },
+  {
+    label: 'Events',
+    items: [
+      { id: 'event-library',  label: 'Event Library',  icon: EventsAlt },
+      { id: 'manage-events',  label: 'Manage Events',  icon: Calendar },
+      { id: 'for-review',     label: 'For Review',     icon: CheckmarkOutline, badge: true },
+      { id: 'submit-event',   label: 'Submit Event',   icon: Upload },
+    ],
+  },
+  {
+    label: 'Personal',
+    items: [
+      { id: 'drafts',          label: 'My Drafts',      icon: Document },
+      { id: 'client-stories',  label: 'Client Stories', icon: Portfolio },
+    ],
+  },
+  {
+    label: 'Admin',
+    items: [
+      { id: 'user-access', label: 'User Access', icon: UserAdmin },
+      { id: 'analytics',   label: 'Analytics',   icon: ChartBar },
+    ],
+  },
 ];
 
+// Flat map for component lookup
+const TAB_COMPONENTS = {
+  'create-comm':         CreateCommTab,
+  'marketing-spotlight': MarketingSpotlightTab,
+  'templates':           TemplatesTab,
+  'event-library':       EventsTab,
+  'manage-events':       ManageEventsTab,
+  'for-review':          ForReviewTab,
+  'submit-event':        SubmitEventTab,
+  'drafts':              DraftsTab,
+  'user-access':         UserAccessTab,
+  'analytics':           AnalyticsTab,
+  'client-stories':      ClientStoriesTab,
+  'dashboard':           DashboardTab,
+  'ai-assistant':        AIAssistantTab,
+};
+
+// ── Auth wrapper ─────────────────────────────────────────────────────────────
 function AppContent() {
   const { currentUser, isAuthenticated, loading, passwordRecoveryMode, login, checkEmail, logout, updatePassword } = useUser();
 
   const handleLogin = async (userData) => {
     if (userData.step === 'check') {
-      // Step 1 — checkEmail() determines authStage
       const result = await checkEmail(userData.email);
       if (result.authStage === 'seller') {
         toast.success(`Welcome, ${result.user.name}!`);
@@ -63,7 +106,6 @@ function AppContent() {
         throw new Error(result.error || 'Login failed');
       }
     } else {
-      // Step 2 — password provided: full Supabase auth
       const result = await login(userData.email, userData.password);
       if (result.success) {
         toast.success(`Welcome back, ${result.user.name}!`);
@@ -97,95 +139,88 @@ function AppContent() {
   return <MainAppContent onLogout={handleLogout} />;
 }
 
+// ── Main app shell ───────────────────────────────────────────────────────────
 function MainAppContent({ onLogout }) {
-  const { currentUser, hasPermission, hasRole, switchUser } = useUser();
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const { currentUser, hasPermission } = useUser();
+  const [selectedTabId, setSelectedTabId] = useState(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [themeModalOpen, setThemeModalOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const createCommRef = useRef(null);
-  const marketingSpotlightRef = useRef(null);
-  const submitEventRef = useRef(null);
+  const [forReviewCount, setForReviewCount] = useState(0);
 
-  const handleLogout = () => {
-    onLogout();
+  const createCommRef         = useRef(null);
+  const marketingSpotlightRef = useRef(null);
+  const submitEventRef        = useRef(null);
+
+  // Compute which tabs the user can access (flat list of IDs)
+  const accessibleIds = SIDEBAR_SECTIONS
+    .flatMap((s) => s.items)
+    .map((i) => i.id)
+    .filter((id) => hasPermission(id));
+
+  // Set initial tab once permissions are known
+  useEffect(() => {
+    if (accessibleIds.length > 0 && !accessibleIds.includes(selectedTabId)) {
+      setSelectedTabId(accessibleIds[0]);
+    }
+  }, [accessibleIds.join(',')]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load For Review badge count
+  const loadReviewCount = useCallback(async () => {
+    if (!hasPermission('for-review')) return;
+    try {
+      const data = await listEvents();
+      setForReviewCount(data.filter((e) => e.status === 'Draft').length);
+    } catch {
+      // silently ignore
+    }
+  }, [hasPermission]);
+
+  useEffect(() => {
+    loadReviewCount();
+    window.addEventListener('eventsUpdated', loadReviewCount);
+    return () => window.removeEventListener('eventsUpdated', loadReviewCount);
+  }, [loadReviewCount]);
+
+  // ── Navigation helpers ────────────────────────────────────────────────────
+  const navigateTo = (tabId) => {
+    if (accessibleIds.includes(tabId)) setSelectedTabId(tabId);
   };
 
-  // Get accessible tabs based on user permissions
-  const accessibleTabs = TAB_CONFIG.filter((tab) => hasPermission(tab.id));
-
-  // Ensure selected index is valid for accessible tabs
-  useEffect(() => {
-    if (selectedIndex >= accessibleTabs.length) {
-      setSelectedIndex(0);
-    }
-  }, [accessibleTabs.length, selectedIndex]);
-
   const handleLoadTemplate = (templateData) => {
-    if (createCommRef.current && createCommRef.current.loadFormData) {
+    if (createCommRef.current?.loadFormData) {
       createCommRef.current.loadFormData(templateData);
-      // Find the index of Create Comm tab in accessible tabs
-      const createCommIndex = accessibleTabs.findIndex((tab) => tab.id === 'create-comm');
-      if (createCommIndex !== -1) {
-        setSelectedIndex(createCommIndex);
-      }
+      navigateTo('create-comm');
     }
   };
 
   const handleGenerateComm = (selectedEvents) => {
     localStorage.setItem('selected_events_for_comm', JSON.stringify(selectedEvents));
-    const createCommIndex = accessibleTabs.findIndex((tab) => tab.id === 'create-comm');
-    if (createCommIndex !== -1) {
-      setSelectedIndex(createCommIndex);
-    }
+    navigateTo('create-comm');
   };
 
   const handleEditDraft = (draftData, draftId) => {
     if (draftData.type === 'Marketing Spotlight') {
-      if (marketingSpotlightRef.current && marketingSpotlightRef.current.loadDraft) {
+      if (marketingSpotlightRef.current?.loadDraft) {
         marketingSpotlightRef.current.loadDraft(draftData, draftId);
-        const spotlightIndex = accessibleTabs.findIndex((tab) => tab.id === 'marketing-spotlight');
-        if (spotlightIndex !== -1) setSelectedIndex(spotlightIndex);
+        navigateTo('marketing-spotlight');
       }
     } else if (draftData.type === 'Event Submission') {
-      if (submitEventRef.current && submitEventRef.current.loadDraft) {
+      if (submitEventRef.current?.loadDraft) {
         submitEventRef.current.loadDraft(draftData, draftId);
-        const submitIndex = accessibleTabs.findIndex((tab) => tab.id === 'submit-event');
-        if (submitIndex !== -1) setSelectedIndex(submitIndex);
+        navigateTo('submit-event');
       }
     } else {
-      // Regular comm draft
-      if (createCommRef.current && createCommRef.current.loadFormData) {
+      if (createCommRef.current?.loadFormData) {
         createCommRef.current.loadFormData(draftData, draftId);
-        const createCommIndex = accessibleTabs.findIndex((tab) => tab.id === 'create-comm');
-        if (createCommIndex !== -1) setSelectedIndex(createCommIndex);
+        navigateTo('create-comm');
       }
     }
-  };
-
-  const handleSwitchUser = async () => {
-    toast.info('Use the login screen to switch users');
-  };
-
-  const getRoleColor = (role) => {
-    const colors = {
-      'admin-manager': 'red',
-      marketer: 'purple',
-      seller: 'cyan',
-    };
-    return colors[role] || 'gray';
   };
 
   if (!currentUser) {
     return (
       <Theme theme="white">
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          flexDirection: 'column',
-          gap: '16px'
-        }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column', gap: '16px' }}>
           <UserAvatar size={64} />
           <h2>No user logged in</h2>
           <p>Please configure users in the User Access tab</p>
@@ -194,115 +229,118 @@ function MainAppContent({ onLogout }) {
     );
   }
 
+  // Render the active tab component
+  const renderActiveTab = () => {
+    if (!selectedTabId) return null;
+    const Component = TAB_COMPONENTS[selectedTabId];
+    if (!Component) return null;
+
+    const props = {};
+    if (selectedTabId === 'create-comm') {
+      props.ref = createCommRef;
+      props.currentUser = currentUser;
+    } else if (selectedTabId === 'marketing-spotlight') {
+      props.ref = marketingSpotlightRef;
+      props.currentUser = currentUser;
+    } else if (selectedTabId === 'templates') {
+      props.onUseTemplate = handleLoadTemplate;
+    } else if (selectedTabId === 'drafts') {
+      props.onEditDraft = handleEditDraft;
+      props.currentUser = currentUser;
+    } else if (selectedTabId === 'submit-event') {
+      props.ref = submitEventRef;
+    } else if (selectedTabId === 'event-library') {
+      props.onGenerateComm = handleGenerateComm;
+      props.currentUser = currentUser;
+    }
+
+    return <Component {...props} />;
+  };
+
   return (
     <Theme theme="white">
-      <Header aria-label="UKI IBM Marketing Comms">
-        <HeaderName prefix="UKI">
-          IBM Marketing Comms - United Kingdom & Ireland
-        </HeaderName>
-        <HeaderGlobalBar>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginRight: '16px'
-          }}>
-            <Tag type={getRoleColor(currentUser.role)} size="sm">
-              {currentUser.role}
-            </Tag>
-            <span style={{ fontSize: '14px', color: '#f4f4f4' }}>
-              {currentUser.name}
-            </span>
-          </div>
-          <HeaderGlobalAction
-            aria-label="Switch User"
-            tooltipAlignment="end"
-            onClick={handleSwitchUser}
-          >
-            <Switcher size={20} />
-          </HeaderGlobalAction>
-          <HeaderGlobalAction
-            aria-label="Theme Selector"
-            tooltipAlignment="end"
-            onClick={() => setThemeModalOpen(true)}
-          >
-            <ColorPalette size={20} />
-          </HeaderGlobalAction>
-          <HeaderGlobalAction
-            aria-label="Logout"
-            tooltipAlignment="end"
-            onClick={handleLogout}
-          >
-            <Logout size={20} />
-          </HeaderGlobalAction>
-        </HeaderGlobalBar>
-      </Header>
-      
-      <Content>
-        <div className="app-container">
-          <div className="app-header">
-            <h1 className="app-title">UKI IBM Marketing Comms</h1>
-            <p className="app-subtitle">Professional Communication Builder for Outlook</p>
-          </div>
+      {/* ── Topbar ── */}
+      <div className="app-topbar">
+        <button
+          className="app-topbar__sidebar-toggle"
+          aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          onClick={() => setSidebarCollapsed((c) => !c)}
+        >
+          <span className="app-topbar__hamburger" />
+        </button>
+        <span className="app-topbar__logo">IBM</span>
+        <div className="app-topbar__divider" />
+        <span className="app-topbar__name">IBM UKI MARKETING HUB</span>
+        <div className="app-topbar__right">
+          <span className="app-topbar__role-pill">{currentUser.role}</span>
+          <span className="app-topbar__username">{currentUser.name}</span>
+          <button className="app-topbar__icon-btn" aria-label="Logout" title="Logout" onClick={onLogout}>
+            <Logout size={18} />
+          </button>
+        </div>
+      </div>
 
-          {accessibleTabs.length === 0 ? (
-            <div style={{
-              textAlign: 'center',
-              padding: '48px',
-              background: '#f4f4f4',
-              borderRadius: '8px',
-              marginTop: '24px'
-            }}>
-              <UserAvatar size={48} style={{ marginBottom: '16px' }} />
-              <h3>No Accessible Tabs</h3>
-              <p style={{ color: '#525252', marginTop: '8px' }}>
-                Your account doesn't have permission to access any tabs.
-                Please contact an administrator.
-              </p>
-            </div>
-          ) : (
-            <Tabs selectedIndex={selectedIndex} onChange={(evt) => setSelectedIndex(evt.selectedIndex)}>
-              <TabList aria-label="Communication tabs" contained>
-                {accessibleTabs.map((tab) => (
-                  <Tab key={tab.id}>{tab.label}</Tab>
-                ))}
-              </TabList>
-              
-              <TabPanels>
-                {accessibleTabs.map((tab) => {
-                  const Component = tab.component;
-                  let componentProps = {};
+      <Content style={{ paddingTop: 0 }}>
+        {/* ── Layout: sidebar + content ── */}
+        <div className={`app-layout${sidebarCollapsed ? ' app-layout--collapsed' : ''}`}>
 
-                  // Add refs for specific components
-                  if (tab.id === 'create-comm') {
-                    componentProps.ref = createCommRef;
-                    componentProps.currentUser = currentUser;
-                  } else if (tab.id === 'marketing-spotlight') {
-                    componentProps.ref = marketingSpotlightRef;
-                    componentProps.currentUser = currentUser;
-                  } else if (tab.id === 'templates') {
-                    componentProps.onUseTemplate = handleLoadTemplate;
-                  } else if (tab.id === 'drafts') {
-                    componentProps.onEditDraft = handleEditDraft;
-                    componentProps.currentUser = currentUser;
-                  } else if (tab.id === 'submit-event') {
-                    componentProps.ref = submitEventRef;
-                  } else if (tab.id === 'event-library') {
-                    componentProps.onGenerateComm = handleGenerateComm;
-                    componentProps.currentUser = currentUser;
-                  }
+          {/* Sidebar */}
+          <nav className="app-sidebar" aria-label="Main navigation">
+            {SIDEBAR_SECTIONS.map((section) => {
+              const visibleItems = section.items.filter((item) => accessibleIds.includes(item.id));
+              if (visibleItems.length === 0) return null;
+              return (
+                <div key={section.label} className="app-sidebar__section">
+                  {!sidebarCollapsed && (
+                    <span className="app-sidebar__section-label">{section.label}</span>
+                  )}
+                  {visibleItems.map((item) => {
+                    const isActive = item.id === selectedTabId;
+                    const showBadge = item.badge && forReviewCount > 0;
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={item.id}
+                        className={`app-sidebar__item${isActive ? ' app-sidebar__item--active' : ''}`}
+                        onClick={() => setSelectedTabId(item.id)}
+                        title={sidebarCollapsed ? item.label : undefined}
+                        aria-current={isActive ? 'page' : undefined}
+                      >
+                        <span className="app-sidebar__icon"><Icon size={16} /></span>
+                        {!sidebarCollapsed && (
+                          <span className="app-sidebar__label">{item.label}</span>
+                        )}
+                        {showBadge && (
+                          <span className={`app-sidebar__badge${sidebarCollapsed ? ' app-sidebar__badge--dot' : ''}`}>
+                            {sidebarCollapsed ? '' : forReviewCount}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </nav>
 
-                  return (
-                    <TabPanel key={tab.id}>
-                      <Component {...componentProps} />
-                    </TabPanel>
-                  );
-                })}
-              </TabPanels>
-            </Tabs>
-          )}
+          {/* Main content */}
+          <main className="app-main">
+            {accessibleIds.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '48px', background: '#f4f4f4', borderRadius: '8px', marginTop: '24px' }}>
+                <UserAvatar size={48} style={{ marginBottom: '16px' }} />
+                <h3>No Accessible Tabs</h3>
+                <p style={{ color: '#525252', marginTop: '8px' }}>
+                  Your account doesn't have permission to access any tabs.
+                  Please contact an administrator.
+                </p>
+              </div>
+            ) : (
+              renderActiveTab()
+            )}
+          </main>
         </div>
       </Content>
+
       <ToastContainer
         position="top-right"
         autoClose={2000}

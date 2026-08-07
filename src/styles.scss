@@ -12,11 +12,11 @@
 }
 
 // Global enhancements
-body {
-  background: var(--background);
-  background-attachment: fixed;
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #060c22;
   color: var(--text-color);
-  transition: background 0.3s ease, color 0.3s ease;
 }
 
 // Custom Toast Notifications Styling
@@ -27,23 +27,27 @@ body {
 }
 
 .Toastify__toast--success {
-  background: linear-gradient(135deg, #24a148 0%, #198038 100%) !important;
+  background: linear-gradient(135deg, #0c1a4a 0%, #0f2872 100%) !important;
   color: white !important;
+  border-left: 3px solid #42be65 !important;
 }
 
 .Toastify__toast--error {
-  background: linear-gradient(135deg, #da1e28 0%, #a2191f 100%) !important;
+  background: linear-gradient(135deg, #0c1a4a 0%, #0f2872 100%) !important;
   color: white !important;
+  border-left: 3px solid #fa4d56 !important;
 }
 
 .Toastify__toast--warning {
-  background: linear-gradient(135deg, #f1c21b 0%, #d2a106 100%) !important;
-  color: #161616 !important;
+  background: linear-gradient(135deg, #0c1a4a 0%, #0f2872 100%) !important;
+  color: white !important;
+  border-left: 3px solid #f1c21b !important;
 }
 
 .Toastify__toast--info {
-  background: linear-gradient(135deg, #0f62fe 0%, #0043ce 100%) !important;
+  background: linear-gradient(135deg, #0c1a4a 0%, #0f2872 100%) !important;
   color: white !important;
+  border-left: 3px solid #4589ff !important;
 }
 
 .Toastify__progress-bar {
@@ -104,44 +108,299 @@ body {
   }
 }
 
-// Enhanced tabs
-.cds--tabs {
-  background: white;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  
-  .cds--tabs__nav {
-    padding: 0 $spacing-05;
+// ── New dark-navy topbar ──────────────────────────────
+.app-topbar {
+  background: linear-gradient(90deg, #060c22 0%, #0c1a4a 55%, #0f2872 100%);
+  height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 8000;
+
+  &__logo {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 5px;
+    color: #fff;
+    flex-shrink: 0;
   }
-  
-  .cds--tab--list {
-    border-bottom: 2px solid $border-subtle-01;
+
+  &__divider {
+    width: 1px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
   }
-  
-  .cds--tabs__nav-item {
-    &:hover {
-      background: $layer-hover-01;
-    }
+
+  &__name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.04em;
   }
-  
-  .cds--tabs__nav-link {
+
+  &__right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__role-pill {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+
+  &__username {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.75);
     font-weight: 500;
-    
-    &:focus {
-      outline: 2px solid $focus;
-      outline-offset: -2px;
+  }
+
+  &__icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
     }
   }
 }
 
+// Override Carbon Content — kill all spacing Carbon normally adds for its header
+.cds--content {
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  // Carbon sets this var to the header height (48px) and uses it as margin-top
+  --cds-shell-header-height: 0px;
+}
+
+// ── Sidebar layout ────────────────────────────────────
+$sidebar-width:           220px;
+$sidebar-collapsed-width:  52px;
+$sidebar-bg:              #060c22;
+$sidebar-border:          rgba(255, 255, 255, 0.07);
+$sidebar-item-hover:      rgba(255, 255, 255, 0.06);
+$sidebar-item-active-bg:  rgba(69, 137, 255, 0.15);
+$sidebar-item-active-bar: #4589ff;
+
+.app-topbar__sidebar-toggle {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+
+  &:hover .app-topbar__hamburger,
+  &:hover .app-topbar__hamburger::before,
+  &:hover .app-topbar__hamburger::after {
+    background: #fff;
+  }
+}
+
+.app-topbar__hamburger {
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 2px;
+  transition: background 0.15s;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 18px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 2px;
+    transition: background 0.15s;
+  }
+
+  &::before { top: -5px; }
+  &::after  { top:  5px; }
+}
+
+// ── Layout shell ──────────────────────────────────────
+.app-layout {
+  display: flex;
+  min-height: calc(100vh - 48px); // minus topbar
+  background: #f4f4f4;
+}
+
+// ── Sidebar nav ───────────────────────────────────────
+// Use !important to defeat Carbon's Theme token cascade
+.app-sidebar {
+  width: $sidebar-width;
+  min-width: $sidebar-width;
+  background-color: $sidebar-bg !important;
+  border-right: 1px solid $sidebar-border;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-shrink: 0;
+  transition: width 0.2s ease, min-width 0.2s ease;
+  padding: 12px 0 24px;
+
+  // Defeat any Carbon layer backgrounds on child elements
+  * { background-color: transparent; }
+
+  &__section {
+    margin-bottom: 4px;
+  }
+
+  &__section-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.3) !important;
+    padding: 12px 16px 4px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 16px;
+    background-color: transparent !important;
+    border: none;
+    border-left: 3px solid transparent;
+    color: rgba(255, 255, 255, 0.65) !important;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+    position: relative;
+    box-shadow: none !important;
+
+    &:hover {
+      background-color: $sidebar-item-hover !important;
+      color: #fff !important;
+    }
+
+    &--active {
+      background-color: $sidebar-item-active-bg !important;
+      border-left-color: $sidebar-item-active-bar !important;
+      color: #fff !important;
+      font-weight: 600;
+    }
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 20px;
+    color: inherit;
+
+    svg { fill: currentColor; }
+  }
+
+  &__label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background-color: #da1e28 !important;
+    color: #fff !important;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    flex-shrink: 0;
+
+    &--dot {
+      width: 8px;
+      height: 8px;
+      min-width: 8px;
+      border-radius: 50%;
+      padding: 0;
+      position: absolute;
+      top: 8px;
+      right: 10px;
+    }
+  }
+}
+
+// Collapsed sidebar
+.app-layout--collapsed {
+  .app-sidebar {
+    width: $sidebar-collapsed-width;
+    min-width: $sidebar-collapsed-width;
+
+    .app-sidebar__item {
+      padding: 10px 0;
+      justify-content: center;
+      gap: 0;
+      border-left-width: 2px;
+    }
+
+    .app-sidebar__icon {
+      width: $sidebar-collapsed-width;
+    }
+  }
+}
+
+// ── Main content area ─────────────────────────────────
+.app-main {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  overflow: auto;
+}
+
+// Keep tab content panels white (for components that expect it)
 .cds--tab-content {
   background: white;
-  border-radius: 0 0 8px 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 0;
+  box-shadow: none;
   min-height: 400px;
 }
 
-// App Container
+// App Container (kept for inner-component usage)
 .app-container {
   max-width: 1584px;
   margin: 0 auto;
@@ -150,61 +409,42 @@ body {
   animation: fadeIn 0.6s ease-out;
 }
 
-.app-header {
-  text-align: center;
-  padding: $spacing-09 0 $spacing-07 0;
-  margin-bottom: $spacing-07;
-  background: linear-gradient(135deg, $background-brand 0%, #0353e9 50%, #0043ce 100%);
-  background-size: 200% 200%;
-  animation: gradient-shift 15s ease infinite;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(15, 98, 254, 0.3), 0 2px 8px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
-    animation: shimmer 3s infinite;
-  }
-  
-  @keyframes shimmer {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(100%);
-    }
-  }
-  
-  .app-title {
+// ── Hero strip (full-width, sits outside app-container) ──
+.app-hero-strip {
+  background: linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%);
+  padding: 18px 24px 20px;
+  border-bottom: 2px solid rgba(69, 137, 255, 0.3);
+
+  &__title {
     @include type-style('heading-05');
-    color: $text-on-color;
-    margin-bottom: $spacing-03;
+    color: #fff;
     font-weight: 700;
-    letter-spacing: -0.5px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    position: relative;
-    z-index: 1;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
   }
-  
-  .app-subtitle {
-    @include type-style('body-01');
-    color: $text-on-color;
-    opacity: 0.95;
-    position: relative;
-    z-index: 1;
+
+  &__sub {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.45);
+    font-weight: 400;
   }
+}
+
+// ── Strip top padding from all tab containers so content sits flush ──
+.create-comm-tab,
+.templates-tab,
+.events-tab,
+.manage-events-tab,
+.drafts-tab,
+.dashboard-tab,
+.ai-assistant-tab {
+  padding-top: 0 !important;
 }
 
 // Create Comm Tab
 .create-comm-tab {
   padding: $spacing-07;
+  padding-top: 0;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 12px;
@@ -230,16 +470,18 @@ body {
     align-items: flex-start;
     gap: $spacing-06;
     margin-bottom: $spacing-07;
-    padding: $spacing-06;
-    border-radius: 8px;
-    background: linear-gradient(135deg, rgba(15, 98, 254, 0.08) 0%, rgba(255, 255, 255, 0.92) 60%);
-    border: 1px solid rgba(15, 98, 254, 0.15);
+    padding: $spacing-06 $spacing-07;
+    background: linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%);
+    border-bottom: 2px solid rgba(69, 137, 255, 0.3);
+    margin-left: -$spacing-07;
+    margin-right: -$spacing-07;
+    margin-top: 0;
   }
 
   &__eyebrow {
     @include type-style('label-01');
     margin: 0 0 $spacing-03;
-    color: $text-secondary;
+    color: rgba(255, 255, 255, 0.5);
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
@@ -247,14 +489,16 @@ body {
   &__title {
     @include type-style('heading-05');
     margin: 0 0 $spacing-03;
-    color: $text-primary;
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.04em;
   }
 
   &__subtitle {
     @include type-style('body-01');
     max-width: 48rem;
     margin: 0;
-    color: $text-secondary;
+    color: rgba(255, 255, 255, 0.5);
   }
 
   &__hero-meta {
@@ -262,6 +506,7 @@ body {
     flex-wrap: wrap;
     justify-content: flex-end;
     gap: $spacing-03;
+    align-self: center;
   }
 
   &__hero-pill {
@@ -270,9 +515,9 @@ body {
     align-items: center;
     padding: $spacing-02 $spacing-04;
     border-radius: 999px;
-    background: $layer-01;
-    border: 1px solid $border-subtle-01;
-    color: $text-secondary;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.75);
     white-space: nowrap;
   }
 
@@ -690,21 +935,24 @@ body {
   
   .templates-header {
     margin-bottom: $spacing-07;
-    padding: $spacing-06;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    
+    padding: $spacing-06 $spacing-07;
+    background: linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%);
+    border-bottom: 2px solid rgba(69, 137, 255, 0.3);
+    margin-left: -$spacing-06;
+    margin-right: -$spacing-06;
+    margin-top: 0;
+
     h2 {
       @include type-style('heading-04');
-      color: $text-primary;
+      color: #fff;
       margin-bottom: $spacing-03;
-      font-weight: 600;
+      font-weight: 700;
+      letter-spacing: 0.04em;
     }
-    
+
     .templates-description {
       @include type-style('body-01');
-      color: $text-secondary;
+      color: rgba(255, 255, 255, 0.5);
       line-height: 1.6;
     }
   }
@@ -733,10 +981,10 @@ body {
     }
     
     &:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 12px 40px rgba(15, 98, 254, 0.2), 0 4px 12px rgba(0, 0, 0, 0.1);
-      border-color: $background-brand;
-      
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(12, 26, 74, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08);
+      border-left: 3px solid #4589ff;
+
       &::before {
         left: 100%;
       }
@@ -786,50 +1034,48 @@ body {
 
 // Events Tab
 .events-tab {
-  padding: $spacing-05 0;
-  
-  .events-header {
-    margin-bottom: $spacing-06;
-    
-    h2 {
-      @include type-style('heading-04');
-      color: $text-primary;
-      margin-bottom: $spacing-03;
-    }
-    
-    p {
-      @include type-style('body-01');
-      color: $text-secondary;
+  padding: 0;
+
+  // Event card hover — navy left accent
+  .cds--tile {
+    transition: box-shadow 0.2s ease, border-left 0.2s ease, transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(12, 26, 74, 0.12);
+      border-left: 3px solid #4589ff;
     }
   }
 }
 
-
-
-
 // Manage Events Tab
 .manage-events-tab {
-  padding: $spacing-06;
+  padding: 0;
 }
 
 
 
 // Drafts Tab
 .drafts-tab {
-  padding: $spacing-05 0;
+  padding: 0;
   
   .drafts-header {
     margin-bottom: $spacing-06;
-    
+    padding: $spacing-06;
+    background: linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%);
+    border-bottom: 2px solid rgba(69, 137, 255, 0.3);
+
     h2 {
       @include type-style('heading-04');
-      color: $text-primary;
+      color: #fff;
       margin-bottom: $spacing-03;
+      font-weight: 700;
+      letter-spacing: 0.04em;
     }
-    
+
     p {
       @include type-style('body-01');
-      color: $text-secondary;
+      color: rgba(255, 255, 255, 0.5);
     }
   }
   
@@ -981,7 +1227,7 @@ body {
 
 // AI Assistant Tab
 .ai-assistant-tab {
-  padding: $spacing-05 0;
+  padding: 0;
   
   .ai-header {
     margin-bottom: $spacing-06;
@@ -1082,14 +1328,14 @@ body {
 }
 
 .cds--btn--primary {
-  background: linear-gradient(135deg, $background-brand 0%, #0353e9 100%);
+  background: linear-gradient(135deg, #0c1a4a 0%, #0f2872 100%);
   background-size: 200% 200%;
-  animation: gradient-shift 3s ease infinite;
-  box-shadow: 0 4px 12px rgba(15, 98, 254, 0.3);
-  
+  animation: none;
+  box-shadow: 0 4px 12px rgba(12, 26, 74, 0.4);
+
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #0043ce 0%, $background-brand 100%);
-    box-shadow: 0 8px 24px rgba(15, 98, 254, 0.4);
+    background: linear-gradient(135deg, #0e2060 0%, #1a3a8f 100%);
+    box-shadow: 0 8px 24px rgba(12, 26, 74, 0.5);
   }
 }
 
@@ -1130,10 +1376,10 @@ body {
     padding: $spacing-04;
   }
   
-  .app-header {
-    padding: $spacing-06 $spacing-04;
-    
-    .app-title {
+  .app-hero-strip {
+    padding: $spacing-05 $spacing-04;
+
+    &__title {
       font-size: 1.75rem;
     }
   }
@@ -1159,7 +1405,7 @@ body {
 }
 
 @media (max-width: 320px) {
-  .app-header .app-title {
+  .app-hero-strip__title {
     font-size: 1.5rem;
   }
   
