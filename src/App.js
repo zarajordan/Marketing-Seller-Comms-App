@@ -200,26 +200,16 @@ function MainAppContent({ onLogout }) {
 
   const handleEditDraft = (draftData, draftId) => {
     if (!draftData) return;
-    const poll = (ref, method, attempts = 0) => {
-      if (ref.current?.[method]) {
-        console.log('[poll] found ref after', attempts, 'attempts, calling', method);
-        ref.current[method](draftData, draftId);
-      } else if (attempts < 60) {
-        setTimeout(() => poll(ref, method, attempts + 1), 100);
-      } else {
-        console.error('[poll] ref never became ready after 6s:', method);
-        toast.error('Failed to load draft — please try again');
-      }
-    };
-    if (draftData.type === 'Marketing Spotlight') {
+    const data = typeof draftData === 'string' ? JSON.parse(draftData) : draftData;
+    if (data.type === 'Marketing Spotlight') {
       navigateTo('marketing-spotlight');
-      setTimeout(() => poll(marketingSpotlightRef, 'loadDraft'), 100);
-    } else if (draftData.type === 'Event Submission') {
+      marketingSpotlightRef.current?.loadDraft(data, draftId);
+    } else if (data.type === 'Event Submission') {
       navigateTo('submit-event');
-      setTimeout(() => poll(submitEventRef, 'loadDraft'), 100);
+      submitEventRef.current?.loadDraft(data, draftId);
     } else {
       navigateTo('create-comm');
-      setTimeout(() => poll(createCommRef, 'loadFormData'), 100);
+      createCommRef.current?.loadFormData(data, draftId);
     }
   };
 
@@ -235,32 +225,39 @@ function MainAppContent({ onLogout }) {
     );
   }
 
-  // Render the active tab component
+  // Render the active tab — ref-based tabs stay mounted and are hidden when inactive
   const renderActiveTab = () => {
     if (!selectedTabId) return null;
-    const Component = TAB_COMPONENTS[selectedTabId];
-    if (!Component) return null;
 
-    const props = {};
-    if (selectedTabId === 'create-comm') {
-      props.ref = createCommRef;
-      props.currentUser = currentUser;
-    } else if (selectedTabId === 'marketing-spotlight') {
-      props.ref = marketingSpotlightRef;
-      props.currentUser = currentUser;
-    } else if (selectedTabId === 'templates') {
-      props.onUseTemplate = handleLoadTemplate;
-    } else if (selectedTabId === 'drafts') {
-      props.onEditDraft = handleEditDraft;
-      props.currentUser = currentUser;
-    } else if (selectedTabId === 'submit-event') {
-      props.ref = submitEventRef;
-    } else if (selectedTabId === 'event-library') {
-      props.onGenerateComm = handleGenerateComm;
-      props.currentUser = currentUser;
-    }
+    // Tabs that need persistent refs — always mounted, shown/hidden via display
+    const persistentTabs = [
+      { id: 'create-comm',         Component: TAB_COMPONENTS['create-comm'],         ref: createCommRef,         extraProps: { currentUser } },
+      { id: 'marketing-spotlight', Component: TAB_COMPONENTS['marketing-spotlight'], ref: marketingSpotlightRef, extraProps: { currentUser } },
+      { id: 'submit-event',        Component: TAB_COMPONENTS['submit-event'],        ref: submitEventRef,        extraProps: {} },
+    ];
 
-    return <Component {...props} />;
+    // All other tabs — only render when active
+    const renderOther = () => {
+      if (persistentTabs.some(t => t.id === selectedTabId)) return null;
+      const Component = TAB_COMPONENTS[selectedTabId];
+      if (!Component) return null;
+      const props = {};
+      if (selectedTabId === 'templates')    props.onUseTemplate = handleLoadTemplate;
+      if (selectedTabId === 'drafts')       { props.onEditDraft = handleEditDraft; props.currentUser = currentUser; }
+      if (selectedTabId === 'event-library'){ props.onGenerateComm = handleGenerateComm; props.currentUser = currentUser; }
+      return <Component {...props} />;
+    };
+
+    return (
+      <>
+        {persistentTabs.map(({ id, Component, ref, extraProps }) => (
+          <div key={id} style={{ display: selectedTabId === id ? 'block' : 'none' }}>
+            <Component ref={ref} {...extraProps} />
+          </div>
+        ))}
+        {renderOther()}
+      </>
+    );
   };
 
   return (
