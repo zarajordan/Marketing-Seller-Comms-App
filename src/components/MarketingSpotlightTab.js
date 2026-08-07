@@ -1126,6 +1126,30 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
     }
   }));
 
+  useEffect(() => {
+    const stored = localStorage.getItem('load_draft_marketing_spotlight');
+    if (stored) {
+      try {
+        const { data, id } = JSON.parse(stored);
+        setMonth(data.month || 'May');
+        setYear(data.year || '2026');
+        setQuarter(data.quarter || 'Q2');
+        setEvents(data.events || []);
+        setNewsLinks(data.newsLinks || []);
+        setPodcastLinks(data.podcastLinks || []);
+        setRevTechLinks(data.revTechLinks || []);
+        setBannerTitle(data.bannerTitle || 'UKI Marketing Spotlight');
+        setBannerSubtitle(data.bannerSubtitle || "Don't miss what's coming up in");
+        setUseCustomColors(data.useCustomColors || false);
+        if (data.customColors) setCustomColors(data.customColors);
+        setCustomSections(data.customSections || []);
+        setCurrentDraftId(id || null);
+        toast.success('Draft loaded successfully!');
+      } catch {}
+      localStorage.removeItem('load_draft_marketing_spotlight');
+    }
+  }, []);
+
   const generateEmailHTML = () => {
     // Get featured events from ALL categories first
     const featuredEvents = events.filter(e => e.featured).slice(0, 3); // Show up to 3 featured events
@@ -2207,12 +2231,12 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
 
   return (
     <div className="marketing-spotlight-tab">
-      <div style={{ marginBottom: '2rem' }}>
-        <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <div style={{ padding: '24px', marginBottom: '2rem', background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)', borderBottom: '2px solid rgba(69,137,255,0.3)' }}>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fff', fontWeight: 700, letterSpacing: '0.04em', marginBottom: '8px' }}>
           <Star size={24} />
-          ✨ Marketing Spotlight Email Builder
+          ✨ MARKETING SPOTLIGHT EMAIL BUILDER
         </h2>
-        <p style={{ color: '#525252', marginTop: '0.5rem' }}>
+        <p style={{ color: 'rgba(255,255,255,0.5)', marginTop: '0' }}>
           Create your monthly Marketing Spotlight email with Quick Summary, Featured Events, and collapsible sections.
         </p>
       </div>

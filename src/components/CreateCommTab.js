@@ -709,6 +709,23 @@ const CreateCommTab = forwardRef(({ currentUser, ...props }, ref) => {
     return hasChanges;
   };
 
+  // Load draft from localStorage on mount (set by DraftsTab before navigating here)
+  React.useEffect(() => {
+    const storedDraft = localStorage.getItem('load_draft_create_comm');
+    if (storedDraft) {
+      try {
+        const { data, id } = JSON.parse(storedDraft);
+        const normalizedData = normalizeStoredDraftData(data, { persistAsHtml: false });
+        setFormData(normalizedData);
+        if (normalizedData.bannerImage) setBannerImage(normalizedData.bannerImage);
+        if (normalizedData.eventSections) setEventSections(normalizedData.eventSections);
+        setCurrentDraftId(id);
+        setLoadedFromEvents(true);
+      } catch (e) { console.error('Failed to load draft:', e); }
+      localStorage.removeItem('load_draft_create_comm');
+    }
+  }, []);
+
   // Expose loadFormData method to parent via ref
   useImperativeHandle(ref, () => ({
     loadFormData: (data, draftId = null) => {

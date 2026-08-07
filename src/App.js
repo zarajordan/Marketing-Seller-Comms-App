@@ -200,20 +200,14 @@ function MainAppContent({ onLogout }) {
 
   const handleEditDraft = (draftData, draftId) => {
     if (draftData.type === 'Marketing Spotlight') {
-      if (marketingSpotlightRef.current?.loadDraft) {
-        marketingSpotlightRef.current.loadDraft(draftData, draftId);
-        navigateTo('marketing-spotlight');
-      }
+      localStorage.setItem('load_draft_marketing_spotlight', JSON.stringify({ data: draftData, id: draftId }));
+      navigateTo('marketing-spotlight');
     } else if (draftData.type === 'Event Submission') {
-      if (submitEventRef.current?.loadDraft) {
-        submitEventRef.current.loadDraft(draftData, draftId);
-        navigateTo('submit-event');
-      }
+      localStorage.setItem('load_draft_submit_event', JSON.stringify({ data: draftData, id: draftId }));
+      navigateTo('submit-event');
     } else {
-      if (createCommRef.current?.loadFormData) {
-        createCommRef.current.loadFormData(draftData, draftId);
-        navigateTo('create-comm');
-      }
+      localStorage.setItem('load_draft_create_comm', JSON.stringify({ data: draftData, id: draftId }));
+      navigateTo('create-comm');
     }
   };
 
