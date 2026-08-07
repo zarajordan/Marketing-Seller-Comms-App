@@ -199,6 +199,11 @@ function MainAppContent({ onLogout }) {
   };
 
   const handleEditDraft = (draftData, draftId) => {
+    console.log('[handleEditDraft] draftData:', draftData, 'draftId:', draftId);
+    if (!draftData) {
+      toast.error('Draft data is missing');
+      return;
+    }
     if (draftData.type === 'Marketing Spotlight') {
       localStorage.setItem('load_draft_marketing_spotlight', JSON.stringify({ data: draftData, id: draftId }));
       navigateTo('marketing-spotlight');
