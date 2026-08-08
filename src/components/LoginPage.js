@@ -93,8 +93,8 @@ const LoginPage = ({ onLogin }) => {
     maxWidth: '400px',
     backgroundColor: 'white',
     padding: '48px 32px',
-    borderRadius: '4px',
-    boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+    borderRadius: '8px',
+    boxShadow: '0 8px 32px rgba(6,12,42,0.35)',
   };
 
   const pageStyle = {
@@ -102,15 +102,15 @@ const LoginPage = ({ onLogin }) => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f4f4f4',
+    background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)',
     padding: '20px',
   };
 
   const Header = () => (
     <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-      <Login size={48} style={{ color: '#0f62fe', marginBottom: '16px' }} />
-      <h2 style={{ fontSize: '28px', fontWeight: '400', color: '#161616', margin: '0 0 8px 0' }}>
-        Comms App
+      <Login size={48} style={{ color: '#4589ff', marginBottom: '16px' }} />
+      <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#161616', margin: '0 0 8px 0', letterSpacing: '0.04em' }}>
+        IBM UKI MARKETING HUB
       </h2>
       <p style={{ fontSize: '14px', color: '#525252', margin: 0 }}>
         Sign in to your account

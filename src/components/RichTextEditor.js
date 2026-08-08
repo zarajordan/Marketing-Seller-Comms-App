@@ -132,7 +132,7 @@ const Image = ImageBase.extend({
 });
 
 // ─── Main Editor Component ────────────────────────────────────────────────────
-const RichTextEditor = ({ value, onChange, placeholder, minHeight = '120px', label }) => {
+const RichTextEditor = ({ value, onChange, placeholder, minHeight = '120px', label, labelNote }) => {
   const fileInputRef = useRef(null);
 
   // Custom FontSize extension
@@ -303,6 +303,9 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = '120px', lab
       {label && (
         <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: '600', color: '#525252' }}>
           {label}
+          {labelNote && (
+            <span style={{ color: '#da1e28', fontWeight: '400', marginLeft: '6px' }}>{labelNote}</span>
+          )}
         </label>
       )}
       <div style={{ border: '2px solid #e0e0e0', borderRadius: '4px', backgroundColor: 'white', overflow: 'hidden' }}>

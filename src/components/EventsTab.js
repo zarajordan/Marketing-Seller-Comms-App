@@ -405,11 +405,11 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
     <div className="events-tab" style={{ padding: '0' }}>
 
       {/* Header */}
-      <div style={{ padding: '24px', borderBottom: '1px solid #e0e0e0', backgroundColor: '#ffffff' }}>
+      <div style={{ padding: '24px', borderBottom: '2px solid rgba(69,137,255,0.3)', background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
           <div>
-            <h2 style={{ marginBottom: '8px' }}>{showArchive ? '🗄️ Event Archive' : '🎯 Event Library'}</h2>
-            <p style={{ color: '#525252', fontSize: '14px' }}>
+            <h2 style={{ marginBottom: '8px', color: '#ffffff', fontWeight: 700, letterSpacing: '0.04em' }}>{showArchive ? '🗄️ EVENT ARCHIVE' : '🎯 EVENT LIBRARY'}</h2>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>
               {showArchive
                 ? 'Past events are automatically archived here once their date has passed.'
                 : 'Browse and select events to include in your communications'}
@@ -423,7 +423,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
               kind={showArchive ? 'primary' : 'ghost'}
               size="sm"
               onClick={() => { setShowArchive(false); setSearchTerm(''); }}
-              style={{ borderBottom: !showArchive ? '2px solid #0f62fe' : 'none' }}
+              style={{ borderBottom: !showArchive ? '2px solid #4589ff' : 'none', color: !showArchive ? '#fff' : 'rgba(255,255,255,0.6)' }}
             >
               🎯 Live Events ({events.length})
             </Button>
@@ -431,7 +431,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
               kind={showArchive ? 'ghost' : 'ghost'}
               size="sm"
               onClick={() => { setShowArchive(true); setSearchTerm(''); setSelectedEvents([]); }}
-              style={{ borderBottom: showArchive ? '2px solid #393939' : 'none' }}
+              style={{ borderBottom: showArchive ? '2px solid #4589ff' : 'none', color: showArchive ? '#fff' : 'rgba(255,255,255,0.6)' }}
             >
               🗄️ Archive ({archivedEvents.length})
             </Button>
@@ -508,7 +508,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
 
       {/* Action Bar — only for live events */}
       {!showArchive && filteredEvents.length > 0 && (
-        <div style={{ padding: '16px 24px', borderBottom: '1px solid #e0e0e0', backgroundColor: '#f4f4f4', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '12px 24px', borderBottom: '2px solid rgba(69,137,255,0.2)', background: 'linear-gradient(90deg, #060c2a 0%, #0c1a4a 100%)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
             <Checkbox
               id="select-all"
@@ -517,7 +517,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
               indeterminate={selectedEvents.length > 0 && selectedEvents.length < filteredEvents.length}
               onChange={handleSelectAll}
             />
-            <span style={{ color: '#525252', fontSize: '14px' }}>
+            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px' }}>
               {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''} found
             </span>
           </div>
@@ -534,7 +534,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
       )}
 
       {/* Events Grid */}
-      <div style={{ padding: '24px' }}>
+      <div style={{ padding: '24px', backgroundColor: '#f4f4f4', minHeight: '100%' }}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '48px' }}>
             <Loading description="Loading events..." withOverlay={false} />
@@ -561,7 +561,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
             ).sort(([a], [b]) => Number(b) - Number(a)).map(([year, yearEvents]) => (
               <div key={year} style={{ marginBottom: '32px' }}>
                 <div onClick={() => toggleMonth(year)}
-                  style={{ backgroundColor: '#393939', color: 'white', padding: '12px 20px', borderRadius: '4px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', userSelect: 'none' }}>
+                  style={{ background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)', borderLeft: '3px solid #4589ff', color: 'white', padding: '12px 20px', borderRadius: '4px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', userSelect: 'none' }}>
                   <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>🗄️ {year} ({yearEvents.length} event{yearEvents.length !== 1 ? 's' : ''})</h3>
                   <span style={{ fontSize: '20px' }}>{expandedMonths[year] !== false ? '▼' : '▶'}</span>
                 </div>
@@ -625,7 +625,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
               {/* Month Header */}
               <div
                 onClick={() => toggleMonth(month)}
-                style={{ backgroundColor: '#0f62fe', color: 'white', padding: '12px 20px', borderRadius: '4px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', userSelect: 'none' }}
+                style={{ background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)', borderLeft: '3px solid #4589ff', color: 'white', padding: '12px 20px', borderRadius: '4px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', userSelect: 'none' }}
               >
                 <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>
                   📅 {month} ({monthEvents.length} event{monthEvents.length !== 1 ? 's' : ''})

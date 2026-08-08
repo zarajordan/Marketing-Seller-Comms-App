@@ -325,11 +325,12 @@ const ManageEventsTab = () => {
 
   return (
     <div className="manage-events-tab">
-      <div style={{ marginBottom: '24px' }}>
-        <h2>📅 Manage Events</h2>
-        <p style={{ color: '#525252', marginTop: '8px' }}>Create and manage events for the UKI Marketing team.</p>
+      <div style={{ padding: '24px', marginBottom: '24px', background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)', borderBottom: '2px solid rgba(69,137,255,0.3)' }}>
+        <h2 style={{ color: '#fff', fontWeight: 700, letterSpacing: '0.04em', marginBottom: '8px' }}>📅 MANAGE EVENTS</h2>
+        <p style={{ color: 'rgba(255,255,255,0.5)', marginTop: '0' }}>Create and manage events for the UKI Marketing team.</p>
       </div>
 
+      <div style={{ padding: '0 24px' }}>
       <ButtonSet style={{ marginBottom: '24px' }}>
         <Button kind="primary" renderIcon={Add} onClick={() => setIsFormOpen(true)}>
           Create New Event
@@ -512,6 +513,7 @@ const ManageEventsTab = () => {
             <div>
               <RichTextEditor
                 label="Brief Summary * (500 characters)"
+                labelNote="(when drafting this summary please consider this will be included on the seller comm and sent to the client)"
                 value={formData.briefSummary}
                 onChange={(val) => {
                   setBriefSummaryCount(val.replace(/<[^>]*>/g, '').length);
@@ -897,6 +899,7 @@ const ManageEventsTab = () => {
           </div>
         ))
       )}
+      </div>
     </div>
   );
 };

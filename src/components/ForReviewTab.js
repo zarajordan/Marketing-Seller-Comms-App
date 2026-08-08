@@ -546,9 +546,9 @@ const ForReviewTab = () => {
   // ── Normal list view ────────────────────────────────────────────────────────
   return (
     <div className="for-review-tab">
-      <div style={{ marginBottom: '24px' }}>
-        <h2>🔍 For Review</h2>
-        <p style={{ color: '#525252', marginTop: '8px' }}>
+      <div style={{ padding: '24px', marginBottom: '24px', background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)', borderBottom: '2px solid rgba(69,137,255,0.3)' }}>
+        <h2 style={{ color: '#fff', fontWeight: 700, letterSpacing: '0.04em', marginBottom: '8px' }}>🔍 FOR REVIEW</h2>
+        <p style={{ color: 'rgba(255,255,255,0.5)', marginTop: '0' }}>
           Events submitted by the marketing team. Approve to publish to the Event Library, or reject to remove the submission.
         </p>
       </div>

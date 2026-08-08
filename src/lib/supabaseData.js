@@ -11,6 +11,7 @@ export const TAB_PERMISSIONS = [
   'drafts',
   'user-access',
   'analytics',
+  'client-stories',
 ];
 
 export const ROLE_CONFIG = {
@@ -42,14 +43,14 @@ export const getDefaultPermissions = (role) => {
 
   if (role === 'marketing') {
     return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-      permissions[tabId] = tabId === 'event-library' || tabId === 'submit-event' || tabId === 'drafts';
+      permissions[tabId] = tabId === 'event-library' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'client-stories';
       return permissions;
     }, {});
   }
 
   // seller — or any unrecognised/unauthorised role — gets Event Library only
   return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-    permissions[tabId] = tabId === 'event-library';
+    permissions[tabId] = tabId === 'event-library' || tabId === 'client-stories';
     return permissions;
   }, {});
 };

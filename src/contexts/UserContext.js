@@ -90,7 +90,7 @@ export const UserProvider = ({ children }) => {
       email,
       role: 'seller',
       active: true,
-      permissions: { 'event-library': true },
+      permissions: { 'event-library': true, 'client-stories': true },
     };
     setCurrentUser(guestUser);
     setIsAuthenticated(true);
