@@ -4,7 +4,7 @@ const ClientStoriesTab = () => {
   const [isFullscreen, setIsFullscreen] = useState(true);
   
   // Use environment variable for client stories URL, with fallback to local file
-  const CLIENT_STORIES_URL = process.env.REACT_APP_CLIENT_STORIES_URL || '/client-stories.html';
+  const CLIENT_STORIES_URL = process.env.REACT_APP_CLIENT_STORIES_URL || '/client-stories.html?v=2';
 
   return (
     <>
