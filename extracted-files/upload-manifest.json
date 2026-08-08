@@ -1,0 +1,532 @@
+{
+  "bucket": "story-files",
+  "uploadedAt": "2026-08-08T12:47:44.382Z",
+  "totalFiles": 75,
+  "files": [
+    {
+      "type": "pdf",
+      "filename": "document-1.pdf",
+      "path": "pdfs/document-1.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-1.pdf",
+      "size": 239997
+    },
+    {
+      "type": "pdf",
+      "filename": "document-10.pdf",
+      "path": "pdfs/document-10.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-10.pdf",
+      "size": 294222
+    },
+    {
+      "type": "pdf",
+      "filename": "document-11.pdf",
+      "path": "pdfs/document-11.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-11.pdf",
+      "size": 239073
+    },
+    {
+      "type": "pdf",
+      "filename": "document-12.pdf",
+      "path": "pdfs/document-12.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-12.pdf",
+      "size": 286673
+    },
+    {
+      "type": "pdf",
+      "filename": "document-13.pdf",
+      "path": "pdfs/document-13.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-13.pdf",
+      "size": 288240
+    },
+    {
+      "type": "pdf",
+      "filename": "document-14.pdf",
+      "path": "pdfs/document-14.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-14.pdf",
+      "size": 240736
+    },
+    {
+      "type": "pdf",
+      "filename": "document-15.pdf",
+      "path": "pdfs/document-15.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-15.pdf",
+      "size": 183853
+    },
+    {
+      "type": "pdf",
+      "filename": "document-16.pdf",
+      "path": "pdfs/document-16.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-16.pdf",
+      "size": 197337
+    },
+    {
+      "type": "pdf",
+      "filename": "document-17.pdf",
+      "path": "pdfs/document-17.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-17.pdf",
+      "size": 316518
+    },
+    {
+      "type": "pdf",
+      "filename": "document-18.pdf",
+      "path": "pdfs/document-18.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-18.pdf",
+      "size": 253280
+    },
+    {
+      "type": "pdf",
+      "filename": "document-19.pdf",
+      "path": "pdfs/document-19.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-19.pdf",
+      "size": 235935
+    },
+    {
+      "type": "pdf",
+      "filename": "document-2.pdf",
+      "path": "pdfs/document-2.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-2.pdf",
+      "size": 209042
+    },
+    {
+      "type": "pdf",
+      "filename": "document-20.pdf",
+      "path": "pdfs/document-20.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-20.pdf",
+      "size": 167062
+    },
+    {
+      "type": "pdf",
+      "filename": "document-21.pdf",
+      "path": "pdfs/document-21.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-21.pdf",
+      "size": 165245
+    },
+    {
+      "type": "pdf",
+      "filename": "document-22.pdf",
+      "path": "pdfs/document-22.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-22.pdf",
+      "size": 238557
+    },
+    {
+      "type": "pdf",
+      "filename": "document-23.pdf",
+      "path": "pdfs/document-23.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-23.pdf",
+      "size": 149609
+    },
+    {
+      "type": "pdf",
+      "filename": "document-24.pdf",
+      "path": "pdfs/document-24.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-24.pdf",
+      "size": 191776
+    },
+    {
+      "type": "pdf",
+      "filename": "document-25.pdf",
+      "path": "pdfs/document-25.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-25.pdf",
+      "size": 320539
+    },
+    {
+      "type": "pdf",
+      "filename": "document-26.pdf",
+      "path": "pdfs/document-26.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-26.pdf",
+      "size": 195652
+    },
+    {
+      "type": "pdf",
+      "filename": "document-27.pdf",
+      "path": "pdfs/document-27.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-27.pdf",
+      "size": 159564
+    },
+    {
+      "type": "pdf",
+      "filename": "document-28.pdf",
+      "path": "pdfs/document-28.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-28.pdf",
+      "size": 220108
+    },
+    {
+      "type": "pdf",
+      "filename": "document-3.pdf",
+      "path": "pdfs/document-3.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-3.pdf",
+      "size": 201362
+    },
+    {
+      "type": "pdf",
+      "filename": "document-4.pdf",
+      "path": "pdfs/document-4.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-4.pdf",
+      "size": 174231
+    },
+    {
+      "type": "pdf",
+      "filename": "document-5.pdf",
+      "path": "pdfs/document-5.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-5.pdf",
+      "size": 195954
+    },
+    {
+      "type": "pdf",
+      "filename": "document-6.pdf",
+      "path": "pdfs/document-6.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-6.pdf",
+      "size": 203524
+    },
+    {
+      "type": "pdf",
+      "filename": "document-7.pdf",
+      "path": "pdfs/document-7.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-7.pdf",
+      "size": 193886
+    },
+    {
+      "type": "pdf",
+      "filename": "document-8.pdf",
+      "path": "pdfs/document-8.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-8.pdf",
+      "size": 274071
+    },
+    {
+      "type": "pdf",
+      "filename": "document-9.pdf",
+      "path": "pdfs/document-9.pdf",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/pdfs/document-9.pdf",
+      "size": 195785
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-1.pptx",
+      "path": "ppts/presentation-1.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-1.pptx",
+      "size": 2161917
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-10.pptx",
+      "path": "ppts/presentation-10.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-10.pptx",
+      "size": 981104
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-11.pptx",
+      "path": "ppts/presentation-11.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-11.pptx",
+      "size": 436617
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-12.pptx",
+      "path": "ppts/presentation-12.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-12.pptx",
+      "size": 1014879
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-13.pptx",
+      "path": "ppts/presentation-13.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-13.pptx",
+      "size": 613645
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-14.pptx",
+      "path": "ppts/presentation-14.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-14.pptx",
+      "size": 227047
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-15.pptx",
+      "path": "ppts/presentation-15.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-15.pptx",
+      "size": 364704
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-16.pptx",
+      "path": "ppts/presentation-16.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-16.pptx",
+      "size": 491307
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-17.pptx",
+      "path": "ppts/presentation-17.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-17.pptx",
+      "size": 201886
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-18.pptx",
+      "path": "ppts/presentation-18.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-18.pptx",
+      "size": 760902
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-19.pptx",
+      "path": "ppts/presentation-19.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-19.pptx",
+      "size": 285915
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-2.pptx",
+      "path": "ppts/presentation-2.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-2.pptx",
+      "size": 2468466
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-20.pptx",
+      "path": "ppts/presentation-20.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-20.pptx",
+      "size": 652441
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-21.pptx",
+      "path": "ppts/presentation-21.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-21.pptx",
+      "size": 416818
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-22.pptx",
+      "path": "ppts/presentation-22.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-22.pptx",
+      "size": 322788
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-23.pptx",
+      "path": "ppts/presentation-23.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-23.pptx",
+      "size": 3586275
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-24.pptx",
+      "path": "ppts/presentation-24.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-24.pptx",
+      "size": 2530801
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-25.pptx",
+      "path": "ppts/presentation-25.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-25.pptx",
+      "size": 3329830
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-26.pptx",
+      "path": "ppts/presentation-26.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-26.pptx",
+      "size": 2628079
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-27.pptx",
+      "path": "ppts/presentation-27.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-27.pptx",
+      "size": 1257608
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-28.pptx",
+      "path": "ppts/presentation-28.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-28.pptx",
+      "size": 2616502
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-29.pptx",
+      "path": "ppts/presentation-29.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-29.pptx",
+      "size": 4660233
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-3.pptx",
+      "path": "ppts/presentation-3.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-3.pptx",
+      "size": 304275
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-30.pptx",
+      "path": "ppts/presentation-30.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-30.pptx",
+      "size": 2082338
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-31.pptx",
+      "path": "ppts/presentation-31.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-31.pptx",
+      "size": 965635
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-32.pptx",
+      "path": "ppts/presentation-32.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-32.pptx",
+      "size": 894011
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-33.pptx",
+      "path": "ppts/presentation-33.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-33.pptx",
+      "size": 3976389
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-34.pptx",
+      "path": "ppts/presentation-34.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-34.pptx",
+      "size": 7495587
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-35.pptx",
+      "path": "ppts/presentation-35.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-35.pptx",
+      "size": 6448603
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-36.pptx",
+      "path": "ppts/presentation-36.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-36.pptx",
+      "size": 570935
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-37.pptx",
+      "path": "ppts/presentation-37.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-37.pptx",
+      "size": 3580495
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-38.pptx",
+      "path": "ppts/presentation-38.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-38.pptx",
+      "size": 1745910
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-39.pptx",
+      "path": "ppts/presentation-39.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-39.pptx",
+      "size": 1127678
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-4.pptx",
+      "path": "ppts/presentation-4.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-4.pptx",
+      "size": 243591
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-40.pptx",
+      "path": "ppts/presentation-40.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-40.pptx",
+      "size": 8979789
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-41.pptx",
+      "path": "ppts/presentation-41.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-41.pptx",
+      "size": 2236607
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-42.pptx",
+      "path": "ppts/presentation-42.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-42.pptx",
+      "size": 1185945
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-43.pptx",
+      "path": "ppts/presentation-43.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-43.pptx",
+      "size": 10042230
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-44.pptx",
+      "path": "ppts/presentation-44.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-44.pptx",
+      "size": 4120878
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-45.pptx",
+      "path": "ppts/presentation-45.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-45.pptx",
+      "size": 1579448
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-46.pptx",
+      "path": "ppts/presentation-46.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-46.pptx",
+      "size": 1487227
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-47.pptx",
+      "path": "ppts/presentation-47.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-47.pptx",
+      "size": 1327969
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-5.pptx",
+      "path": "ppts/presentation-5.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-5.pptx",
+      "size": 2567663
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-6.pptx",
+      "path": "ppts/presentation-6.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-6.pptx",
+      "size": 2342695
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-7.pptx",
+      "path": "ppts/presentation-7.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-7.pptx",
+      "size": 512720
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-8.pptx",
+      "path": "ppts/presentation-8.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-8.pptx",
+      "size": 239950
+    },
+    {
+      "type": "pptx",
+      "filename": "presentation-9.pptx",
+      "path": "ppts/presentation-9.pptx",
+      "url": "https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/ppts/presentation-9.pptx",
+      "size": 719210
+    }
+  ]
+}

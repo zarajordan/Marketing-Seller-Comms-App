@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 
 const ClientStoriesTab = () => {
   const [isFullscreen, setIsFullscreen] = useState(true);
+  
+  // Use environment variable for client stories URL, with fallback to local file
+  const CLIENT_STORIES_URL = process.env.REACT_APP_CLIENT_STORIES_URL || '/client-stories.html';
 
   return (
     <>
@@ -32,7 +35,7 @@ const ClientStoriesTab = () => {
             </button>
           </div>
           <iframe
-            src="/client-stories.html"
+            src={CLIENT_STORIES_URL}
             title="IBM Client Stories"
             style={{ flex: 1, width: '100%', border: 'none', borderRadius: '4px' }}
             allow="fullscreen"
@@ -78,7 +81,7 @@ const ClientStoriesTab = () => {
             Exit Fullscreen
           </button>
           <iframe
-            src="/client-stories.html"
+            src={CLIENT_STORIES_URL}
             title="IBM Client Stories"
             style={{ flex: 1, width: '100%', height: '100%', border: 'none' }}
             allow="fullscreen"
