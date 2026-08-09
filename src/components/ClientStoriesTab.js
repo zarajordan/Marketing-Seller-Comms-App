@@ -416,7 +416,7 @@ const styles = {
   searchInput: { width: '100%', padding: '8px 12px 8px 34px', border: '1px solid #c6c6c6', background: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none' },
   sortSelect: { padding: '8px 10px', border: '1px solid #c6c6c6', background: '#fff', fontSize: 13, fontFamily: 'inherit', cursor: 'pointer', outline: 'none', minWidth: 140 },
   resultsCount: { marginLeft: 'auto', fontSize: 12, color: '#6f6f6f', whiteSpace: 'nowrap' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 },
   empty: { textAlign: 'center', padding: '60px 20px', color: '#6f6f6f' },
   card: { background: '#fff', border: '1px solid #e0e0e0', display: 'flex', flexDirection: 'column', borderRadius: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden' },
   cardHeader: { padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
