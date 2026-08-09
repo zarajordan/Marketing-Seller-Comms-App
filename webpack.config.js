@@ -4,12 +4,25 @@ const CopyPlugin = require('copy-webpack-plugin');
 const webpack = require('webpack');
 require('dotenv').config();
 
-module.exports = (env, argv) => ({
+module.exports = (env, argv) => {
+  let publicPath = '/';
+  
+  if (argv.mode === 'production') {
+    // Check if we're building for IBM GitHub or public GitHub based on env variable
+    const targetRepo = process.env.GITHUB_REPO || 'public';
+    if (targetRepo === 'ibm') {
+      publicPath = '/Zara-Jordan/AI-Comms-Generator/';
+    } else if (targetRepo === 'public') {
+      publicPath = '/Marketing-Seller-Comms-App/';
+    }
+  }
+  
+  return {
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'docs'),
     filename: 'bundle.js',
-    publicPath: argv.mode === 'production' ? '/Marketing-Seller-Comms-App/' : '/',
+    publicPath: publicPath,
   },
   module: {
     rules: [
@@ -61,6 +74,7 @@ module.exports = (env, argv) => ({
     port: 3000,
     hot: true,
   },
-});
+  };
+};
 
 // Made with Bob
