@@ -318,7 +318,12 @@ const ClientStoriesTab = () => {
           {/* Tabs */}
           <div style={styles.tabs}>
             <button style={{ ...styles.tabBtn, ...(tab === 'all' ? styles.tabBtnActive : {}) }} onClick={() => setTab('all')}>All Stories</button>
-            <button style={{ ...styles.tabBtn, ...(tab === 'shortlist' ? styles.tabBtnActive : {}) }} onClick={() => setTab('shortlist')}>My Shortlist</button>
+            <button style={{ ...styles.tabBtn, ...(tab === 'shortlist' ? styles.tabBtnActive : {}), display: 'flex', alignItems: 'center', gap: 8 }} onClick={() => setTab('shortlist')}>
+              My Shortlist
+              {starred.length > 0 && (
+                <span style={styles.badge}>{starred.length}</span>
+              )}
+            </button>
           </div>
 
           {tab === 'all' && (
@@ -410,6 +415,7 @@ const styles = {
   tabs: { display: 'flex', borderBottom: '1px solid #e0e0e0', marginBottom: 16 },
   tabBtn: { background: 'none', border: 'none', borderBottom: '3px solid transparent', padding: '10px 0', marginRight: 28, fontSize: 14, fontWeight: 500, color: '#525252', cursor: 'pointer', fontFamily: 'inherit', marginBottom: -1 },
   tabBtnActive: { color: '#0f62fe', borderBottomColor: '#0f62fe', fontWeight: 600 },
+  badge: { background: '#f1c21b', color: '#161616', fontSize: 12, fontWeight: 700, borderRadius: 50, minWidth: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 },
   toolbar: { display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, flexWrap: 'wrap' },
   searchWrap: { position: 'relative', flex: 1, maxWidth: 480 },
   searchIcon: { position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#6f6f6f', pointerEvents: 'none' },
