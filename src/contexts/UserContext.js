@@ -66,8 +66,9 @@ export const UserProvider = ({ children }) => {
   // Step 1 — checkEmail(): query users table and determine authStage.
   // Returns authStage 'seller' (direct access) or 'password' (needs Step 2).
   const checkEmail = async (email) => {
-    const user = await findUserByEmail(email);
-    if (user) {
+    try {
+      const user = await findUserByEmail(email);
+      if (user) {
       const role = (user.role || '').toLowerCase();
       // admin-manager and marketer need a password
       if (role !== 'seller' && role !== 'marketing') {
@@ -96,6 +97,10 @@ export const UserProvider = ({ children }) => {
     setIsAuthenticated(true);
     logActivity('login', { userEmail: guestUser.email, userName: guestUser.name, userRole: guestUser.role });
     return { authStage: 'seller', user: guestUser };
+    } catch (err) {
+      console.error('Error in checkEmail:', err);
+      return { success: false, error: err.message || 'Unable to check email. Please try again.' };
+    }
   };
 
   const login = async (email, password) => {

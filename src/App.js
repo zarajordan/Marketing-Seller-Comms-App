@@ -96,22 +96,31 @@ function AppContent() {
   const { currentUser, isAuthenticated, loading, passwordRecoveryMode, login, checkEmail, logout, updatePassword } = useUser();
 
   const handleLogin = async (userData) => {
-    if (userData.step === 'check') {
-      const result = await checkEmail(userData.email);
-      if (result.authStage === 'seller') {
-        toast.success(`Welcome, ${result.user.name}!`);
-      } else if (result.authStage === 'password') {
-        throw new Error('NEEDS_PASSWORD');
+    try {
+      if (userData.step === 'check') {
+        const result = await checkEmail(userData.email);
+        if (result.success === false) {
+          console.error('Email check failed:', result.error);
+          throw new Error(result.error || 'Unable to check email');
+        }
+        if (result.authStage === 'seller') {
+          toast.success(`Welcome, ${result.user.name}!`);
+        } else if (result.authStage === 'password') {
+          throw new Error('NEEDS_PASSWORD');
+        } else {
+          throw new Error(result.error || 'Login failed');
+        }
       } else {
-        throw new Error(result.error || 'Login failed');
+        const result = await login(userData.email, userData.password);
+        if (result.success) {
+          toast.success(`Welcome back, ${result.user.name}!`);
+        } else {
+          throw new Error(result.error || 'Login failed');
+        }
       }
-    } else {
-      const result = await login(userData.email, userData.password);
-      if (result.success) {
-        toast.success(`Welcome back, ${result.user.name}!`);
-      } else {
-        throw new Error(result.error || 'Login failed');
-      }
+    } catch (err) {
+      console.error('Login error:', err);
+      throw err;
     }
   };
 
