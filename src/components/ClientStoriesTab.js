@@ -353,11 +353,11 @@ const ClientStoriesTab = () => {
     const usecases = [...new Set(stories.map(s => s.usecase).filter(Boolean))].sort()
       .map(v => ({ value: v, count: count(s => s.usecase === v) }));
     return { industries, products, usecases };
-  }, []);
+  }, [stories]);
 
   // Stats (always from full list)
-  const totalIndustries = useMemo(() => new Set(stories.map(s => s.industry)).size, []);
-  const totalUseCases   = useMemo(() => new Set(stories.map(s => s.usecase)).size, []);
+  const totalIndustries = useMemo(() => new Set(stories.map(s => s.industry)).size, [stories]);
+  const totalUseCases   = useMemo(() => new Set(stories.map(s => s.usecase)).size, [stories]);
 
   // Filtered + sorted list
   const filtered = useMemo(() => {
