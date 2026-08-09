@@ -411,6 +411,49 @@ export const deleteDraft = async (draftId, ownerEmail) => {
 };
 
 // ---------------------------------------------------------------------------
+// Client Stories uploads — handle one-pager file uploads
+// ---------------------------------------------------------------------------
+
+export const uploadClientStoryFile = async (storyId, file) => {
+  try {
+    if (!file) throw new Error('No file provided');
+    
+    const now = new Date().toISOString().replace(/[:.]/g, '-');
+    const fileName = `${storyId}_${now}_${file.name}`;
+    const filePath = `client-story-uploads/${fileName}`;
+    
+    // Upload file to Supabase storage
+    const { data, error } = await supabase.storage
+      .from('story-files')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+    
+    if (error) {
+      throw new Error(`Upload failed: ${error.message}`);
+    }
+    
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('story-files')
+      .getPublicUrl(data.path);
+    
+    return {
+      success: true,
+      path: data.path,
+      url: publicUrl,
+      fileName: file.name,
+      size: file.size,
+      uploadedAt: new Date().toISOString(),
+    };
+  } catch (err) {
+    console.error('Upload error:', err);
+    throw err;
+  }
+};
+
+// ---------------------------------------------------------------------------
 // Activity logging — writes to the activity_log table
 // ---------------------------------------------------------------------------
 

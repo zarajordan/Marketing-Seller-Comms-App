@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useUser } from '../contexts/UserContext';
+import { uploadClientStoryFile } from '../lib/supabaseData';
 
 const SUPABASE_BASE = 'https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/';
 
@@ -217,10 +218,9 @@ const ClientStoriesTab = () => {
     if (!isAdmin) return;
     
     try {
-      console.log(`Upload initiated for story ${storyId}:`, file.name);
-      // TODO: Implement actual upload to Supabase storage
-      // For now, just log the intention
-      alert(`Upload feature coming soon: ${file.name}`);
+      const result = await uploadClientStoryFile(storyId, file);
+      alert(`✓ File uploaded successfully!\n\nFile: ${result.fileName}\nSize: ${(result.size / 1024).toFixed(2)} KB\nURL: ${result.url}`);
+      console.log('Upload result:', result);
     } catch (err) {
       console.error('Upload error:', err);
       alert('Upload failed: ' + err.message);
