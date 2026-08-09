@@ -110,6 +110,7 @@ const ClientStoriesTab = () => {
   const [sort, setSort] = useState('default');
   const [filters, setFilters] = useState({ industry: [], product: [], usecase: [] });
   const [starred, setStarred] = useState(getStoredStarred);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const enterFullscreen = async () => {
@@ -119,8 +120,10 @@ const ClientStoriesTab = () => {
         
         if (elem.requestFullscreen && !document.fullscreenElement) {
           await elem.requestFullscreen();
+          setIsFullscreen(true);
         } else if (elem.webkitRequestFullscreen && !document.webkitFullscreenElement) {
           await elem.webkitRequestFullscreen();
+          setIsFullscreen(true);
         }
       } catch (err) {
         console.log('Fullscreen not available:', err.message);
@@ -129,6 +132,31 @@ const ClientStoriesTab = () => {
     
     enterFullscreen();
   }, []);
+
+  const handleFullscreenToggle = async () => {
+    try {
+      if (isFullscreen) {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        } else if (document.webkitFullscreenElement) {
+          document.webkitExitFullscreen();
+        }
+        setIsFullscreen(false);
+      } else {
+        const elem = document.querySelector('[data-client-stories-root]');
+        if (!elem) return;
+        
+        if (elem.requestFullscreen) {
+          await elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+          await elem.webkitRequestFullscreen();
+        }
+        setIsFullscreen(true);
+      }
+    } catch (err) {
+      console.error('Fullscreen error:', err);
+    }
+  };
 
   const toggleStar = (id) => {
     setStarred(prev => {
@@ -192,7 +220,13 @@ const ClientStoriesTab = () => {
           <span style={styles.headerDivider} />
           <span style={styles.headerTitle}>Client Stories</span>
         </div>
-        <button style={styles.adminBtn}>Admin</button>
+        <button
+          onClick={handleFullscreenToggle}
+          style={styles.fullscreenBtn}
+          title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+        >
+          {isFullscreen ? '⛶' : '⛶'}
+        </button>
       </div>
 
       {/* Stats bar */}
@@ -304,7 +338,7 @@ const styles = {
   ibmLogo: { fontSize: 16, fontWeight: 700, letterSpacing: 3 },
   headerDivider: { display: 'inline-block', width: 1, height: 20, background: 'rgba(255,255,255,0.25)' },
   headerTitle: { fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.7)' },
-  adminBtn: { background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', padding: '6px 16px', fontSize: 12, cursor: 'pointer', borderRadius: 2, fontFamily: 'inherit', transition: 'all 0.2s' },
+  fullscreenBtn: { background: 'transparent', border: 'none', color: '#fff', fontSize: 18, cursor: 'pointer', padding: '6px 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, transition: 'opacity 0.2s', opacity: 0.8, fontFamily: 'inherit' },
   statsBar: { background: '#13161f', color: '#fff', padding: '24px 28px', borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
   statsContent: { display: 'flex', alignItems: 'center', gap: 40, flex: 1 },
   statsLabel: { fontSize: 13, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5, flex: 1, maxWidth: 700 },
