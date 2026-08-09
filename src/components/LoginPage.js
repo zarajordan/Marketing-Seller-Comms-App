@@ -33,7 +33,8 @@ const LoginPage = ({ onLogin }) => {
   }, []);
 
   // ── Step 1: checkEmail() — look up role in users table ───────────────────
-  const checkEmail = async (e) => {
+  // Note: e.preventDefault() must be called synchronously before any await (Safari requirement)
+  const checkEmail = (e) => {
     e.preventDefault();
     setError('');
 
@@ -43,49 +44,56 @@ const LoginPage = ({ onLogin }) => {
     }
 
     setIsLoading(true);
-    try {
-      await onLogin({ email, step: 'check' });
-      // authStage → 'seller': already logged in, App.js unmounts this page
-    } catch (err) {
-      if (err.message === 'NEEDS_PASSWORD') {
-        // authStage → 'password': marketer or admin-manager
-        setAuthStage('password');
-      } else {
-        setError(err.message || 'Unable to sign in');
-      }
-    } finally {
-      setIsLoading(false);
-    }
+    onLogin({ email, step: 'check' })
+      .then(() => {
+        // authStage → 'seller': already logged in, App.js unmounts this page
+      })
+      .catch((err) => {
+        if (err.message === 'NEEDS_PASSWORD') {
+          setAuthStage('password');
+        } else {
+          setError(err.message || 'Unable to sign in');
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   // ── Step 2: password submitted ────────────────────────────────────────────
-  const handlePasswordSubmit = async (e) => {
+  // Note: e.preventDefault() must be called synchronously before any await (Safari requirement)
+  const handlePasswordSubmit = (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
+    localStorage.setItem('rememberedEmail', email);
 
-    try {
-      localStorage.setItem('rememberedEmail', email);
-      await onLogin({ email, password, step: 'password' });
-    } catch (err) {
-      setError(err.message || 'Unable to sign in');
-    } finally {
-      setIsLoading(false);
-    }
+    onLogin({ email, password, step: 'password' })
+      .catch((err) => {
+        setError(err.message || 'Unable to sign in');
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   // ── Forgot password ───────────────────────────────────────────────────────
-  const handleResetSubmit = async (e) => {
+  const handleResetSubmit = (e) => {
     e.preventDefault();
     setResetError('');
     setResetLoading(true);
-    const result = await resetPassword(resetEmail);
-    setResetLoading(false);
-    if (!result.success) {
-      setResetError(result.error || 'Failed to send reset email');
-    } else {
-      setAuthStage('reset-sent');
-    }
+
+    resetPassword(resetEmail)
+      .then((result) => {
+        if (!result.success) {
+          setResetError(result.error || 'Failed to send reset email');
+        } else {
+          setAuthStage('reset-sent');
+        }
+      })
+      .finally(() => {
+        setResetLoading(false);
+      });
   };
 
   const cardStyle = {
@@ -252,8 +260,8 @@ const LoginPage = ({ onLogin }) => {
     );
   }
 
-  // ── Step 1: EmailStep — authStage 'email' (default) ──────────────────────
-  const EmailStep = () => (
+  // ── Step 1: email form (default) ──────────────────────
+  return (
     <div style={pageStyle}>
       <div style={cardStyle}>
         <Header />
@@ -285,8 +293,6 @@ const LoginPage = ({ onLogin }) => {
       </div>
     </div>
   );
-
-  return <EmailStep />;
 };
 
 export default LoginPage;
