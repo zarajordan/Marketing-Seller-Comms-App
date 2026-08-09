@@ -32,7 +32,6 @@ import UserAccessTab from './components/UserAccessTab';
 import SubmitEventTab from './components/SubmitEventTab';
 import ForReviewTab from './components/ForReviewTab';
 import AnalyticsTab from './components/AnalyticsTab';
-import ClientStoriesTab from './components/ClientStoriesTab';
 import ThemeSelector from './components/ThemeSelector';
 import LoginPage from './components/LoginPage';
 import SetNewPasswordPage from './components/SetNewPasswordPage';
@@ -62,7 +61,6 @@ const SIDEBAR_SECTIONS = [
     label: 'Personal',
     items: [
       { id: 'drafts',          label: 'My Drafts',      icon: Document },
-      { id: 'client-stories',  label: 'Client Stories', icon: Portfolio },
     ],
   },
   {
@@ -86,7 +84,6 @@ const TAB_COMPONENTS = {
   'drafts':              DraftsTab,
   'user-access':         UserAccessTab,
   'analytics':           AnalyticsTab,
-  'client-stories':      ClientStoriesTab,
   'dashboard':           DashboardTab,
   'ai-assistant':        AIAssistantTab,
 };
