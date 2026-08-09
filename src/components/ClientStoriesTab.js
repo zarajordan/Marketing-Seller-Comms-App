@@ -110,32 +110,6 @@ const ClientStoriesTab = () => {
   const [sort, setSort] = useState('default');
   const [filters, setFilters] = useState({ industry: [], product: [], usecase: [] });
   const [starred, setStarred] = useState(getStoredStarred);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  const handleFullscreen = async () => {
-    try {
-      const elem = document.querySelector('[data-client-stories-root]');
-      if (!elem) return;
-      
-      if (!isFullscreen) {
-        if (elem.requestFullscreen) {
-          await elem.requestFullscreen();
-        } else if (elem.webkitRequestFullscreen) {
-          await elem.webkitRequestFullscreen();
-        }
-        setIsFullscreen(true);
-      } else {
-        if (document.fullscreenElement) {
-          await document.exitFullscreen();
-        } else if (document.webkitFullscreenElement) {
-          document.webkitExitFullscreen();
-        }
-        setIsFullscreen(false);
-      }
-    } catch (err) {
-      console.error('Fullscreen error:', err);
-    }
-  };
 
   const toggleStar = (id) => {
     setStarred(prev => {
@@ -199,32 +173,28 @@ const ClientStoriesTab = () => {
           <span style={styles.headerDivider} />
           <span style={styles.headerTitle}>Client Stories</span>
         </div>
-        <div style={styles.heroStats}>
-          <div style={styles.heroStat}>
-            <div style={styles.heroStatNum}>{ALL_STORIES.length}</div>
-            <div style={styles.heroStatLbl}>Stories</div>
-          </div>
-          <div style={{ ...styles.heroStat, borderLeft: '1px solid rgba(255,255,255,0.15)' }}>
-            <div style={styles.heroStatNum}>{totalIndustries}</div>
-            <div style={styles.heroStatLbl}>Industries</div>
-          </div>
-          <div style={{ ...styles.heroStat, borderLeft: '1px solid rgba(255,255,255,0.15)' }}>
-            <div style={styles.heroStatNum}>{totalUseCases}</div>
-            <div style={styles.heroStatLbl}>Use Cases</div>
-          </div>
-        </div>
-        <button
-          onClick={handleFullscreen}
-          style={styles.fullscreenBtn}
-          title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-        >
-          {isFullscreen ? '⛶' : '⛶'}
-        </button>
+        <button style={styles.adminBtn}>Admin</button>
       </div>
 
-      {/* Hero bar */}
-      <div style={styles.heroBar}>
-        A curated library of <strong style={{ color: '#fff', fontWeight: 600 }}>IBM Data &amp; AI</strong> client stories — filter by industry, product, or use case to find the right reference for any conversation.
+      {/* Stats bar */}
+      <div style={styles.statsBar}>
+        <div style={styles.statsContent}>
+          <span style={styles.statsLabel}>A curated library of <strong>IBM Data &amp; AI</strong> client stories — filter by industry, product, or use case to find the right reference for any conversation.</span>
+          <div style={styles.statsGrid}>
+            <div style={styles.statItem}>
+              <div style={styles.statNum}>{ALL_STORIES.length}</div>
+              <div style={styles.statLbl}>STORIES</div>
+            </div>
+            <div style={styles.statItem}>
+              <div style={styles.statNum}>{totalIndustries}</div>
+              <div style={styles.statLbl}>INDUSTRIES</div>
+            </div>
+            <div style={styles.statItem}>
+              <div style={styles.statNum}>{totalUseCases}</div>
+              <div style={styles.statLbl}>USE CASES</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Body */}
@@ -310,16 +280,19 @@ const ClientStoriesTab = () => {
 
 const styles = {
   root: { display: 'flex', flexDirection: 'column', height: '100%', fontFamily: "'IBM Plex Sans', system-ui, sans-serif", fontSize: 14, background: '#f4f4f4', color: '#161616', overflow: 'hidden' },
-  header: { background: '#13161f', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 28px', height: 52, borderBottom: '3px solid #0f62fe', flexShrink: 0 },
+  header: { background: '#13161f', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 28px', height: 40, borderBottom: '3px solid #0f62fe', flexShrink: 0 },
   headerLeft: { display: 'flex', alignItems: 'center', gap: 16 },
-  ibmLogo: { fontSize: 20, fontWeight: 700, letterSpacing: 4 },
-  headerDivider: { display: 'inline-block', width: 1, height: 22, background: 'rgba(255,255,255,0.25)' },
-  headerTitle: { fontSize: 14, fontWeight: 400, color: 'rgba(255,255,255,0.8)' },
-  heroStats: { display: 'flex' },
-  heroStat: { textAlign: 'center', padding: '0 24px' },
-  heroStatNum: { fontSize: 28, fontWeight: 700, color: '#fff', lineHeight: 1 },
-  heroStatLbl: { fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.45)', marginTop: 3 },
-  heroBar: { background: '#13161f', color: 'rgba(255,255,255,0.65)', padding: '12px 28px', borderBottom: '1px solid rgba(255,255,255,0.08)', fontSize: 13, flexShrink: 0 },
+  ibmLogo: { fontSize: 16, fontWeight: 700, letterSpacing: 3 },
+  headerDivider: { display: 'inline-block', width: 1, height: 20, background: 'rgba(255,255,255,0.25)' },
+  headerTitle: { fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.7)' },
+  adminBtn: { background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', padding: '6px 16px', fontSize: 12, cursor: 'pointer', borderRadius: 2, fontFamily: 'inherit', transition: 'all 0.2s' },
+  statsBar: { background: '#13161f', color: '#fff', padding: '24px 28px', borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+  statsContent: { display: 'flex', alignItems: 'center', gap: 40, flex: 1 },
+  statsLabel: { fontSize: 13, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5, flex: 1, maxWidth: 700 },
+  statsGrid: { display: 'flex', gap: 40, marginLeft: 'auto' },
+  statItem: { textAlign: 'center' },
+  statNum: { fontSize: 28, fontWeight: 700, color: '#fff', lineHeight: 1 },
+  statLbl: { fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.45)', marginTop: 4 },
   body: { display: 'flex', flex: 1, overflow: 'hidden' },
   sidebar: { width: 210, minWidth: 210, background: '#fff', borderRight: '1px solid #e0e0e0', overflowY: 'auto', padding: '16px 12px 24px' },
   filterTitle: { fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6f6f6f', marginBottom: 8, paddingLeft: 4 },
@@ -351,7 +324,6 @@ const styles = {
   cardFooter: { padding: '10px 16px 12px', borderTop: '1px solid #f4f4f4', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
   cardDate: { fontSize: 11, color: '#a8a8a8' },
   btnOnePager: { background: '#0f62fe', color: '#fff', border: 'none', padding: '7px 16px', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', borderRadius: 2, display: 'flex', alignItems: 'center', gap: 5 },
-  fullscreenBtn: { background: 'none', border: 'none', color: '#fff', fontSize: 18, cursor: 'pointer', padding: '4px 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.8, transition: 'opacity 0.2s', userSelect: 'none' },
 };
 
 export default ClientStoriesTab;
