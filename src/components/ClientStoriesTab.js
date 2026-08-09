@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 
 const SUPABASE_BASE = 'https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/';
 
@@ -110,6 +110,25 @@ const ClientStoriesTab = () => {
   const [sort, setSort] = useState('default');
   const [filters, setFilters] = useState({ industry: [], product: [], usecase: [] });
   const [starred, setStarred] = useState(getStoredStarred);
+
+  useEffect(() => {
+    const enterFullscreen = async () => {
+      try {
+        const elem = document.querySelector('[data-client-stories-root]');
+        if (!elem) return;
+        
+        if (elem.requestFullscreen && !document.fullscreenElement) {
+          await elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen && !document.webkitFullscreenElement) {
+          await elem.webkitRequestFullscreen();
+        }
+      } catch (err) {
+        console.log('Fullscreen not available:', err.message);
+      }
+    };
+    
+    enterFullscreen();
+  }, []);
 
   const toggleStar = (id) => {
     setStarred(prev => {
