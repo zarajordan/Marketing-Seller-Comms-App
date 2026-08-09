@@ -330,7 +330,7 @@ const styles = {
   resultsCount: { marginLeft: 'auto', fontSize: 12, color: '#6f6f6f', whiteSpace: 'nowrap' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 },
   empty: { textAlign: 'center', padding: '60px 20px', color: '#6f6f6f' },
-  card: { background: '#fff', border: '1px solid #e0e0e0', display: 'flex', flexDirection: 'column', borderRadius: 4, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden' },
+  card: { background: '#fff', border: '1px solid #e0e0e0', display: 'flex', flexDirection: 'column', borderRadius: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden' },
   cardHeader: { padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   cardIndustry: { fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 8, flex: 1 },
   starBtn: { background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, padding: '4px', lineHeight: 1, flexShrink: 0, opacity: 0.5 },
