@@ -4,12 +4,12 @@ const CopyPlugin = require('copy-webpack-plugin');
 const webpack = require('webpack');
 require('dotenv').config();
 
-module.exports = {
+module.exports = (env, argv) => ({
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'docs'),
     filename: 'bundle.js',
-    publicPath: '/Marketing-Seller-Comms-App/',
+    publicPath: argv.mode === 'production' ? '/Marketing-Seller-Comms-App/' : '/',
   },
   module: {
     rules: [
@@ -61,6 +61,6 @@ module.exports = {
     port: 3000,
     hot: true,
   },
-};
+});
 
 // Made with Bob
