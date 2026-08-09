@@ -110,6 +110,32 @@ const ClientStoriesTab = () => {
   const [sort, setSort] = useState('default');
   const [filters, setFilters] = useState({ industry: [], product: [], usecase: [] });
   const [starred, setStarred] = useState(getStoredStarred);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const handleFullscreen = async () => {
+    try {
+      const elem = document.querySelector('[data-client-stories-root]');
+      if (!elem) return;
+      
+      if (!isFullscreen) {
+        if (elem.requestFullscreen) {
+          await elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+          await elem.webkitRequestFullscreen();
+        }
+        setIsFullscreen(true);
+      } else {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        } else if (document.webkitFullscreenElement) {
+          document.webkitExitFullscreen();
+        }
+        setIsFullscreen(false);
+      }
+    } catch (err) {
+      console.error('Fullscreen error:', err);
+    }
+  };
 
   const toggleStar = (id) => {
     setStarred(prev => {
@@ -165,7 +191,7 @@ const ClientStoriesTab = () => {
   const shortlisted = useMemo(() => ALL_STORIES.filter(s => starred.includes(s.id)), [starred]);
 
   return (
-    <div style={styles.root}>
+    <div style={styles.root} data-client-stories-root>
       {/* Header */}
       <div style={styles.header}>
         <div style={styles.headerLeft}>
@@ -187,6 +213,13 @@ const ClientStoriesTab = () => {
             <div style={styles.heroStatLbl}>Use Cases</div>
           </div>
         </div>
+        <button
+          onClick={handleFullscreen}
+          style={styles.fullscreenBtn}
+          title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+        >
+          {isFullscreen ? '⛶' : '⛶'}
+        </button>
       </div>
 
       {/* Hero bar */}
@@ -318,6 +351,7 @@ const styles = {
   cardFooter: { padding: '10px 16px 12px', borderTop: '1px solid #f4f4f4', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
   cardDate: { fontSize: 11, color: '#a8a8a8' },
   btnOnePager: { background: '#0f62fe', color: '#fff', border: 'none', padding: '7px 16px', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', borderRadius: 2, display: 'flex', alignItems: 'center', gap: 5 },
+  fullscreenBtn: { background: 'none', border: 'none', color: '#fff', fontSize: 18, cursor: 'pointer', padding: '4px 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.8, transition: 'opacity 0.2s', userSelect: 'none' },
 };
 
 export default ClientStoriesTab;
