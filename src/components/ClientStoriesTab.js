@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useUser } from '../contexts/UserContext';
 
 const SUPABASE_BASE = 'https://zashpljcxjssogosxovf.supabase.co/storage/v1/object/public/story-files/';
 
@@ -43,8 +44,24 @@ function downloadFile(pdfPath, filename) {
 
 // ── sub-components ────────────────────────────────────────────────────────────
 
-function StoryCard({ story, isStarred, onToggleStar }) {
+function StoryCard({ story, isStarred, onToggleStar, isAdmin, onUpload }) {
   const c = INDUSTRY_COLORS[story.industry] || { bg: '#f4f4f4', color: '#525252', icon: '📄' };
+  const fileInputRef = React.useRef(null);
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file && onUpload) {
+      onUpload(story.id, file);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div style={styles.card}>
       <div style={{ ...styles.cardHeader, background: c.bg, color: c.color }}>
@@ -69,14 +86,34 @@ function StoryCard({ story, isStarred, onToggleStar }) {
       </div>
       <div style={styles.cardFooter}>
         <span style={styles.cardDate}>Updated {story.updatedAt || ''}</span>
-        {story.pdfPath && (
-          <button
-            style={styles.btnOnePager}
-            onClick={() => downloadFile(story.pdfPath, story.pdfFilename)}
-          >
-            ⬇ One-Pager
-          </button>
-        )}
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {story.pdfPath && (
+            <button
+              style={styles.btnOnePager}
+              onClick={() => downloadFile(story.pdfPath, story.pdfFilename)}
+            >
+              ⬇ One-Pager
+            </button>
+          )}
+          {isAdmin && (
+            <>
+              <button
+                style={styles.btnUpload}
+                onClick={handleUploadClick}
+                title="Upload one-pager"
+              >
+                ⬆ Upload
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pptx,.pdf,.doc,.docx"
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+              />
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -105,6 +142,9 @@ function FilterSection({ title, type, items, active, onToggle }) {
 // ── main component ────────────────────────────────────────────────────────────
 
 const ClientStoriesTab = () => {
+  const { currentUser } = useUser();
+  const isAdmin = currentUser?.role?.toLowerCase() === 'admin-manager';
+  
   const [tab, setTab] = useState('all');
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('default');
@@ -171,6 +211,20 @@ const ClientStoriesTab = () => {
       const arr = prev[type];
       return { ...prev, [type]: arr.includes(value) ? arr.filter(v => v !== value) : [...arr, value] };
     });
+  };
+
+  const handleUpload = async (storyId, file) => {
+    if (!isAdmin) return;
+    
+    try {
+      console.log(`Upload initiated for story ${storyId}:`, file.name);
+      // TODO: Implement actual upload to Supabase storage
+      // For now, just log the intention
+      alert(`Upload feature coming soon: ${file.name}`);
+    } catch (err) {
+      console.error('Upload error:', err);
+      alert('Upload failed: ' + err.message);
+    }
   };
 
   // Build sidebar options with counts (always based on unfiltered full list)
@@ -302,7 +356,7 @@ const ClientStoriesTab = () => {
               ) : (
                 <div style={styles.grid}>
                   {filtered.map(s => (
-                    <StoryCard key={s.id} story={s} isStarred={starred.includes(s.id)} onToggleStar={toggleStar} />
+                    <StoryCard key={s.id} story={s} isStarred={starred.includes(s.id)} onToggleStar={toggleStar} isAdmin={isAdmin} onUpload={handleUpload} />
                   ))}
                 </div>
               )}
@@ -318,7 +372,7 @@ const ClientStoriesTab = () => {
             ) : (
               <div style={styles.grid}>
                 {shortlisted.map(s => (
-                  <StoryCard key={s.id} story={s} isStarred={true} onToggleStar={toggleStar} />
+                  <StoryCard key={s.id} story={s} isStarred={true} onToggleStar={toggleStar} isAdmin={isAdmin} onUpload={handleUpload} />
                 ))}
               </div>
             )
@@ -377,6 +431,7 @@ const styles = {
   cardFooter: { padding: '12px 16px', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fafafa' },
   cardDate: { fontSize: 12, color: '#999', fontWeight: 400 },
   btnOnePager: { background: '#0f62fe', color: '#fff', border: 'none', padding: '8px 16px', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', borderRadius: 3, display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s' },
+  btnUpload: { background: '#24a148', color: '#fff', border: 'none', padding: '8px 16px', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', borderRadius: 3, display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s' },
 };
 
 export default ClientStoriesTab;
