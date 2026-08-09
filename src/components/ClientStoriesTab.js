@@ -45,11 +45,12 @@ function downloadFile(pdfPath, filename) {
 
 // ── sub-components ────────────────────────────────────────────────────────────
 
-function StoryCard({ story, isStarred, onToggleStar, isAdmin, onUpload }) {
+function StoryCard({ story, isStarred, onToggleStar, isAdmin, onUpload, onExpand }) {
   const c = INDUSTRY_COLORS[story.industry] || { bg: '#f4f4f4', color: '#525252', icon: '📄' };
   const fileInputRef = React.useRef(null);
 
-  const handleUploadClick = () => {
+  const handleUploadClick = (e) => {
+    e.stopPropagation();
     fileInputRef.current?.click();
   };
 
@@ -63,12 +64,17 @@ function StoryCard({ story, isStarred, onToggleStar, isAdmin, onUpload }) {
     }
   };
 
+  const handleCardClick = (e) => {
+    if (e.target.closest('button')) return; // Don't expand if clicking a button
+    onExpand?.(story);
+  };
+
   return (
-    <div style={styles.card}>
+    <div style={{ ...styles.card, cursor: 'pointer' }} onClick={handleCardClick}>
       <div style={{ ...styles.cardHeader, background: c.bg, color: c.color }}>
         <span style={styles.cardIndustry}>{c.icon} {story.industry}</span>
         <button
-          onClick={() => onToggleStar(story.id)}
+          onClick={(e) => { e.stopPropagation(); onToggleStar(story.id); }}
           style={{ ...styles.starBtn, color: isStarred ? '#f1c21b' : '#c6c6c6' }}
           title={isStarred ? 'Remove from shortlist' : 'Add to shortlist'}
         >
@@ -120,6 +126,104 @@ function StoryCard({ story, isStarred, onToggleStar, isAdmin, onUpload }) {
   );
 }
 
+function DetailModal({ story, isStarred, onClose, onToggleStar, onDownload, isAdmin, onUpload }) {
+  const c = INDUSTRY_COLORS[story.industry] || { bg: '#f4f4f4', color: '#525252', icon: '📄' };
+  const fileInputRef = React.useRef(null);
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file && onUpload) {
+      onUpload(story.id, file);
+      fileInputRef.current.value = '';
+    }
+  };
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div style={styles.modalBackdrop} onClick={onClose} />
+      
+      {/* Modal */}
+      <div style={styles.modal}>
+        {/* Header */}
+        <div style={styles.modalHeader}>
+          <div>
+            <h1 style={styles.modalTitle}>{story.title}</h1>
+            <div style={styles.modalClient}>{story.client}</div>
+            <div style={styles.modalDate}>Updated {story.updatedAt || ''}</div>
+          </div>
+          <button style={styles.closeBtn} onClick={onClose} title="Close">✕</button>
+        </div>
+
+        {/* Content */}
+        <div style={styles.modalContent}>
+          {/* Summary */}
+          <div style={styles.modalSection}>
+            <div style={styles.modalSectionTitle}>SUMMARY</div>
+            <p style={styles.modalText}>{story.summary}</p>
+          </div>
+
+          {/* Key Metrics */}
+          {story.metrics && story.metrics.length > 0 && (
+            <div style={styles.modalSection}>
+              <div style={styles.modalSectionTitle}>KEY METRICS</div>
+              <div style={styles.modalMetrics}>
+                {story.metrics.map((m, i) => (
+                  <span key={i} style={styles.modalMetric}>• {m}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Tags */}
+          <div style={styles.modalSection}>
+            <div style={styles.modalSectionTitle}>TAGS</div>
+            <div style={styles.modalTags}>
+              <span style={styles.modalTag}>{story.industry}</span>
+              {story.products && story.products.map(p => (
+                <span key={p} style={styles.modalTag}>{p}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={styles.modalFooter}>
+          {story.pdfPath && (
+            <button style={styles.btnDownload} onClick={() => onDownload(story.pdfPath, story.pdfFilename)}>
+              ⬇ PDF One-Pager
+            </button>
+          )}
+          <button
+            style={{ ...styles.btnShortlist, ...(isStarred ? { background: '#f1c21b', color: '#161616' } : {}) }}
+            onClick={() => onToggleStar(story.id)}
+          >
+            {isStarred ? '★ Shortlist' : '☆ Shortlist'}
+          </button>
+          {isAdmin && (
+            <>
+              <button style={styles.btnUploadModal} onClick={handleUploadClick}>
+                ⬆ Upload
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pptx,.pdf,.doc,.docx"
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+              />
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
 function FilterSection({ title, type, items, active, onToggle }) {
   return (
     <div style={{ marginBottom: 20 }}>
@@ -152,6 +256,7 @@ const ClientStoriesTab = () => {
   const [filters, setFilters] = useState({ industry: [], product: [], usecase: [] });
   const [starred, setStarred] = useState(getStoredStarred);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [expandedStory, setExpandedStory] = useState(null);
 
   useEffect(() => {
     const enterFullscreen = async () => {
@@ -361,7 +466,7 @@ const ClientStoriesTab = () => {
               ) : (
                 <div style={styles.grid}>
                   {filtered.map(s => (
-                    <StoryCard key={s.id} story={s} isStarred={starred.includes(s.id)} onToggleStar={toggleStar} isAdmin={isAdmin} onUpload={handleUpload} />
+                    <StoryCard key={s.id} story={s} isStarred={starred.includes(s.id)} onToggleStar={toggleStar} isAdmin={isAdmin} onUpload={handleUpload} onExpand={setExpandedStory} />
                   ))}
                 </div>
               )}
@@ -377,13 +482,26 @@ const ClientStoriesTab = () => {
             ) : (
               <div style={styles.grid}>
                 {shortlisted.map(s => (
-                  <StoryCard key={s.id} story={s} isStarred={true} onToggleStar={toggleStar} isAdmin={isAdmin} onUpload={handleUpload} />
+                  <StoryCard key={s.id} story={s} isStarred={true} onToggleStar={toggleStar} isAdmin={isAdmin} onUpload={handleUpload} onExpand={setExpandedStory} />
                 ))}
               </div>
             )
           )}
         </main>
       </div>
+
+      {/* Detail Modal */}
+      {expandedStory && (
+        <DetailModal
+          story={expandedStory}
+          isStarred={starred.includes(expandedStory.id)}
+          onClose={() => setExpandedStory(null)}
+          onToggleStar={toggleStar}
+          onDownload={downloadFile}
+          isAdmin={isAdmin}
+          onUpload={handleUpload}
+        />
+      )}
     </div>
   );
 };
@@ -438,6 +556,25 @@ const styles = {
   cardDate: { fontSize: 12, color: '#999', fontWeight: 400 },
   btnOnePager: { background: '#0f62fe', color: '#fff', border: 'none', padding: '8px 16px', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', borderRadius: 3, display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s' },
   btnUpload: { background: '#24a148', color: '#fff', border: 'none', padding: '8px 16px', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', borderRadius: 3, display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s' },
+  modalBackdrop: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999 },
+  modal: { position: 'fixed', top: '5%', left: '50%', transform: 'translateX(-50%)', width: '90%', maxWidth: 800, maxHeight: '90vh', background: '#fff', borderRadius: 8, boxShadow: '0 10px 40px rgba(0,0,0,0.2)', zIndex: 1000, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
+  modalHeader: { padding: '24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 },
+  modalTitle: { fontSize: 24, fontWeight: 700, margin: '0 0 8px 0', color: '#161616', lineHeight: 1.3 },
+  modalClient: { fontSize: 15, fontWeight: 600, color: '#0f62fe', margin: '8px 0' },
+  modalDate: { fontSize: 12, color: '#999' },
+  closeBtn: { background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: '#999', padding: '0', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 },
+  modalContent: { flex: 1, overflowY: 'auto', padding: '24px' },
+  modalSection: { marginBottom: 24 },
+  modalSectionTitle: { fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6f6f6f', marginBottom: 12 },
+  modalText: { fontSize: 14, color: '#424242', lineHeight: 1.7, margin: 0 },
+  modalMetrics: { display: 'flex', flexDirection: 'column', gap: 8 },
+  modalMetric: { fontSize: 14, color: '#198038', fontWeight: 500 },
+  modalTags: { display: 'flex', gap: 8, flexWrap: 'wrap' },
+  modalTag: { background: '#e8daff', color: '#6929c4', padding: '6px 12px', borderRadius: 16, fontSize: 12, fontWeight: 500 },
+  modalFooter: { padding: '20px 24px', borderTop: '1px solid #e5e7eb', display: 'flex', gap: 12, flexWrap: 'wrap' },
+  btnDownload: { background: '#0f62fe', color: '#fff', border: 'none', padding: '10px 20px', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', borderRadius: 3, display: 'flex', alignItems: 'center', gap: 6 },
+  btnShortlist: { background: '#fff', color: '#161616', border: '1px solid #c6c6c6', padding: '10px 20px', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', borderRadius: 3, display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s' },
+  btnUploadModal: { background: '#24a148', color: '#fff', border: 'none', padding: '10px 20px', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', borderRadius: 3, display: 'flex', alignItems: 'center', gap: 6 },
 };
 
 export default ClientStoriesTab;
