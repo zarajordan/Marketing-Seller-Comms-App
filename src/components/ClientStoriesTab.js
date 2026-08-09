@@ -216,7 +216,6 @@ function DetailModal({ story, isStarred, onClose, onToggleStar, onDownload, isAd
                 onChange={handleFileChange}
                 style={{ display: 'none' }}
               />
-            <>
               <button style={styles.btnDeleteModal} onClick={() => onDelete(story.id)}>
                 🗑 Delete
               </button>
