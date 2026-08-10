@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Select, SelectItem, Tag, Tile } from '@carbon/react';
 import { Loading } from '@carbon/react';
-import { getAnalyticsSummary, getAnalyticsUserBreakdown, getAnalyticsMonthly, getAnalyticsTopEvents } from '../lib/supabaseData';
+import { getAnalyticsSummary, getAnalyticsUserBreakdown, getAnalyticsMonthly, getAnalyticsTopEvents, getAnalyticsTopViewedEvents } from '../lib/supabaseData';
 
 const PERIODS = [
   { value: 30,  label: 'Last 30 days' },
@@ -44,6 +44,7 @@ export default function AnalyticsTab() {
   const [users, setUsers] = useState([]);
   const [monthly, setMonthly] = useState([]);
   const [topEvents, setTopEvents] = useState([]);
+  const [topViewedEvents, setTopViewedEvents] = useState([]);
 
   useEffect(() => {
     load();
@@ -52,16 +53,18 @@ export default function AnalyticsTab() {
   const load = async () => {
     setLoading(true);
     try {
-      const [s, u, m, t] = await Promise.all([
+      const [s, u, m, t, tv] = await Promise.all([
         getAnalyticsSummary(days).catch(() => null),
         getAnalyticsUserBreakdown(days).catch(() => []),
         getAnalyticsMonthly(days).catch(() => []),
         getAnalyticsTopEvents(days).catch(() => []),
+        getAnalyticsTopViewedEvents(days).catch(() => []),
       ]);
       if (s) setSummary(s);
       setUsers(u || []);
       setMonthly(m || []);
       setTopEvents(t || []);
+      setTopViewedEvents(tv || []);
     } catch (err) {
       console.error('Analytics load error', err);
     } finally {
@@ -103,6 +106,7 @@ export default function AnalyticsTab() {
 
   // Top events max
   const maxEventCount = Math.max(...topEvents.map((e) => e.count), 1);
+  const maxViewedCount = Math.max(...topViewedEvents.map((e) => e.count), 1);
 
   // Day-of-week breakdown
   const dowBreakdown = (() => {
@@ -235,11 +239,32 @@ export default function AnalyticsTab() {
             </Tile>
           </div>
 
-          {/* ── Top events + day of week ── */}
+          {/* ── Top events ── */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '28px' }}>
 
             <Tile style={{ padding: '20px' }}>
-              <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '16px' }}>Most Used Events in Comms</p>
+              <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>Most Viewed Events</p>
+              <p style={{ fontSize: '11px', color: '#6f6f6f', marginBottom: '16px' }}>Clicked "View full details" in the Event Library</p>
+              {topViewedEvents.length === 0 ? (
+                <p style={{ color: '#6f6f6f', fontSize: '13px' }}>No view activity yet.</p>
+              ) : (
+                topViewedEvents.slice(0, 8).map((ev) => (
+                  <div key={ev.title} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid #f0f0f0', fontSize: '13px' }}>
+                    <span style={{ flex: 1, color: '#1f2328', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: '8px' }}>{ev.title}</span>
+                    <div style={{ flex: 1, margin: '0 10px' }}>
+                      <div style={{ height: '6px', borderRadius: '3px', background: '#e0e0e0' }}>
+                        <div style={{ height: '6px', borderRadius: '3px', background: '#6929c4', width: `${Math.round((ev.count / maxViewedCount) * 100)}%` }} />
+                      </div>
+                    </div>
+                    <span style={{ fontWeight: 600, color: '#6929c4', minWidth: '24px', textAlign: 'right' }}>{ev.count}</span>
+                  </div>
+                ))
+              )}
+            </Tile>
+
+            <Tile style={{ padding: '20px' }}>
+              <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>Most Used Events in Comms</p>
+              <p style={{ fontSize: '11px', color: '#6f6f6f', marginBottom: '16px' }}>Included when a comm was generated</p>
               {topEvents.length === 0 ? (
                 <p style={{ color: '#6f6f6f', fontSize: '13px' }}>No comm activity yet.</p>
               ) : (
@@ -257,6 +282,10 @@ export default function AnalyticsTab() {
               )}
             </Tile>
 
+          </div>
+
+          {/* ── Day of week ── */}
+          <div style={{ marginBottom: '28px' }}>
             <Tile style={{ padding: '20px' }}>
               <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '16px' }}>Activity by Day of Week</p>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px', height: '120px', paddingBottom: '20px', borderBottom: '1px solid #e0e0e0' }}>

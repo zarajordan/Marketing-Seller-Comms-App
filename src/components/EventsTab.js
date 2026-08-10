@@ -594,7 +594,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
                             {event.industry && event.industry !== 'Cross-Industry' && <Tag type="gray" size="sm">{event.industry}</Tag>}
                           </div>
                           <div style={{ marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid #e0e0e0', display: 'flex', gap: '8px' }}>
-                            <Button kind="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setPreviewEvent(event); }}>View full details</Button>
+                            <Button kind="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setPreviewEvent(event); logActivity('event_viewed', { userEmail: currentUser?.email, userName: currentUser?.name, userRole: currentUser?.role, metadata: { eventId: event.id, eventTitle: event.title } }); }}>View full details</Button>
                             <Button kind="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleRestoreEvent(event); }}>Restore to Library</Button>
                           </div>
                         </Tile>
@@ -743,7 +743,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
 
                         {/* View details */}
                         <div style={{ marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid #e0e0e0' }}>
-                          <Button kind="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setPreviewEvent(event); }}>
+                          <Button kind="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setPreviewEvent(event); logActivity('event_viewed', { userEmail: currentUser?.email, userName: currentUser?.name, userRole: currentUser?.role, metadata: { eventId: event.id, eventTitle: event.title } }); }}>
                             View full details
                           </Button>
                         </div>

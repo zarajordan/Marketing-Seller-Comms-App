@@ -545,6 +545,25 @@ export const getAnalyticsTopEvents = async (days = 90) => {
     .slice(0, 8);
 };
 
+export const getAnalyticsTopViewedEvents = async (days = 90) => {
+  const since = new Date(Date.now() - days * 86400000).toISOString();
+  const { data, error } = await supabase.from('activity_log').select('metadata').eq('event_type', 'event_viewed').gte('created_at', since);
+  const rows = (error ? [] : data) || [];
+
+  const counts = {};
+  rows.forEach((r) => {
+    const title = r.metadata?.eventTitle;
+    if (title) counts[title] = (counts[title] || 0) + 1;
+  });
+
+  return Object.entries(counts)
+    .map(([title, count]) => ({ title, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+};
+
+
+
 export const getAnalyticsUserBreakdown = async (days = 90) => {
   const since = new Date(Date.now() - days * 86400000).toISOString();
   const { data, error } = await supabase.from('activity_log').select('event_type, user_email, user_name, user_role, metadata, created_at').gte('created_at', since);
