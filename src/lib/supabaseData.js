@@ -12,6 +12,8 @@ export const TAB_PERMISSIONS = [
   'user-access',
   'analytics',
   'client-stories',
+  'submit-partner-story',
+  'book-filming',
 ];
 
 export const ROLE_CONFIG = {
@@ -43,14 +45,14 @@ export const getDefaultPermissions = (role) => {
 
   if (role === 'marketing') {
     return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-      permissions[tabId] = tabId === 'event-library' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'client-stories' || tabId === 'analytics';
+      permissions[tabId] = tabId === 'event-library' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'analytics';
       return permissions;
     }, {});
   }
 
   // seller — or any unrecognised/unauthorised role — gets Event Library only
   return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-    permissions[tabId] = tabId === 'event-library' || tabId === 'client-stories';
+    permissions[tabId] = tabId === 'event-library' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming';
     return permissions;
   }, {});
 };
@@ -101,8 +103,9 @@ export const findUserByEmail = async (email) => {
   const { data, error } = await supabase
     .from('users')
     .select('*')
-    .eq('email', email)
+    .ilike('email', email)
     .eq('active', true)
+    .limit(1)
     .maybeSingle();
 
   if (error) {
@@ -241,6 +244,7 @@ export const mapEventRowToAppEvent = (row) => ({
   inviteProcess: row.invite_process || '',
   promoteOurPresence: row.promote_our_presence || '',
   promoteDocuments: row.promote_documents || [],
+  reviewerNote: row.reviewer_note || '',
 });
 
 export const mapEventFormToRow = (event) => ({
@@ -275,6 +279,7 @@ export const mapEventFormToRow = (event) => ({
   invite_process: event.inviteProcess || '',
   promote_our_presence: event.promoteOurPresence || '',
   promote_documents: event.promoteDocuments || [],
+  reviewer_note: event.reviewerNote || null,
   // keep legacy column populated for backwards compat
   description: event.briefSummary || event.description || '',
   event_date: event.startDate || event.date || null,
@@ -336,6 +341,18 @@ export const deleteEvent = async (eventId) => {
   if (error) {
     throw error;
   }
+};
+
+export const listReturnedEvents = async (ownerEmail) => {
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .eq('owner_email', ownerEmail)
+    .eq('status', 'Returned')
+    .order('event_date', { ascending: true });
+
+  if (error) throw error;
+  return data.map(mapEventRowToAppEvent);
 };
 
 // ---------------------------------------------------------------------------
@@ -408,6 +425,135 @@ export const deleteDraft = async (draftId, ownerEmail) => {
   if (error) {
     throw error;
   }
+};
+
+// ---------------------------------------------------------------------------
+// Filming Bookings
+// ---------------------------------------------------------------------------
+
+const mapBookingRow = (row) => ({
+  id: row.id,
+  date: row.date,
+  timeSlot: row.time_slot || '',
+  topic: row.topic || '',
+  partnerName: row.partner_name || '',
+  clientName: row.client_name || '',
+  participants: row.participants || '',
+  approvalsConfirmed: row.approvals_confirmed || false,
+  yourName: row.your_name || '',
+  yourEmail: row.your_email || '',
+  ibmTeam: row.ibm_team || '',
+  notes: row.notes || '',
+  status: row.status || 'Pending',
+});
+
+const mapBookingToRow = (b) => ({
+  date: b.date,
+  time_slot: b.timeSlot || '',
+  topic: b.topic || '',
+  partner_name: b.partnerName || '',
+  client_name: b.clientName || '',
+  participants: b.participants || '',
+  approvals_confirmed: b.approvalsConfirmed || false,
+  your_name: b.yourName || '',
+  your_email: b.yourEmail || '',
+  ibm_team: b.ibmTeam || '',
+  notes: b.notes || '',
+  status: b.status || 'Pending',
+});
+
+export const listFilmingBookings = async () => {
+  const { data, error } = await supabase
+    .from('filming_bookings')
+    .select('*')
+    .order('date', { ascending: true });
+  if (error) throw error;
+  return data.map(mapBookingRow);
+};
+
+export const createFilmingBooking = async (booking) => {
+  const { data, error } = await supabase
+    .from('filming_bookings')
+    .insert(mapBookingToRow(booking))
+    .select('*')
+    .single();
+  if (error) throw error;
+  return mapBookingRow(data);
+};
+
+export const updateFilmingBooking = async (booking) => {
+  const { data, error } = await supabase
+    .from('filming_bookings')
+    .update(mapBookingToRow(booking))
+    .eq('id', booking.id)
+    .select('*')
+    .single();
+  if (error) throw error;
+  return mapBookingRow(data);
+};
+
+export const deleteFilmingBooking = async (id) => {
+  const { error } = await supabase.from('filming_bookings').delete().eq('id', id);
+  if (error) throw error;
+};
+
+// ---------------------------------------------------------------------------
+// Story Requests
+// ---------------------------------------------------------------------------
+
+const mapStoryRow = (row) => ({
+  id: row.id,
+  clientName: row.client_name || '',
+  partnerName: row.partner_name || '',
+  yourName: row.your_name || '',
+  yourEmail: row.your_email || '',
+  phone: row.phone || '',
+  ibmTeam: row.ibm_team || '',
+  contentTypes: row.content_types || [],
+  industry: row.industry || '',
+  overview: row.overview || '',
+  challenge: row.challenge || '',
+  outcomes: row.outcomes || '',
+  notes: row.notes || '',
+  submittedAt: row.submitted_at || row.created_at || '',
+});
+
+export const listStoryRequests = async () => {
+  const { data, error } = await supabase
+    .from('story_requests')
+    .select('*')
+    .order('submitted_at', { ascending: false });
+  if (error) throw error;
+  return data.map(mapStoryRow);
+};
+
+export const createStoryRequest = async (req) => {
+  const { data, error } = await supabase
+    .from('story_requests')
+    .insert({
+      client_name: req.clientName || '',
+      partner_name: req.partnerName || '',
+      your_name: req.yourName || '',
+      your_email: req.yourEmail || '',
+      phone: req.phone || '',
+      ibm_team: req.ibmTeam || '',
+      content_types: req.contentTypes || [],
+      industry: req.industry || '',
+      overview: req.overview || '',
+      challenge: req.challenge || '',
+      outcomes: req.outcomes || '',
+      notes: req.notes || '',
+      submitted_at: new Date().toISOString(),
+    })
+    .select('*')
+    .single();
+  if (error) throw error;
+  return mapStoryRow(data);
+};
+
+export const deleteStoryRequest = async (id) => {
+  const { error } = await supabase.from('story_requests').delete().eq('id', id);
+  if (error) throw error;
 };
 
 // ---------------------------------------------------------------------------

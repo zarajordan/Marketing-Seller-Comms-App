@@ -259,6 +259,7 @@ const ManageEventsTab = () => {
       targetRoles: event.targetRoles || [],
       otherRole: event.otherRole || '',
       status: event.status || 'Active',
+      inviteProcess: event.inviteProcess || '',
       postEventFollowUp: event.postEventFollowUp || '',
       category: event.category || 'ibm',
       promoteOurPresence: event.promoteOurPresence || '',

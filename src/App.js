@@ -33,11 +33,13 @@ import SubmitEventTab from './components/SubmitEventTab';
 import ForReviewTab from './components/ForReviewTab';
 import AnalyticsTab from './components/AnalyticsTab';
 import ClientStoriesTab from './components/ClientStoriesTab';
+import SubmitPartnerStoryTab from './components/SubmitPartnerStoryTab';
+import BookFilmingTab from './components/BookFilmingTab';
 import ThemeSelector from './components/ThemeSelector';
 import LoginPage from './components/LoginPage';
 import SetNewPasswordPage from './components/SetNewPasswordPage';
 import { UserProvider, useUser } from './contexts/UserContext';
-import { listEvents } from './lib/supabaseData';
+import { listEvents, listReturnedEvents, listFilmingBookings, createFilmingBooking, updateFilmingBooking, deleteFilmingBooking, listStoryRequests, createStoryRequest, deleteStoryRequest } from './lib/supabaseData';
 
 // ── Sidebar configuration ────────────────────────────────────────────────────
 const SIDEBAR_SECTIONS = [
@@ -61,8 +63,15 @@ const SIDEBAR_SECTIONS = [
   {
     label: 'Personal',
     items: [
-      { id: 'drafts',          label: 'My Drafts',      icon: Document },
-      { id: 'client-stories',  label: 'Client Stories', icon: Portfolio },
+      { id: 'drafts', label: 'My Drafts', icon: Document },
+    ],
+  },
+  {
+    label: 'Client Stories',
+    items: [
+      { id: 'client-stories',        label: 'Client Stories',        icon: Portfolio },
+      { id: 'submit-partner-story',  label: 'Submit Story Request',  icon: Upload },
+      { id: 'book-filming',          label: 'Book Filming',          icon: Calendar },
     ],
   },
   {
@@ -86,7 +95,9 @@ const TAB_COMPONENTS = {
   'drafts':              DraftsTab,
   'user-access':         UserAccessTab,
   'analytics':           AnalyticsTab,
-  'client-stories':      ClientStoriesTab,
+  'client-stories':           ClientStoriesTab,
+  'submit-partner-story':     SubmitPartnerStoryTab,
+  'book-filming':             BookFilmingTab,
   'dashboard':           DashboardTab,
   'ai-assistant':        AIAssistantTab,
 };
@@ -155,6 +166,43 @@ function MainAppContent({ onLogout }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [themeModalOpen, setThemeModalOpen] = useState(false);
   const [forReviewCount, setForReviewCount] = useState(0);
+  const [returnedEventCount, setReturnedEventCount] = useState(0);
+  const [filmingBookings, setFilmingBookings] = useState([]);
+  const [storyRequests, setStoryRequests] = useState([]);
+
+  // Load persisted data on mount
+  useEffect(() => {
+    listFilmingBookings().then(setFilmingBookings).catch(() => {});
+    listStoryRequests().then(setStoryRequests).catch(() => {});
+  }, []);
+
+  const handleAddStoryRequest = useCallback(async (req) => {
+    const saved = await createStoryRequest(req);
+    setStoryRequests(rs => [saved, ...rs]);
+  }, []);
+  const handleDismissStoryRequest = useCallback(async (id) => {
+    await deleteStoryRequest(id);
+    setStoryRequests(rs => rs.filter(r => r.id !== id));
+  }, []);
+
+  const handleAddBooking = useCallback(async (b) => {
+    const saved = await createFilmingBooking(b);
+    setFilmingBookings(bs => [...bs, saved]);
+  }, []);
+  const handleUpdateBooking = useCallback(async (b) => {
+    const saved = await updateFilmingBooking(b);
+    setFilmingBookings(bs => bs.map(x => x.id === saved.id ? saved : x));
+  }, []);
+  const handleUpdateBookingStatus = useCallback(async (id, status) => {
+    const existing = filmingBookings.find(x => x.id === id);
+    if (!existing) return;
+    const saved = await updateFilmingBooking({ ...existing, status });
+    setFilmingBookings(bs => bs.map(x => x.id === id ? saved : x));
+  }, [filmingBookings]);
+  const handleDeleteBooking = useCallback(async (id) => {
+    await deleteFilmingBooking(id);
+    setFilmingBookings(bs => bs.filter(x => x.id !== id));
+  }, []);
 
   const createCommRef         = useRef(null);
   const marketingSpotlightRef = useRef(null);
@@ -173,22 +221,41 @@ function MainAppContent({ onLogout }) {
     }
   }, [accessibleIds.join(',')]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Load For Review badge count
+  // Load For Review badge count (event drafts + pending filming bookings)
   const loadReviewCount = useCallback(async () => {
     if (!hasPermission('for-review')) return;
     try {
       const data = await listEvents();
-      setForReviewCount(data.filter((e) => e.status === 'Draft').length);
+      const draftCount = data.filter((e) => e.status === 'Draft').length;
+      const pendingFilming = filmingBookings.filter(b => b.status === 'Pending').length;
+      setForReviewCount(draftCount + pendingFilming + storyRequests.length);
     } catch {
       // silently ignore
     }
-  }, [hasPermission]);
+  }, [hasPermission, filmingBookings, storyRequests]);
 
   useEffect(() => {
     loadReviewCount();
     window.addEventListener('eventsUpdated', loadReviewCount);
     return () => window.removeEventListener('eventsUpdated', loadReviewCount);
   }, [loadReviewCount]);
+
+  // Load returned-event count for the current user's sidebar badge
+  const loadReturnedCount = useCallback(async () => {
+    if (!currentUser?.email) return;
+    try {
+      const returned = await listReturnedEvents(currentUser.email);
+      setReturnedEventCount(returned.length);
+    } catch {
+      // silently ignore
+    }
+  }, [currentUser?.email]);
+
+  useEffect(() => {
+    loadReturnedCount();
+    window.addEventListener('eventsUpdated', loadReturnedCount);
+    return () => window.removeEventListener('eventsUpdated', loadReturnedCount);
+  }, [loadReturnedCount]);
 
   // ── Navigation helpers ────────────────────────────────────────────────────
   const navigateTo = (tabId) => {
@@ -242,7 +309,7 @@ function MainAppContent({ onLogout }) {
     const persistentTabs = [
       { id: 'create-comm',         Component: TAB_COMPONENTS['create-comm'],         ref: createCommRef,         extraProps: { currentUser } },
       { id: 'marketing-spotlight', Component: TAB_COMPONENTS['marketing-spotlight'], ref: marketingSpotlightRef, extraProps: { currentUser } },
-      { id: 'submit-event',        Component: TAB_COMPONENTS['submit-event'],        ref: submitEventRef,        extraProps: {} },
+      { id: 'submit-event',        Component: TAB_COMPONENTS['submit-event'],        ref: submitEventRef,        extraProps: { onReturnedResolved: loadReturnedCount } },
     ];
 
     // All other tabs — only render when active
@@ -251,9 +318,12 @@ function MainAppContent({ onLogout }) {
       const Component = TAB_COMPONENTS[selectedTabId];
       if (!Component) return null;
       const props = {};
-      if (selectedTabId === 'templates')    props.onUseTemplate = handleLoadTemplate;
-      if (selectedTabId === 'drafts')       { props.onEditDraft = handleEditDraft; props.currentUser = currentUser; }
-      if (selectedTabId === 'event-library'){ props.onGenerateComm = handleGenerateComm; props.currentUser = currentUser; }
+      if (selectedTabId === 'templates')       props.onUseTemplate = handleLoadTemplate;
+      if (selectedTabId === 'drafts')          { props.onEditDraft = handleEditDraft; props.currentUser = currentUser; }
+      if (selectedTabId === 'event-library')   { props.onGenerateComm = handleGenerateComm; props.currentUser = currentUser; }
+      if (selectedTabId === 'for-review')      { props.filmingBookings = filmingBookings; props.onUpdateBookingStatus = handleUpdateBookingStatus; props.onDeleteBooking = handleDeleteBooking; props.storyRequests = storyRequests; props.onDismissStoryRequest = handleDismissStoryRequest; }
+      if (selectedTabId === 'submit-partner-story') { props.onAddStoryRequest = handleAddStoryRequest; }
+      if (selectedTabId === 'book-filming') { props.bookings = filmingBookings; props.onAddBooking = handleAddBooking; props.onUpdateBooking = handleUpdateBooking; props.onUpdateBookingStatus = handleUpdateBookingStatus; props.onDeleteBooking = handleDeleteBooking; }
       return <Component {...props} />;
     };
 
@@ -309,6 +379,7 @@ function MainAppContent({ onLogout }) {
                   {visibleItems.map((item) => {
                     const isActive = item.id === selectedTabId;
                     const showBadge = item.badge && forReviewCount > 0;
+                    const showReturnedBadge = item.id === 'submit-event' && returnedEventCount > 0;
                     const Icon = item.icon;
                     return (
                       <button
@@ -325,6 +396,11 @@ function MainAppContent({ onLogout }) {
                         {showBadge && (
                           <span className={`app-sidebar__badge${sidebarCollapsed ? ' app-sidebar__badge--dot' : ''}`}>
                             {sidebarCollapsed ? '' : forReviewCount}
+                          </span>
+                        )}
+                        {showReturnedBadge && (
+                          <span className={`app-sidebar__badge app-sidebar__badge--danger${sidebarCollapsed ? ' app-sidebar__badge--dot' : ''}`}>
+                            {sidebarCollapsed ? '' : returnedEventCount}
                           </span>
                         )}
                       </button>

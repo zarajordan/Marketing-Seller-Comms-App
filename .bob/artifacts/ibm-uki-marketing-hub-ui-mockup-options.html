@@ -1,0 +1,463 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IBM UKI Marketing Hub — UI Mockups</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif; background: #f4f4f4; color: #161616; font-size: 14px; line-height: 1.5; }
+
+  .page-header { background: #161616; color: #fff; padding: 24px 40px; }
+  .page-header h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.02em; }
+  .page-header p { font-size: 13px; color: #a8a8a8; margin-top: 4px; }
+
+  .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #6f6f6f; padding: 32px 40px 12px; }
+  .section-divider { height: 3px; margin: 0 40px 24px; border-radius: 2px; }
+  .carbon-divider { background: #0f62fe; }
+  .custom-divider { background: linear-gradient(90deg, #6929c4, #0f62fe); }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding: 0 40px 40px; }
+
+  /* ── OPTION CARD WRAPPER ── */
+  .option-card { border-radius: 4px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.1); background: #fff; }
+  .option-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 10px 16px; background: #161616; color: #a8a8a8; display: flex; justify-content: space-between; align-items: center; }
+  .option-label span { font-size: 11px; font-weight: 400; color: #6f6f6f; text-transform: none; letter-spacing: 0; }
+  .option-body { background: #fff; }
+
+  /* ══════════════════════════════════
+     OPTION A — Carbon Classic Dark
+  ══════════════════════════════════ */
+  .a-shell { background: #161616; }
+  .a-topbar { background: #161616; height: 48px; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid #393939; gap: 12px; }
+  .a-logo { font-size: 14px; font-weight: 700; letter-spacing: 3px; color: #fff; }
+  .a-divider { width: 1px; height: 16px; background: #393939; }
+  .a-appname { font-size: 13px; color: #c6c6c6; font-weight: 400; }
+  .a-topbar-right { margin-left: auto; display: flex; gap: 2px; }
+  .a-icon-btn { width: 48px; height: 48px; background: none; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .a-icon-btn:hover { background: #353535; }
+  .a-icon { width: 16px; height: 16px; background: #c6c6c6; border-radius: 2px; opacity: 0.7; }
+
+  .a-hero { background: #161616; padding: 24px 20px 20px; border-bottom: 1px solid #262626; }
+  .a-hero h2 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 0.04em; }
+  .a-role-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .a-tag { font-size: 10px; font-weight: 600; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; background: #0f62fe; color: #fff; }
+  .a-tag.purple { background: #6929c4; }
+  .a-username { font-size: 12px; color: #8d8d8d; }
+
+  .a-tabs { display: flex; gap: 0; background: #262626; overflow: hidden; border-bottom: 1px solid #393939; }
+  .a-tab { padding: 10px 14px; font-size: 12px; color: #8d8d8d; cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; }
+  .a-tab.active { color: #fff; border-bottom-color: #0f62fe; background: #161616; }
+  .a-tab.active2 { color: #fff; border-bottom-color: #6929c4; background: #161616; }
+
+  .a-content { background: #262626; padding: 16px; min-height: 160px; }
+  .a-card { background: #353535; border: 1px solid #393939; padding: 14px; border-radius: 2px; margin-bottom: 10px; }
+  .a-card-title { font-size: 12px; font-weight: 600; color: #f4f4f4; margin-bottom: 6px; }
+  .a-field { background: #161616; border: none; border-bottom: 1px solid #6f6f6f; padding: 8px 10px; width: 100%; margin-bottom: 8px; color: #f4f4f4; font-size: 12px; }
+  .a-btn { background: #0f62fe; color: #fff; border: none; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .a-btn-ghost { background: none; color: #0f62fe; border: 1px solid #0f62fe; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+  /* ══════════════════════════════════
+     OPTION B — Carbon Light + Blue Accent
+  ══════════════════════════════════ */
+  .b-topbar { background: #0f62fe; height: 48px; display: flex; align-items: center; padding: 0 16px; gap: 12px; }
+  .b-logo { font-size: 14px; font-weight: 700; letter-spacing: 3px; color: #fff; }
+  .b-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.3); }
+  .b-appname { font-size: 13px; color: rgba(255,255,255,0.8); }
+  .b-topbar-right { margin-left: auto; display: flex; gap: 2px; }
+  .b-icon-btn { width: 48px; height: 48px; background: none; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .b-icon-btn:hover { background: #0353e9; }
+  .b-icon { width: 16px; height: 16px; background: rgba(255,255,255,0.7); border-radius: 2px; }
+
+  .b-hero { background: #fff; padding: 20px 20px 0; border-bottom: 1px solid #e0e0e0; }
+  .b-hero h2 { font-size: 18px; font-weight: 700; color: #161616; letter-spacing: 0.03em; }
+  .b-tabs { display: flex; gap: 0; margin-top: 16px; }
+  .b-tab { padding: 10px 14px; font-size: 12px; color: #525252; cursor: pointer; border-bottom: 3px solid transparent; }
+  .b-tab.active { color: #0f62fe; border-bottom-color: #0f62fe; font-weight: 600; }
+
+  .b-content { background: #f4f4f4; padding: 16px; min-height: 148px; }
+  .b-card { background: #fff; border: 1px solid #e0e0e0; padding: 14px; margin-bottom: 10px; }
+  .b-card-title { font-size: 12px; font-weight: 600; color: #161616; margin-bottom: 6px; }
+  .b-field { background: #f4f4f4; border: none; border-bottom: 1px solid #8d8d8d; padding: 8px 10px; width: 100%; margin-bottom: 8px; color: #161616; font-size: 12px; }
+  .b-btn { background: #0f62fe; color: #fff; border: none; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer; margin-right: 6px; }
+  .b-btn-sec { background: none; color: #0f62fe; border: 1px solid #0f62fe; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .b-tag { font-size: 10px; font-weight: 600; text-transform: uppercase; padding: 3px 8px; background: #d0e2ff; color: #0043ce; display: inline-block; margin-bottom: 12px; }
+
+  /* ══════════════════════════════════
+     OPTION C — Carbon White + Purple Brand
+  ══════════════════════════════════ */
+  .c-topbar { background: #fff; height: 48px; display: flex; align-items: center; padding: 0 16px; border-bottom: 3px solid #6929c4; gap: 12px; }
+  .c-logo { font-size: 14px; font-weight: 700; letter-spacing: 3px; color: #161616; }
+  .c-divider { width: 1px; height: 16px; background: #e0e0e0; }
+  .c-appname { font-size: 13px; color: #525252; }
+  .c-topbar-right { margin-left: auto; display: flex; gap: 2px; align-items: center; }
+  .c-icon-btn { width: 40px; height: 40px; background: none; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 4px; }
+  .c-icon-btn:hover { background: #f4f4f4; }
+  .c-icon { width: 14px; height: 14px; background: #525252; border-radius: 2px; }
+  .c-user-chip { font-size: 11px; background: #f0e6ff; color: #6929c4; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+
+  .c-hero { background: linear-gradient(135deg, #280055 0%, #6929c4 100%); padding: 20px; }
+  .c-hero h2 { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: 0.04em; }
+  .c-hero p { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 3px; }
+
+  .c-tabs { display: flex; background: #fff; border-bottom: 1px solid #e0e0e0; overflow: hidden; }
+  .c-tab { padding: 10px 14px; font-size: 12px; color: #525252; cursor: pointer; border-bottom: 2px solid transparent; }
+  .c-tab.active { color: #6929c4; border-bottom-color: #6929c4; font-weight: 600; }
+
+  .c-content { background: #f4f4f4; padding: 16px; min-height: 148px; }
+  .c-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 2px; padding: 14px; margin-bottom: 10px; border-left: 3px solid #6929c4; }
+  .c-card-title { font-size: 12px; font-weight: 600; color: #161616; margin-bottom: 6px; }
+  .c-field { background: #f4f4f4; border: none; border-bottom: 1px solid #8d8d8d; padding: 8px 10px; width: 100%; margin-bottom: 8px; color: #161616; font-size: 12px; }
+  .c-btn { background: #6929c4; color: #fff; border: none; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer; margin-right: 6px; border-radius: 4px; }
+  .c-btn-sec { background: none; color: #6929c4; border: 1px solid #6929c4; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; }
+
+  /* ══════════════════════════════════
+     OPTION D — Custom: Dark Sidebar + Light Content
+  ══════════════════════════════════ */
+  .d-shell { display: flex; flex-direction: column; min-height: 320px; }
+  .d-topbar { background: #0a0a0a; height: 44px; display: flex; align-items: center; padding: 0 16px; gap: 10px; }
+  .d-logo { font-size: 13px; font-weight: 700; letter-spacing: 4px; color: #fff; }
+  .d-sep { flex: 1; }
+  .d-user { font-size: 11px; color: #8d8d8d; display: flex; align-items: center; gap: 6px; }
+  .d-avatar { width: 26px; height: 26px; border-radius: 50%; background: #0f62fe; font-size: 11px; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; }
+  .d-body { display: flex; flex: 1; }
+  .d-sidebar { width: 180px; background: #161616; padding: 16px 0; flex-shrink: 0; }
+  .d-sidebar-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #6f6f6f; padding: 0 16px 10px; }
+  .d-nav-item { padding: 9px 16px; font-size: 12px; color: #8d8d8d; cursor: pointer; display: flex; align-items: center; gap: 8px; border-left: 3px solid transparent; }
+  .d-nav-item.active { color: #fff; background: #262626; border-left-color: #0f62fe; }
+  .d-nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.5; flex-shrink: 0; }
+  .d-nav-item.active .d-nav-dot { opacity: 1; background: #0f62fe; }
+  .d-main { flex: 1; background: #f4f4f4; padding: 16px; }
+  .d-page-title { font-size: 16px; font-weight: 700; color: #161616; margin-bottom: 14px; }
+  .d-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .d-card-title { font-size: 12px; font-weight: 600; color: #161616; margin-bottom: 6px; }
+  .d-input { background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; padding: 8px 10px; width: 100%; margin-bottom: 8px; color: #161616; font-size: 12px; }
+  .d-input:focus { outline: 2px solid #0f62fe; }
+  .d-btn { background: #0f62fe; color: #fff; border: none; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; margin-right: 6px; }
+  .d-btn-sec { background: #fff; color: #161616; border: 1px solid #e0e0e0; padding: 8px 14px; font-size: 12px; cursor: pointer; border-radius: 4px; }
+
+  /* ══════════════════════════════════
+     OPTION E — Custom: Glassmorphism / Gradient Header
+  ══════════════════════════════════ */
+  .e-topbar { background: linear-gradient(135deg, #0a0a2e 0%, #0f3575 50%, #0f62fe 100%); height: 52px; display: flex; align-items: center; padding: 0 18px; gap: 12px; }
+  .e-logo { font-size: 14px; font-weight: 700; letter-spacing: 4px; color: #fff; }
+  .e-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.2); }
+  .e-appname { font-size: 13px; font-weight: 700; color: #fff; letter-spacing: 0.05em; }
+  .e-topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .e-pill { font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+  .e-username { font-size: 12px; color: rgba(255,255,255,0.75); }
+
+  .e-tabs { background: rgba(255,255,255,0.06); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255,255,255,0.12); display: flex; padding: 0 18px; }
+  .e-tabs-bg { background: linear-gradient(180deg, #071a40 0%, #0a2456 100%); }
+  .e-tab { padding: 11px 14px; font-size: 12px; color: rgba(255,255,255,0.5); cursor: pointer; border-bottom: 2px solid transparent; }
+  .e-tab.active { color: #fff; border-bottom-color: #4589ff; font-weight: 600; }
+
+  .e-content { background: #f0f4ff; padding: 16px; min-height: 180px; }
+  .e-hero-strip { background: linear-gradient(135deg, #0a0a2e 0%, #0f3575 100%); color: #fff; padding: 16px 16px 18px; margin: -16px -16px 16px; border-bottom: 2px solid #4589ff; }
+  .e-hero-strip h3 { font-size: 15px; font-weight: 700; letter-spacing: 0.04em; }
+  .e-hero-strip p { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 3px; }
+  .e-card { background: #fff; border: 1px solid #dde5ff; border-radius: 8px; padding: 14px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(15,98,254,0.07); }
+  .e-card-title { font-size: 12px; font-weight: 600; color: #161616; margin-bottom: 6px; }
+  .e-input { background: #f0f4ff; border: 1px solid #dde5ff; border-radius: 6px; padding: 8px 10px; width: 100%; margin-bottom: 8px; color: #161616; font-size: 12px; }
+  .e-btn { background: linear-gradient(135deg, #0f3575, #0f62fe); color: #fff; border: none; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; margin-right: 6px; }
+  .e-btn-sec { background: none; color: #0f62fe; border: 1px solid #0f62fe; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; }
+
+  /* ══════════════════════════════════
+     OPTION F — Custom: Clean Minimal / Google-style
+  ══════════════════════════════════ */
+  .f-topbar { background: #fff; height: 52px; display: flex; align-items: center; padding: 0 20px; gap: 14px; border-bottom: 1px solid #ebebeb; }
+  .f-logo { font-size: 13px; font-weight: 700; letter-spacing: 4px; color: #161616; }
+  .f-divider { width: 1px; height: 18px; background: #ebebeb; }
+  .f-appname { font-size: 14px; font-weight: 700; color: #161616; }
+  .f-topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .f-avatar { width: 30px; height: 30px; border-radius: 50%; background: #0f62fe; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .f-search { background: #f6f6f6; border: 1px solid #ebebeb; border-radius: 20px; padding: 6px 14px; font-size: 12px; color: #525252; width: 140px; }
+
+  .f-subnav { display: flex; padding: 0 20px; border-bottom: 1px solid #ebebeb; background: #fff; }
+  .f-tab { padding: 11px 14px; font-size: 13px; color: #525252; cursor: pointer; border-bottom: 3px solid transparent; font-weight: 500; }
+  .f-tab.active { color: #0f62fe; border-bottom-color: #0f62fe; font-weight: 600; }
+
+  .f-content { background: #fafafa; padding: 16px; min-height: 172px; }
+  .f-page-title { font-size: 15px; font-weight: 700; color: #161616; margin-bottom: 14px; }
+  .f-card { background: #fff; border: 1px solid #ebebeb; border-radius: 8px; padding: 16px; margin-bottom: 10px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); transition: box-shadow 0.15s; }
+  .f-card-title { font-size: 12px; font-weight: 600; color: #161616; margin-bottom: 6px; }
+  .f-label { font-size: 11px; font-weight: 600; color: #6f6f6f; margin-bottom: 4px; }
+  .f-input { background: #fff; border: 1px solid #ebebeb; border-radius: 6px; padding: 8px 12px; width: 100%; margin-bottom: 10px; color: #161616; font-size: 12px; }
+  .f-btn { background: #0f62fe; color: #fff; border: none; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 20px; margin-right: 6px; }
+  .f-btn-sec { background: #fff; color: #161616; border: 1px solid #ebebeb; padding: 8px 16px; font-size: 12px; cursor: pointer; border-radius: 20px; }
+  .f-chip { font-size: 11px; background: #dde5ff; color: #0043ce; padding: 3px 10px; border-radius: 20px; display: inline-block; font-weight: 600; }
+
+  /* ── shared helper ── */
+  .row2 { display: flex; gap: 6px; margin-top: 4px; }
+  .spacer { flex: 1; }
+  .muted { font-size: 11px; color: #8d8d8d; margin-top: 6px; }
+  .tag-row { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+  .tag-sm { font-size: 10px; padding: 2px 8px; border-radius: 2px; }
+
+  footer { text-align: center; padding: 28px; font-size: 12px; color: #8d8d8d; border-top: 1px solid #e0e0e0; background: #fff; margin-top: 24px; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>IBM UKI Marketing Hub — UI Modernisation Options</h1>
+  <p>6 directions across 2 camps · Click options to compare · No code changes made</p>
+</div>
+
+
+<div class="section-label">IBM Carbon Design System · Staying true to the design language</div>
+<div class="section-divider carbon-divider"></div>
+
+<div class="grid">
+
+  
+  <div class="option-card">
+    <div class="option-label">Option A — Carbon Dark <span>g100 theme · IBM classic</span></div>
+    <div class="option-body">
+      <div class="a-shell">
+        <div class="a-topbar">
+          <span class="a-logo">IBM</span>
+          <div class="a-divider"></div>
+          <span class="a-appname">UKI Marketing Hub</span>
+          <div class="a-topbar-right">
+            <div class="a-icon-btn"><div class="a-icon"></div></div>
+            <div class="a-icon-btn"><div class="a-icon"></div></div>
+            <div class="a-icon-btn"><div class="a-icon"></div></div>
+          </div>
+        </div>
+        <div class="a-hero">
+          <div class="a-role-row">
+            <span class="a-tag">Marketer</span>
+            <span class="a-username">Sarah Jones</span>
+          </div>
+          <h2>IBM UKI MARKETING HUB</h2>
+        </div>
+        <div class="a-tabs">
+          <div class="a-tab active">Create Comm</div>
+          <div class="a-tab">✨ Spotlight</div>
+          <div class="a-tab">📚 Templates</div>
+          <div class="a-tab">🎯 Events</div>
+          <div class="a-tab">📊 Analytics</div>
+        </div>
+        <div class="a-content">
+          <div class="a-card">
+            <div class="a-card-title">Communication Details</div>
+            <input class="a-field" type="text" style="font-family:inherit" />
+            <input class="a-field" type="text" style="font-family:inherit" />
+            <div class="row2">
+              <button class="a-btn">Generate Email</button>
+              <button class="a-btn-ghost">Save Draft</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="option-card">
+    <div class="option-label">Option B — Carbon Light + IBM Blue <span>White theme · clean &amp; airy</span></div>
+    <div class="option-body">
+      <div class="b-topbar">
+        <span class="b-logo">IBM</span>
+        <div class="b-divider"></div>
+        <span class="b-appname">UKI Marketing Hub</span>
+        <div class="b-topbar-right">
+          <div class="b-icon-btn"><div class="b-icon"></div></div>
+          <div class="b-icon-btn"><div class="b-icon"></div></div>
+          <div class="b-icon-btn"><div class="b-icon"></div></div>
+        </div>
+      </div>
+      <div class="b-hero">
+        <span class="b-tag">Marketer · Sarah Jones</span>
+        <h2>IBM UKI MARKETING HUB</h2>
+        <div class="b-tabs">
+          <div class="b-tab active">Create Comm</div>
+          <div class="b-tab">✨ Spotlight</div>
+          <div class="b-tab">📚 Templates</div>
+          <div class="b-tab">🎯 Events</div>
+          <div class="b-tab">📊 Analytics</div>
+        </div>
+      </div>
+      <div class="b-content">
+        <div class="b-card">
+          <div class="b-card-title">Communication Details</div>
+          <input class="b-field" type="text" style="font-family:inherit" />
+          <input class="b-field" type="text" style="font-family:inherit" />
+          <div class="row2">
+            <button class="b-btn">Generate Email</button>
+            <button class="b-btn-sec">Save Draft</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="option-card">
+    <div class="option-label">Option C — Carbon White + Purple Brand <span>IBM Purple accent · bold hero</span></div>
+    <div class="option-body">
+      <div class="c-topbar">
+        <span class="c-logo">IBM</span>
+        <div class="c-divider"></div>
+        <span class="c-appname">UKI Marketing Hub</span>
+        <div class="c-topbar-right">
+          <span class="c-user-chip">Marketer · Sarah J.</span>
+          <div class="c-icon-btn"><div class="c-icon"></div></div>
+          <div class="c-icon-btn"><div class="c-icon"></div></div>
+        </div>
+      </div>
+      <div class="c-hero">
+        <h2>IBM UKI MARKETING HUB</h2>
+        <p>United Kingdom &amp; Ireland · Marketing Communications</p>
+      </div>
+      <div class="c-tabs">
+        <div class="c-tab active">Create Comm</div>
+        <div class="c-tab">✨ Spotlight</div>
+        <div class="c-tab">📚 Templates</div>
+        <div class="c-tab">🎯 Events</div>
+        <div class="c-tab">📊 Analytics</div>
+      </div>
+      <div class="c-content">
+        <div class="c-card">
+          <div class="c-card-title">Communication Details</div>
+          <input class="c-field" type="text" style="font-family:inherit" />
+          <input class="c-field" type="text" style="font-family:inherit" />
+          <div class="row2">
+            <button class="c-btn">Generate Email</button>
+            <button class="c-btn-sec">Save Draft</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<div class="section-label">Custom Design · Breaking from Carbon for a more modern product feel</div>
+<div class="section-divider custom-divider"></div>
+
+<div class="grid">
+
+  
+  <div class="option-card">
+    <div class="option-label">Option D — Dark Sidebar + Light Content <span>Notion / Linear aesthetic</span></div>
+    <div class="option-body">
+      <div class="d-shell">
+        <div class="d-topbar">
+          <span class="d-logo">IBM</span>
+          <span style="font-size:12px;color:#525252;font-weight:600">UKI Marketing Hub</span>
+          <div class="d-sep"></div>
+          <div class="d-user">
+            <div class="d-avatar">SJ</div>
+            <span>Sarah Jones</span>
+          </div>
+        </div>
+        <div class="d-body">
+          <div class="d-sidebar">
+            <div class="d-sidebar-title">Navigation</div>
+            <div class="d-nav-item active"><div class="d-nav-dot"></div>Create Comm</div>
+            <div class="d-nav-item"><div class="d-nav-dot"></div>✨ Spotlight</div>
+            <div class="d-nav-item"><div class="d-nav-dot"></div>📚 Templates</div>
+            <div class="d-nav-item"><div class="d-nav-dot"></div>🎯 Event Library</div>
+            <div class="d-nav-item"><div class="d-nav-dot"></div>📊 Analytics</div>
+            <div class="d-nav-item"><div class="d-nav-dot"></div>📖 Client Stories</div>
+          </div>
+          <div class="d-main">
+            <div class="d-page-title">Create Communication</div>
+            <div class="d-card">
+              <div class="d-card-title">Communication Details</div>
+              <input class="d-input" type="text" style="font-family:inherit" />
+              <div class="row2">
+                <button class="d-btn">Generate Email</button>
+                <button class="d-btn-sec">Save Draft</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="option-card">
+    <div class="option-label">Option E — Gradient Dark Header <span>Deep navy · premium feel</span></div>
+    <div class="option-body">
+      <div class="e-topbar">
+        <span class="e-logo">IBM</span>
+        <div class="e-divider"></div>
+        <span class="e-appname">IBM UKI MARKETING HUB</span>
+        <div class="e-topbar-right">
+          <span class="e-pill">Marketer</span>
+          <span class="e-username">Sarah Jones</span>
+        </div>
+      </div>
+      <div class="e-tabs-bg">
+        <div class="e-tabs">
+          <div class="e-tab active">Create Comm</div>
+          <div class="e-tab">✨ Spotlight</div>
+          <div class="e-tab">📚 Templates</div>
+          <div class="e-tab">🎯 Events</div>
+          <div class="e-tab">📊 Analytics</div>
+        </div>
+      </div>
+      <div class="e-content">
+        <div class="e-hero-strip">
+          <h3>IBM UKI MARKETING HUB</h3>
+          <p>United Kingdom &amp; Ireland · Professional Communications</p>
+        </div>
+        <div class="e-card">
+          <div class="e-card-title">Communication Details</div>
+          <input class="e-input" type="text" style="font-family:inherit" />
+          <input class="e-input" type="text" style="font-family:inherit" />
+          <div class="row2">
+            <button class="e-btn">Generate Email</button>
+            <button class="e-btn-sec">Save Draft</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="option-card">
+    <div class="option-label">Option F — Clean Minimal <span>Google Workspace / Figma aesthetic</span></div>
+    <div class="option-body">
+      <div class="f-topbar">
+        <span class="f-logo">IBM</span>
+        <div class="f-divider"></div>
+        <span class="f-appname">IBM UKI MARKETING HUB</span>
+        <div class="f-topbar-right">
+          <span class="f-chip">Marketer</span>
+          <div class="f-avatar">SJ</div>
+        </div>
+      </div>
+      <div class="f-subnav">
+        <div class="f-tab active">Create Comm</div>
+        <div class="f-tab">✨ Spotlight</div>
+        <div class="f-tab">📚 Templates</div>
+        <div class="f-tab">🎯 Events</div>
+        <div class="f-tab">📊 Analytics</div>
+      </div>
+      <div class="f-content">
+        <div class="f-page-title">Create Communication</div>
+        <div class="f-card">
+          <div class="f-label">Subject Line</div>
+          <input class="f-input" type="text" style="font-family:inherit" />
+          <div class="f-label">Event</div>
+          <input class="f-input" type="text" style="font-family:inherit" />
+          <div class="row2">
+            <button class="f-btn">Generate Email</button>
+            <button class="f-btn-sec">Save Draft</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>Made with IBM Bob</footer>
+</body>
+</html>

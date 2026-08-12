@@ -296,7 +296,7 @@ $sidebar-item-active-bar: #4589ff;
     background-color: transparent !important;
     border: none;
     border-left: 3px solid transparent;
-    color: rgba(255, 255, 255, 0.65) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
     font-size: 13px;
     font-weight: 500;
     font-family: inherit;
@@ -1498,6 +1498,29 @@ $sidebar-item-active-bar: #4589ff;
     li {
       margin: 4px 0;
       line-height: 1.6;
+      display: list-item;
     }
+  }
+
+  ol {
+    margin: 8px 0;
+    padding-left: 24px;
+    list-style-type: decimal;
+
+    li {
+      margin: 4px 0;
+      line-height: 1.6;
+      display: list-item;
+    }
+  }
+
+  a {
+    color: #0f62fe;
+    text-decoration: underline;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: 8px 0 4px;
+    font-weight: 600;
   }
 }

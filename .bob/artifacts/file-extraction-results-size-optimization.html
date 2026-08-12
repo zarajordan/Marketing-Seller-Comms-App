@@ -1,0 +1,220 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>File Extraction Results</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+            background: #ffffff;
+            color: #1f2328;
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+        .container { max-width: 760px; margin: 0 auto; }
+        h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; color: #059669; }
+        .subtitle { font-size: 15px; color: #57606a; margin-bottom: 32px; }
+        .metric-card {
+            background: #f7f8fa;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #0f62fe;
+        }
+        .metric-label {
+            font-size: 13px;
+            color: #57606a;
+            margin-top: 4px;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .size-bar {
+            background: linear-gradient(90deg, #0f62fe 0%, #3b82d4 100%);
+            height: 20px;
+            border-radius: 4px;
+            margin: 8px 0;
+        }
+        .size-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+        .file-breakdown {
+            background: #f7f8fa;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        .file-type {
+            margin-bottom: 16px;
+        }
+        .file-type h3 {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1f2328;
+        }
+        .file-type-bar {
+            background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%);
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .file-type-bar.pdf {
+            background: linear-gradient(90deg, #059669 0%, #6ee7b7 100%);
+        }
+        .success {
+            background: #f0fdf4;
+            border-left: 4px solid #059669;
+            padding: 16px;
+            border-radius: 2px;
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+        .success strong { color: #059669; }
+        .next-steps {
+            background: #eff6ff;
+            border-left: 4px solid #3b82d4;
+            padding: 16px;
+            border-radius: 2px;
+            font-size: 13px;
+        }
+        .next-steps ol {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+        .next-steps li {
+            margin-bottom: 6px;
+        }
+        .code-inline {
+            background: #f7f8fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "Monaco", monospace;
+            font-size: 12px;
+        }
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            border-radius: 2px;
+            font-size: 13px;
+            margin-bottom: 24px;
+        }
+        .footer {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 24px;
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #57606a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✓ File Extraction Complete!</h1>
+        <p class="subtitle">47 PowerPoint files + 28 PDFs successfully extracted from embedded HTML</p>
+
+        <div class="success">
+            <strong>✓ Extraction Successful</strong><br />
+            75 files extracted, client-stories.html reduced from 133.68 MB to 0.14 MB (99.9% reduction)
+        </div>
+
+        <div class="grid-2">
+            <div class="metric-card">
+                <div class="metric-value">47</div>
+                <div class="metric-label">PowerPoint Files</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">28</div>
+                <div class="metric-label">PDF Documents</div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="size-label">
+                <span>Original HTML Size</span>
+                <span>133.68 MB</span>
+            </div>
+            <div class="size-bar" style="width:100%"></div>
+            
+            <div class="size-label" style="margin-top:16px">
+                <span>Cleaned HTML Size</span>
+                <span>0.14 MB</span>
+            </div>
+            <div class="size-bar" style="width:0.1%"></div>
+        </div>
+
+        <div class="file-breakdown">
+            <h2 style="font-size:16px;font-weight:600;margin-bottom:16px">File Size Breakdown</h2>
+            
+            <div class="file-type">
+                <h3>PowerPoint Presentations (PPTX)</h3>
+                <div class="file-type-bar" style="width:100%">
+                    94.21 MB (70.5% of original size)
+                </div>
+                <div style="font-size:12px;color:#57606a">
+                    47 presentations • Average: 2.0 MB per file • Range: 197 KB - 9.8 MB
+                </div>
+            </div>
+
+            <div class="file-type">
+                <h3>PDF Documents</h3>
+                <div class="file-type-bar pdf" style="width:6.3%">
+                    5.94 MB (4.4% of original size)
+                </div>
+                <div style="font-size:12px;color:#57606a">
+                    28 documents • Average: 212 KB per file • Range: 146 KB - 313 KB
+                </div>
+            </div>
+        </div>
+
+        <div class="warning">
+            <strong>⚠ PPT Files are Large</strong><br />
+            PowerPoint presentations account for 94.21 MB of the extracted content. You can optionally convert these to PDFs for 30-50% additional size reduction (would bring PPTs down to ~47-66 MB). This requires LibreOffice installation but can significantly improve performance.
+        </div>
+
+        <div class="next-steps">
+            <strong>Next Steps:</strong>
+            <ol>
+                <li>Files are in <span class="code-inline">extracted-files/</span> directory</li>
+                <li>Upload extracted files to Supabase Storage or CDN</li>
+                <li>Update <span class="code-inline">public/client-stories.html</span> with storage URLs</li>
+                <li>Rebuild and deploy</li>
+                <li>(Optional) Convert PPTs to PDFs for smaller file size</li>
+            </ol>
+        </div>
+
+        <div style="background:#fff8ed;border-left:4px solid #ea580c;padding:16px;border-radius:2px;font-size:13px;margin-top:24px">
+            <strong>💡 Your App is Ready</strong><br />
+            The download logic in your app already supports both <span class="code-inline">pdfData</span> (embedded) and <span class="code-inline">pdfPath</span> (remote URL) formats. Simply updating the HTML file with storage paths will enable downloads automatically — no code changes needed!
+        </div>
+
+        <div class="footer">
+            <p style="border-top:1px solid #e5e7eb;padding-top:16px">
+                Made with IBM Bob
+            </p>
+        </div>
+    </div>
+</body>
+</html>

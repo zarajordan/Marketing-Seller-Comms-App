@@ -1,0 +1,239 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Supabase Pre-Deploy Checklist</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 32px 24px;
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #1f2328;
+    background: #ffffff;
+  }
+  .page { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 700; margin: 0 0 4px; }
+  .subtitle { color: #57606a; font-size: 13px; margin-bottom: 32px; }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #57606a;
+    margin: 28px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .card {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #f7f8fa;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .badge-required { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+  .badge-verify  { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+  .badge-done    { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+  .card-title { font-weight: 600; font-size: 14px; }
+  .card-body { padding: 14px 16px; }
+  .card-body p { margin: 0 0 10px; color: #57606a; font-size: 13px; }
+  .card-body p:last-child { margin-bottom: 0; }
+
+  pre {
+    background: #1f2328;
+    color: #e6edf3;
+    border-radius: 5px;
+    padding: 14px 16px;
+    font-size: 12.5px;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin: 10px 0 0;
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+  }
+  .kw  { color: #ff7b72; }
+  .ty  { color: #79c0ff; }
+  .cm  { color: #8b949e; font-style: italic; }
+  .st  { color: #a5d6ff; }
+
+  .info-box {
+    background: #f0f6ff;
+    border: 1px solid #c8deff;
+    border-radius: 5px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #1f2328;
+    margin-bottom: 14px;
+  }
+  .info-box strong { color: #3b82d4; }
+
+  .check-list { list-style: none; padding: 0; margin: 0; }
+  .check-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+  }
+  .check-list li:last-child { border-bottom: none; }
+  .check-list li .icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+  .check-list li .label { flex: 1; }
+  .check-list li .col-type { color: #57606a; font-size: 12px; font-family: monospace; }
+
+  footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+    font-size: 12px;
+    color: #57606a;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Supabase Pre-Deploy Checklist</h1>
+  <p class="subtitle">Everything needed on the <code>events</code> table before pushing to production — based on all recent development sessions.</p>
+
+  <div class="info-box">
+    Run all SQL in the <strong>Supabase SQL Editor</strong> (Dashboard → SQL Editor → New Query). All statements use <code>IF NOT EXISTS</code> / <code>IF EXISTS</code> so they are safe to re-run.
+  </div>
+
+  
+  <div class="section-title">🔴 Required — New column added this session</div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="badge badge-required">Required</span>
+      <span class="card-title">Add <code>reviewer_note</code> column</span>
+    </div>
+    <div class="card-body">
+      <p>Added for the <strong>Return to Sender</strong> feature. Stores the reviewer's message back to the event submitter. Without this column, returning an event will throw a Supabase error.</p>
+      <pre><span class="kw">ALTER TABLE</span> events
+  <span class="kw">ADD COLUMN IF NOT EXISTS</span> reviewer_note <span class="ty">text</span>;</pre>
+    </div>
+  </div>
+
+  
+  <div class="section-title">🟡 Verify — Columns added in previous sessions</div>
+  <p style="color:#57606a;font-size:13px;margin-top:-4px">These were added in earlier dev work. Run the query below to confirm they exist — if any are missing, the <code>ALTER TABLE</code> statements are safe to run.</p>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="badge badge-verify">Verify</span>
+      <span class="card-title">Check all recent columns exist</span>
+    </div>
+    <div class="card-body">
+      <p>Run this to see which columns are present on the <code>events</code> table:</p>
+      <pre><span class="kw">SELECT</span> column_name, data_type
+<span class="kw">FROM</span>   information_schema.columns
+<span class="kw">WHERE</span>  table_name <span class="st">= 'events'</span>
+  <span class="kw">AND</span>  column_name <span class="kw">IN</span> (
+         <span class="st">'invite_process'</span>,
+         <span class="st">'promote_our_presence'</span>,
+         <span class="st">'promote_documents'</span>,
+         <span class="st">'reviewer_note'</span>
+       )
+<span class="kw">ORDER BY</span> column_name;</pre>
+      <p style="margin-top:12px">You should see <strong>4 rows</strong>. If any are missing, run the relevant statement below:</p>
+      <pre><span class="cm">-- Only needed if missing from the query above:</span>
+<span class="kw">ALTER TABLE</span> events <span class="kw">ADD COLUMN IF NOT EXISTS</span> invite_process       <span class="ty">text</span>;
+<span class="kw">ALTER TABLE</span> events <span class="kw">ADD COLUMN IF NOT EXISTS</span> promote_our_presence  <span class="ty">text</span>;
+<span class="kw">ALTER TABLE</span> events <span class="kw">ADD COLUMN IF NOT EXISTS</span> promote_documents     <span class="ty">jsonb</span>  <span class="kw">DEFAULT</span> <span class="st">'[]'</span>;
+<span class="kw">ALTER TABLE</span> events <span class="kw">ADD COLUMN IF NOT EXISTS</span> reviewer_note         <span class="ty">text</span>;</pre>
+    </div>
+  </div>
+
+  
+  <div class="section-title">🟡 Verify — status column values</div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="badge badge-verify">Verify</span>
+      <span class="card-title">Confirm <code>status</code> accepts <code>'Returned'</code></span>
+    </div>
+    <div class="card-body">
+      <p>The Return to Sender feature sets <code>status = 'Returned'</code>. If your <code>status</code> column has a <strong>CHECK constraint</strong> or <strong>enum type</strong> limiting allowed values, you must add <code>'Returned'</code> to it.</p>
+      <p>Check whether a constraint exists:</p>
+      <pre><span class="kw">SELECT</span> constraint_name, check_clause
+<span class="kw">FROM</span>   information_schema.check_constraints
+<span class="kw">WHERE</span>  constraint_name <span class="kw">LIKE</span> <span class="st">'%events%status%'</span>
+    <span class="kw">OR</span> check_clause     <span class="kw">LIKE</span> <span class="st">'%status%'</span>;</pre>
+      <p>If a constraint is returned and <code>'Returned'</code> is not listed, drop and recreate it — or if it's a plain <code>text</code> column with no constraint, you're already fine.</p>
+    </div>
+  </div>
+
+  
+  <div class="section-title">🟡 Verify — Storage buckets</div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="badge badge-verify">Verify</span>
+      <span class="card-title">Storage buckets for document uploads</span>
+    </div>
+    <div class="card-body">
+      <p>The <strong>Promote Our Presence</strong> document upload feature uses the <code>event-documents</code> storage bucket with subfolders <code>seller-invites</code>, <code>partner-invites</code>, and <code>promote-docs</code>. Confirm the bucket exists and has public read access in <strong>Storage → event-documents → Policies</strong>.</p>
+    </div>
+  </div>
+
+  
+  <div class="section-title">✅ No action needed</div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="badge badge-done">Done</span>
+      <span class="card-title">Everything else is app-only changes</span>
+    </div>
+    <div class="card-body">
+      <ul class="check-list">
+        <li><span class="icon">✅</span><span class="label">Invite-only checkbox on event cards — UI only, uses existing <code>invite_only</code> column</span></li>
+        <li><span class="icon">✅</span><span class="label">Return to Sender button &amp; modal — uses <code>status</code> + <code>reviewer_note</code> (new column above)</span></li>
+        <li><span class="icon">✅</span><span class="label">Red alert banners on Submit Event tab — reads <code>reviewer_note</code> + filters by <code>status = 'Returned'</code></span></li>
+        <li><span class="icon">✅</span><span class="label">Sidebar badge for returned events — client-side query, no schema change</span></li>
+        <li><span class="icon">✅</span><span class="label">Invite process field fix in Manage Events — was a JS bug, no DB change</span></li>
+        <li><span class="icon">✅</span><span class="label">Bullet/numbered list CSS fix — stylesheet only, no DB change</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-title">📋 Quick-run — all in one block</div>
+  <div class="card">
+    <div class="card-body">
+      <p>Copy-paste this entire block into the SQL Editor. Safe to run even if columns already exist.</p>
+      <pre><span class="cm">-- Recent schema additions for IBM UKI Marketing Hub</span>
+<span class="cm">-- Safe to re-run (IF NOT EXISTS guards)</span>
+
+<span class="kw">ALTER TABLE</span> events <span class="kw">ADD COLUMN IF NOT EXISTS</span> invite_process       <span class="ty">text</span>;
+<span class="kw">ALTER TABLE</span> events <span class="kw">ADD COLUMN IF NOT EXISTS</span> promote_our_presence  <span class="ty">text</span>;
+<span class="kw">ALTER TABLE</span> events <span class="kw">ADD COLUMN IF NOT EXISTS</span> promote_documents     <span class="ty">jsonb</span>  <span class="kw">DEFAULT</span> <span class="st">'[]'</span>;
+<span class="kw">ALTER TABLE</span> events <span class="kw">ADD COLUMN IF NOT EXISTS</span> reviewer_note         <span class="ty">text</span>;</pre>
+    </div>
+  </div>
+
+  <footer>Made with IBM Bob</footer>
+</div>
+</body>
+</html>

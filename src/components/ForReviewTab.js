@@ -9,10 +9,11 @@ import {
   SelectItem,
   Stack,
   Tag,
+  TextArea,
   TextInput,
   Tile,
 } from '@carbon/react';
-import { Add, Checkmark, Edit, TrashCan, UserFollow, View } from '@carbon/icons-react';
+import { Add, Checkmark, Edit, Reply, TrashCan, UserFollow, View } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
 import { deleteEvent, listEvents, updateEvent, uploadEventDocument } from '../lib/supabaseData';
 import RichTextEditor from './RichTextEditor';
@@ -64,12 +65,25 @@ const INFO_BOX_STYLE = {
   alignItems: 'flex-start',
 };
 
-const ForReviewTab = () => {
+const STATUS_STYLES = {
+  Pending:   { bg: '#fef3c7', color: '#92400e' },
+  Confirmed: { bg: '#d1fae5', color: '#065f46' },
+  Completed: { bg: '#dde8ff', color: '#1e40af' },
+  Cancelled: { bg: '#fee2e2', color: '#991b1b' },
+};
+
+const ForReviewTab = ({ filmingBookings = [], onUpdateBookingStatus, onDeleteBooking, storyRequests = [], onDismissStoryRequest }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewEvent, setPreviewEvent] = useState(null);
   const [rejectConfirmId, setRejectConfirmId] = useState(null);
+  const [rejectBookingId, setRejectBookingId] = useState(null);
+  const [returnEventId, setReturnEventId] = useState(null);
+  const [returnNote, setReturnNote] = useState('');
+  const [expandedBooking, setExpandedBooking] = useState(null);
+  const [expandedStory, setExpandedStory] = useState(null);
+  const [activeSection, setActiveSection] = useState('events'); // 'events' | 'filming' | 'story-requests'
 
   // Edit state
   const [editingEvent, setEditingEvent] = useState(null); // the original event being edited
@@ -120,6 +134,21 @@ const ForReviewTab = () => {
       notifyUpdate();
     } catch (err) {
       toast.error(err.message || 'Failed to reject event');
+    }
+  };
+
+  const handleReturnToSender = async () => {
+    const event = events.find(e => e.id === returnEventId);
+    if (!event) return;
+    try {
+      await updateEvent({ ...event, status: 'Returned', reviewerNote: returnNote.trim() });
+      toast.success(`"${event.title}" returned to submitter for changes`, { autoClose: 3000 });
+      setReturnEventId(null);
+      setReturnNote('');
+      await loadDrafts();
+      notifyUpdate();
+    } catch (err) {
+      toast.error(err.message || 'Failed to return submission');
     }
   };
 
@@ -544,20 +573,44 @@ const ForReviewTab = () => {
   }
 
   // ── Normal list view ────────────────────────────────────────────────────────
+  const pendingBookings = filmingBookings.filter(b => b.status === 'Pending');
+
   return (
     <div className="for-review-tab">
+      {/* Header */}
       <div style={{ padding: '24px', marginBottom: '24px', background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)', borderBottom: '2px solid rgba(69,137,255,0.3)' }}>
         <h2 style={{ color: '#fff', fontWeight: 700, letterSpacing: '0.04em', marginBottom: '8px' }}>🔍 FOR REVIEW</h2>
         <p style={{ color: 'rgba(255,255,255,0.5)', marginTop: '0' }}>
-          Events submitted by the marketing team. Approve to publish to the Event Library, or reject to remove the submission.
+          All pending submissions — event drafts, story requests, and filming booking requests — in one place.
         </p>
       </div>
 
-      {events.length === 0 ? (
+      {/* Section switcher */}
+      <div style={{ display: 'flex', gap: '0', marginBottom: '24px', borderBottom: '2px solid #e0e0e0' }}>
+        {[
+          { id: 'events',          label: '📅 Event Submissions',  count: events.length },
+          { id: 'story-requests',  label: '📝 Story Requests',     count: storyRequests.length },
+          { id: 'filming',         label: '🎬 Filming Requests',   count: pendingBookings.length },
+        ].map(s => (
+          <button key={s.id} onClick={() => setActiveSection(s.id)}
+            style={{ padding: '10px 20px', border: 'none', background: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: 500, fontFamily: 'inherit',
+              color: activeSection === s.id ? '#0f62fe' : '#525252',
+              borderBottom: activeSection === s.id ? '2px solid #0f62fe' : '2px solid transparent',
+              marginBottom: '-2px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {s.label}
+            {s.count > 0 && (
+              <span style={{ background: activeSection === s.id ? '#0f62fe' : '#8d8d8d', color: '#fff', borderRadius: '20px', padding: '1px 8px', fontSize: '11px', fontWeight: 700 }}>{s.count}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* ── EVENT SUBMISSIONS ── */}
+      {activeSection === 'events' && (events.length === 0 ? (
         <Tile style={{ textAlign: 'center', padding: '64px 24px' }}>
           <div style={{ fontSize: '40px', marginBottom: '16px' }}>✅</div>
-          <h3 style={{ marginBottom: '8px' }}>Nothing to review</h3>
-          <p style={{ color: '#525252' }}>All submissions have been processed.</p>
+          <h3 style={{ marginBottom: '8px' }}>No event submissions</h3>
+          <p style={{ color: '#525252' }}>All event submissions have been processed.</p>
         </Tile>
       ) : (
         <div>
@@ -619,12 +672,15 @@ const ForReviewTab = () => {
                 )}
 
                 {/* Actions */}
-                <div style={{ display: 'flex', gap: '12px', borderTop: '1px solid #e0e0e0', paddingTop: '16px' }}>
+                <div style={{ display: 'flex', gap: '12px', borderTop: '1px solid #e0e0e0', paddingTop: '16px', flexWrap: 'wrap' }}>
                   <Button kind="ghost" size="sm" renderIcon={Edit} onClick={() => handleOpenEdit(event)}>
                     Edit Before Approving
                   </Button>
                   <Button kind="primary" renderIcon={Checkmark} onClick={() => handleApprove(event)}>
                     Approve &amp; Publish
+                  </Button>
+                  <Button kind="secondary" renderIcon={Reply} onClick={() => { setReturnEventId(event.id); setReturnNote(''); }}>
+                    Return to Sender
                   </Button>
                   <Button kind="danger--ghost" renderIcon={TrashCan} onClick={() => setRejectConfirmId(event.id)}>
                     Reject
@@ -634,7 +690,172 @@ const ForReviewTab = () => {
             </div>
           ))}
         </div>
-      )}
+      ))}
+
+      {/* ── STORY REQUESTS ── */}
+      {activeSection === 'story-requests' && (storyRequests.length === 0 ? (
+        <Tile style={{ textAlign: 'center', padding: '64px 24px' }}>
+          <div style={{ fontSize: '40px', marginBottom: '16px' }}>✅</div>
+          <h3 style={{ marginBottom: '8px' }}>No story requests</h3>
+          <p style={{ color: '#525252' }}>No story requests have been submitted yet.</p>
+        </Tile>
+      ) : (
+        <div>
+          <p style={{ fontSize: '13px', color: '#525252', marginBottom: '20px' }}>
+            {storyRequests.length} story request{storyRequests.length !== 1 ? 's' : ''} awaiting review
+          </p>
+          {storyRequests.map(r => {
+            const isExpanded = expandedStory === r.id;
+            return (
+              <div key={r.id} style={{ border: '1px solid #e0e0e0', borderRadius: '4px', background: '#fff', marginBottom: '16px', overflow: 'hidden' }}>
+                {/* Card header */}
+                <div style={{ background: '#f4f4f4', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e0e0e0' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '15px', fontWeight: '600', color: '#161616' }}>
+                      {r.clientName || 'Unnamed'}{r.partnerName ? ` / ${r.partnerName}` : ''}
+                    </span>
+                    <span style={{ padding: '2px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, background: '#fef3c7', color: '#92400e' }}>Pending</span>
+                    {r.contentTypes?.length > 0 && r.contentTypes.map(t => (
+                      <span key={t} style={{ padding: '2px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 600, background: '#e8daff', color: '#6929c4' }}>{t}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ fontSize: '12px', color: '#6f6f6f' }}>
+                      {r.submittedAt ? new Date(r.submittedAt).toLocaleDateString('en-GB') : ''}
+                    </span>
+                    <button onClick={() => setExpandedStory(isExpanded ? null : r.id)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', color: '#0f62fe', padding: '4px 8px' }}>
+                      {isExpanded ? '▲ Less' : '▼ Details'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Card body — always visible summary */}
+                <div style={{ padding: '16px 20px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '12px', marginBottom: isExpanded ? '16px' : '0' }}>
+                    {[['Submitted by', r.yourName], ['Email', r.yourEmail], ['IBM Team', r.ibmTeam || '—']].map(([label, value]) => (
+                      <div key={label}>
+                        <p style={{ fontSize: '11px', fontWeight: '600', color: '#6f6f6f', marginBottom: '2px', textTransform: 'uppercase' }}>{label}</p>
+                        <p style={{ fontSize: '14px', color: '#161616' }}>{value || '—'}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Expanded detail */}
+                  {isExpanded && (
+                    <div style={{ borderTop: '1px solid #e0e0e0', paddingTop: '14px' }}>
+                      {[
+                        ['Overview', r.overview],
+                        ['Business Challenge', r.challenge],
+                        ['Outcomes', r.outcomes],
+                        ['Additional Notes', r.notes],
+                      ].filter(([, v]) => v).map(([label, value]) => (
+                        <div key={label} style={{ marginBottom: '14px' }}>
+                          <p style={{ fontSize: '11px', fontWeight: '600', color: '#6f6f6f', marginBottom: '4px', textTransform: 'uppercase' }}>{label}</p>
+                          <p style={{ fontSize: '14px', color: '#525252', lineHeight: 1.6 }}>{value}</p>
+                        </div>
+                      ))}
+                      {r.phone && (
+                        <div style={{ marginBottom: '14px' }}>
+                          <p style={{ fontSize: '11px', fontWeight: '600', color: '#6f6f6f', marginBottom: '4px', textTransform: 'uppercase' }}>Phone</p>
+                          <p style={{ fontSize: '14px', color: '#525252' }}>{r.phone}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', gap: '12px', borderTop: '1px solid #e0e0e0', paddingTop: '16px', marginTop: '16px' }}>
+                    <Button kind="danger--ghost" renderIcon={TrashCan} onClick={() => onDismissStoryRequest(r.id)}>
+                      Dismiss
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ))}
+
+      {/* ── FILMING REQUESTS ── */}
+      {activeSection === 'filming' && (pendingBookings.length === 0 ? (
+        <Tile style={{ textAlign: 'center', padding: '64px 24px' }}>
+          <div style={{ fontSize: '40px', marginBottom: '16px' }}>✅</div>
+          <h3 style={{ marginBottom: '8px' }}>No filming requests</h3>
+          <p style={{ color: '#525252' }}>All filming booking requests have been reviewed.</p>
+        </Tile>
+      ) : (
+        <div>
+          <p style={{ fontSize: '13px', color: '#525252', marginBottom: '20px' }}>
+            {pendingBookings.length} filming request{pendingBookings.length !== 1 ? 's' : ''} awaiting confirmation
+          </p>
+          {pendingBookings.map(b => {
+            const isExpanded = expandedBooking === b.id;
+            return (
+              <div key={b.id} style={{ border: '1px solid #e0e0e0', borderRadius: '4px', background: '#fff', marginBottom: '16px', overflow: 'hidden' }}>
+                {/* Card header */}
+                <div style={{ background: '#f4f4f4', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e0e0e0' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '15px', fontWeight: '600', color: '#161616' }}>{b.topic}</span>
+                    <span style={{ padding: '2px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, ...STATUS_STYLES.Pending }}>Pending</span>
+                  </div>
+                  <button onClick={() => setExpandedBooking(isExpanded ? null : b.id)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', color: '#0f62fe', padding: '4px 8px' }}>
+                    {isExpanded ? '▲ Less' : '▼ Details'}
+                  </button>
+                </div>
+
+                {/* Card body */}
+                <div style={{ padding: '16px 20px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '12px', marginBottom: '16px' }}>
+                    {[
+                      ['Date', new Date(b.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })],
+                      ['Time Slot', b.timeSlot],
+                      ['Partner', b.partnerName],
+                      ['Submitted by', b.yourName],
+                    ].map(([label, value]) => (
+                      <div key={label}>
+                        <p style={{ fontSize: '11px', fontWeight: '600', color: '#6f6f6f', marginBottom: '2px', textTransform: 'uppercase' }}>{label}</p>
+                        <p style={{ fontSize: '14px', color: '#161616' }}>{value || '—'}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Expanded detail */}
+                  {isExpanded && (
+                    <div style={{ borderTop: '1px solid #e0e0e0', paddingTop: '14px', marginBottom: '14px', display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '12px' }}>
+                      {[
+                        ['Client', b.clientName || '—'],
+                        ['IBM Team', b.ibmTeam],
+                        ['Email', b.yourEmail],
+                        ['Participants', b.participants],
+                        ['Approvals', b.approvalsConfirmed ? '✅ Confirmed' : '⚠️ Not yet confirmed'],
+                        ['Notes', b.notes || '—'],
+                      ].map(([label, value]) => (
+                        <div key={label}>
+                          <p style={{ fontSize: '11px', fontWeight: '600', color: '#6f6f6f', marginBottom: '2px', textTransform: 'uppercase' }}>{label}</p>
+                          <p style={{ fontSize: '13px', color: '#161616' }}>{value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div style={{ display: 'flex', gap: '12px', borderTop: '1px solid #e0e0e0', paddingTop: '16px' }}>
+                    <Button kind="primary" renderIcon={Checkmark}
+                      onClick={() => { onUpdateBookingStatus(b.id, 'Confirmed'); toast.success(`Filming session "${b.topic}" confirmed`); }}>
+                      Confirm Session
+                    </Button>
+                    <Button kind="danger--ghost" renderIcon={TrashCan}
+                      onClick={() => setRejectBookingId(b.id)}>
+                      Decline
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ))}
 
       {/* Preview Modal */}
       <Modal open={previewOpen} onRequestClose={() => setPreviewOpen(false)} modalHeading="Event Preview" passiveModal size="sm">
@@ -662,16 +883,46 @@ const ForReviewTab = () => {
             <div style={{ display: 'flex', gap: '8px', marginTop: '24px', flexWrap: 'wrap' }}>
               <Button kind="ghost" size="sm" renderIcon={Edit} onClick={() => { setPreviewOpen(false); handleOpenEdit(previewEvent); }}>Edit</Button>
               <Button kind="primary" size="sm" renderIcon={Checkmark} onClick={() => { handleApprove(previewEvent); setPreviewOpen(false); }}>Approve &amp; Publish</Button>
+              <Button kind="secondary" size="sm" renderIcon={Reply} onClick={() => { setPreviewOpen(false); setReturnEventId(previewEvent.id); setReturnNote(''); }}>Return to Sender</Button>
               <Button kind="danger--ghost" size="sm" renderIcon={TrashCan} onClick={() => { setPreviewOpen(false); setRejectConfirmId(previewEvent.id); }}>Reject</Button>
             </div>
           </div>
         )}
       </Modal>
 
-      {/* Reject Confirmation Modal */}
+      {/* Return to Sender Modal */}
+      <Modal
+        open={!!returnEventId}
+        onRequestClose={() => { setReturnEventId(null); setReturnNote(''); }}
+        modalHeading="Return to Sender"
+        primaryButtonText="Return to Sender"
+        secondaryButtonText="Cancel"
+        onRequestSubmit={handleReturnToSender}
+      >
+        <p style={{ marginBottom: '16px', color: '#525252' }}>
+          The submission will be marked as <strong>Returned</strong> and removed from the review queue. Add a note below to let the submitter know what needs changing.
+        </p>
+        <TextArea
+          id="return-note"
+          labelText="Note to submitter (optional)"
+          placeholder="e.g. Please add a registration link and update the event description…"
+          value={returnNote}
+          onChange={(e) => setReturnNote(e.target.value)}
+          rows={4}
+        />
+      </Modal>
+
+      {/* Reject Event Confirmation Modal */}
       <Modal open={!!rejectConfirmId} onRequestClose={() => setRejectConfirmId(null)} modalHeading="Reject Submission"
         primaryButtonText="Yes, Reject" secondaryButtonText="Cancel" danger onRequestSubmit={() => handleReject(rejectConfirmId)}>
         <p>Are you sure you want to reject this submission? It will be permanently deleted.</p>
+      </Modal>
+
+      {/* Decline Filming Booking Modal */}
+      <Modal open={!!rejectBookingId} onRequestClose={() => setRejectBookingId(null)} modalHeading="Decline Filming Request"
+        primaryButtonText="Yes, Decline" secondaryButtonText="Cancel" danger
+        onRequestSubmit={() => { onDeleteBooking(rejectBookingId); setRejectBookingId(null); toast.success('Filming request declined and removed'); }}>
+        <p>Are you sure you want to decline this filming request? It will be removed from the system.</p>
       </Modal>
     </div>
   );

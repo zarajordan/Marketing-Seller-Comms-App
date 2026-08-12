@@ -521,15 +521,27 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
               {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''} found
             </span>
           </div>
-          <Button
-            kind="primary"
-            size="md"
-            renderIcon={ArrowRight}
-            disabled={selectedEvents.length === 0}
-            onClick={handleGenerateCommunication}
-          >
-            Generate Comm ({selectedEvents.length})
-          </Button>
+          {(() => {
+            const hasInviteOnly = selectedEvents.some(id => events.find(e => e.id === id)?.inviteOnly);
+            return (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                {hasInviteOnly && (
+                  <span style={{ color: '#ff8389', fontSize: '13px', fontWeight: 500 }}>
+                    🔒 Remove invite-only events to generate
+                  </span>
+                )}
+                <Button
+                  kind="primary"
+                  size="md"
+                  renderIcon={ArrowRight}
+                  disabled={selectedEvents.length === 0 || hasInviteOnly}
+                  onClick={handleGenerateCommunication}
+                >
+                  Generate Comm ({selectedEvents.length})
+                </Button>
+              </div>
+            );
+          })()}
         </div>
       )}
 
@@ -649,18 +661,20 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
                           display: 'flex',
                           flexDirection: 'column',
                         }}
-                        onClick={() => toggleSelectEvent(event.id)}
+                        onClick={() => { if (!event.inviteOnly) toggleSelectEvent(event.id); }}
                       >
-                        {/* Checkbox top-right */}
-                        <div style={{ position: 'absolute', top: '16px', right: '16px' }} onClick={(e) => e.stopPropagation()}>
-                          <Checkbox
-                            id={`event-${event.id}`}
-                            labelText=""
-                            hideLabel
-                            checked={selectedEvents.includes(event.id)}
-                            onChange={() => toggleSelectEvent(event.id)}
-                          />
-                        </div>
+                        {/* Checkbox top-right — hidden for invite-only events */}
+                        {!event.inviteOnly && (
+                          <div style={{ position: 'absolute', top: '16px', right: '16px' }} onClick={(e) => e.stopPropagation()}>
+                            <Checkbox
+                              id={`event-${event.id}`}
+                              labelText=""
+                              hideLabel
+                              checked={selectedEvents.includes(event.id)}
+                              onChange={() => toggleSelectEvent(event.id)}
+                            />
+                          </div>
+                        )}
 
                         {/* Title */}
                         <div style={{ marginBottom: '10px', paddingRight: '40px' }}>
@@ -950,7 +964,6 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
                   </div>
                 )}
                 {previewEvent.inviteOnly && <div><Tag type="red" size="sm">🔒 Invite Only</Tag></div>}
-                {previewEvent.seismicPageRequired && <div><strong>Seismic Page Required:</strong> {previewEvent.seismicPageRequired === 'yes' ? 'Yes' : 'No'}</div>}
               </div>
             </div>
 

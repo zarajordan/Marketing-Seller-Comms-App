@@ -1,0 +1,552 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IBM UKI Marketing Hub — Header Redesign</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%); font-size: 14px; line-height: 1.5; color: #161616; min-height: 100vh; }
+
+  /* ══════════════════════════════════════
+     NEW HEADER — replaces the blue rounded card
+  ══════════════════════════════════════ */
+
+  /* Top bar */
+  .topbar {
+    background: linear-gradient(90deg, #060c22 0%, #0c1a4a 55%, #0f2872 100%);
+    height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .topbar-logo {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 5px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .topbar-divider {
+    width: 1px;
+    height: 18px;
+    background: rgba(255,255,255,0.2);
+    flex-shrink: 0;
+  }
+  .topbar-appname {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.04em;
+  }
+  .topbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .role-pill {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.25);
+  }
+  .topbar-username {
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    font-weight: 500;
+  }
+  .topbar-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  /* Tab bar */
+  .tabbar {
+    background: linear-gradient(180deg, #0c1a4a 0%, #0e2266 100%);
+    display: flex;
+    padding: 0 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .tabbar::-webkit-scrollbar { display: none; }
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 18px 8px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.48);
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    gap: 3px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .tab-item.active {
+    color: #fff;
+    border-bottom-color: #4589ff;
+    font-weight: 700;
+  }
+  .tab-emoji { font-size: 15px; line-height: 1; }
+
+  /* Hero strip */
+  .hero-strip {
+    background: linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%);
+    padding: 18px 24px 20px;
+    border-bottom: 2px solid rgba(69,137,255,0.3);
+  }
+  .hero-strip h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.05em;
+  }
+  .hero-strip p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 3px;
+  }
+
+  /* ══════════════════════════════════════
+     EVERYTHING BELOW = EXISTING APP, UNCHANGED
+  ══════════════════════════════════════ */
+
+  .app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 24px;
+    animation: fadeIn 0.4s ease-out;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* Existing Carbon tab panel area */
+  .tab-panel {
+    background: rgba(255,255,255,0.95);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid rgba(255,255,255,0.5);
+    padding: 32px;
+    animation: slideUp 0.4s ease-out;
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+  /* Inner tab hero (the one inside each tab panel — kept exactly as-is) */
+  .create-comm-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .hero-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #0f62fe; margin-bottom: 4px; }
+  .hero-h2 { font-size: 22px; font-weight: 700; color: #161616; margin-bottom: 6px; }
+  .hero-sub { font-size: 13px; color: #525252; }
+  .hero-pills { display: flex; gap: 6px; margin-top: 10px; }
+  .hero-pill { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: #dde9ff; color: #0043ce; font-weight: 600; }
+
+  /* Carbon-style form fields */
+  .form-section {
+    background: #f4f4f4;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .section-eyebrow { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #6f6f6f; margin-bottom: 2px; }
+  .section-title { font-size: 14px; font-weight: 700; color: #161616; margin-bottom: 4px; }
+  .section-desc { font-size: 12px; color: #6f6f6f; margin-bottom: 14px; }
+  .field { margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+  .cds-label { font-size: 12px; font-weight: 600; color: #161616; display: block; margin-bottom: 4px; }
+  .cds-helper { font-size: 11px; color: #6f6f6f; margin-top: 3px; }
+  .cds-input {
+    width: 100%;
+    background: #fff;
+    border: none;
+    border-bottom: 1px solid #8d8d8d;
+    padding: 9px 12px;
+    font-size: 13px;
+    color: #161616;
+    font-family: inherit;
+    outline: none;
+  }
+  .cds-input::placeholder { color: #a8a8a8; }
+  .cds-input:focus { border-bottom-color: #0f62fe; outline: 2px solid #0f62fe; outline-offset: -2px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .four-col { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .cds-select {
+    width: 100%;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23161616' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat right 10px center;
+    border: none;
+    border-bottom: 1px solid #8d8d8d;
+    padding: 9px 32px 9px 12px;
+    font-size: 13px;
+    color: #161616;
+    font-family: inherit;
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+  }
+
+  /* Carbon button styles */
+  .btn-set { display: flex; gap: 8px; flex-wrap: wrap; }
+  .cds-btn { padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; border: none; display: inline-flex; align-items: center; gap: 6px; }
+  .cds-btn--primary { background: #0f62fe; color: #fff; }
+  .cds-btn--secondary { background: #393939; color: #fff; }
+  .cds-btn--tertiary { background: transparent; color: #0f62fe; border: 1px solid #0f62fe; }
+  .cds-btn--ghost { background: transparent; color: #0f62fe; }
+  .cds-btn--danger-ghost { background: transparent; color: #da1e28; border: 1px solid transparent; }
+  .cds-btn--sm { padding: 7px 14px; font-size: 12px; }
+
+  /* Rich text editor (Carbon styled) */
+  .rte { border: 1px solid #e0e0e0; background: #fff; }
+  .rte-toolbar { background: #f4f4f4; border-bottom: 1px solid #e0e0e0; padding: 5px 8px; display: flex; gap: 3px; flex-wrap: wrap; align-items: center; }
+  .rte-btn { background: transparent; border: none; padding: 4px 6px; font-size: 11px; font-weight: 600; color: #393939; cursor: pointer; font-family: inherit; border-radius: 2px; }
+  .rte-btn:hover { background: #e0e0e0; }
+  .rte-select { background: #fff; border: 1px solid #e0e0e0; padding: 3px 20px 3px 6px; font-size: 11px; color: #393939; font-family: inherit; appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='9' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23525252' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 4px center; }
+  .rte-sep { width: 1px; height: 16px; background: #c6c6c6; margin: 0 2px; flex-shrink: 0; }
+  .rte-body { background: #fff; min-height: 100px; padding: 10px 12px; font-size: 13px; color: #a8a8a8; }
+
+  /* Color inputs */
+  .color-row { display: flex; align-items: center; gap: 8px; }
+  .color-swatch { width: 24px; height: 24px; border-radius: 3px; border: 1px solid #c6c6c6; flex-shrink: 0; }
+
+  /* Accordion */
+  .accordion { border: 1px solid #e0e0e0; }
+  .accordion-hdr { background: #f4f4f4; border-bottom: 1px solid #e0e0e0; padding: 12px 16px; display: flex; justify-content: space-between; cursor: pointer; }
+  .accordion-hdr-title { font-size: 13px; font-weight: 600; color: #161616; }
+  .accordion-body { padding: 20px; }
+
+  /* Event section card */
+  .event-card { background: #f4f4f4; border: 1px solid #e0e0e0; padding: 16px; margin-bottom: 12px; }
+  .event-card-eyebrow { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #6f6f6f; }
+  .event-card-title { font-size: 13px; font-weight: 700; color: #161616; margin: 2px 0 14px; }
+  .event-intro { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .event-intro p { font-size: 12px; color: #525252; }
+
+  /* Action button groups — existing layout */
+  .action-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 4px; }
+  .action-group { background: #f4f4f4; border: 1px solid #e0e0e0; padding: 16px; }
+  .action-group-eyebrow { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #6f6f6f; margin-bottom: 2px; }
+  .action-group-title { font-size: 13px; font-weight: 700; color: #161616; margin-bottom: 12px; }
+
+  /* Banner placeholder */
+  .banner-ph { background: #f4f4f4; border: 2px dashed #c6c6c6; padding: 20px; text-align: center; font-size: 12px; color: #8d8d8d; margin-top: 12px; }
+
+  /* Section header (form section) */
+  .form-section-hdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+
+  /* Comparison label */
+  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-bottom: 24px; }
+  .comp-label { text-align: center; padding: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+  .comp-label.before { background: #393939; color: #c6c6c6; }
+  .comp-label.after { background: #0f62fe; color: #fff; }
+
+  footer { text-align: center; padding: 20px; font-size: 12px; color: #8d8d8d; border-top: 1px solid #e0e0e0; background: #f4f4f4; margin-top: 24px; }
+</style>
+</head>
+<body>
+
+
+<div class="comparison">
+  <div class="comp-label before">⬅ Current header (blue rounded card)</div>
+  <div class="comp-label after">New header (dark navy bar) ➡</div>
+</div>
+
+
+<div style="background:linear-gradient(135deg,#f5f7fa 0%,#e8eef5 100%);padding:24px 24px 0;max-width:100%">
+  <div style="max-width:1200px;margin:0 auto">
+    <div style="text-align:center;padding:40px 0 32px;margin-bottom:24px;background:linear-gradient(135deg,#0f62fe 0%,#0353e9 50%,#0043ce 100%);border-radius:12px;box-shadow:0 8px 32px rgba(15,98,254,0.3),0 2px 8px rgba(0,0,0,0.1);position:relative;overflow:hidden">
+      <h1 style="font-size:28px;font-weight:700;color:#fff;letter-spacing:-0.5px;margin-bottom:8px">IBM UKI MARKETING HUB</h1>
+      
+      
+    </div>
+    
+    <div style="display:flex;gap:0;border-bottom:2px solid #e0e0e0;background:#fff;border-radius:8px 8px 0 0;overflow:hidden;margin-top:-12px;position:relative;z-index:1">
+      <div style="padding:11px 18px;font-size:13px;font-weight:700;color:#0f62fe;border-bottom:3px solid #0f62fe;cursor:pointer;white-space:nowrap">Create Comm</div>
+      <div style="padding:11px 16px;font-size:13px;color:#525252;cursor:pointer;white-space:nowrap">✨ Marketing Spotlight</div>
+      <div style="padding:11px 16px;font-size:13px;color:#525252;cursor:pointer;white-space:nowrap">📚 Templates</div>
+      <div style="padding:11px 16px;font-size:13px;color:#525252;cursor:pointer;white-space:nowrap">🎯 Event Library</div>
+      <div style="padding:11px 16px;font-size:13px;color:#525252;cursor:pointer;white-space:nowrap">📅 Manage Events</div>
+      <div style="padding:11px 16px;font-size:13px;color:#525252;cursor:pointer;white-space:nowrap">🔍 For Review</div>
+      <div style="padding:11px 14px;font-size:13px;color:#525252;cursor:pointer;white-space:nowrap">📝 Submit Event</div>
+      <div style="padding:11px 14px;font-size:13px;color:#525252;cursor:pointer;white-space:nowrap">🗂 My Drafts</div>
+      <div style="padding:11px 14px;font-size:13px;color:#525252;cursor:pointer;white-space:nowrap">📊 Analytics</div>
+      <div style="padding:11px 14px;font-size:13px;color:#525252;cursor:pointer;white-space:nowrap">📖 Client Stories</div>
+    </div>
+  </div>
+</div>
+
+
+<div style="height:40px;background:linear-gradient(135deg,#f5f7fa 0%,#e8eef5 100%);display:flex;align-items:center;justify-content:center">
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#8d8d8d">↓ Replace with ↓</div>
+</div>
+
+
+<div class="topbar">
+  <span class="topbar-logo">IBM</span>
+  <div class="topbar-divider"></div>
+  <span class="topbar-appname">IBM UKI MARKETING HUB</span>
+  <div class="topbar-right">
+    <span class="role-pill">Marketer</span>
+    <span class="topbar-username">Sarah Jones</span>
+    <div class="topbar-icon">
+      <svg width="14" height="14" fill="none"><circle cx="8" cy="5" r="3" stroke="rgba(255,255,255,0.7)" stroke-width="1.4"></circle><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="rgba(255,255,255,0.7)" stroke-width="1.4" stroke-linecap="round"></path></svg>
+    </div>
+    <div class="topbar-icon">
+      <svg width="14" height="14" fill="none"><circle cx="8" cy="8" r="2.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.4"></circle><path d="M8 2v1M8 13v1M2 8h1m10 0h1" stroke="rgba(255,255,255,0.7)" stroke-width="1.4" stroke-linecap="round"></path></svg>
+    </div>
+    <div class="topbar-icon">
+      <svg width="14" height="14" fill="none"><circle cx="6.5" cy="6.5" r="4" stroke="rgba(255,255,255,0.7)" stroke-width="1.4"></circle><path d="M11 11l3 3" stroke="rgba(255,255,255,0.7)" stroke-width="1.4" stroke-linecap="round"></path></svg>
+    </div>
+  </div>
+</div>
+
+<div class="tabbar">
+  <div class="tab-item active"><span class="tab-emoji">✉️</span>Create Comm</div>
+  <div class="tab-item"><span class="tab-emoji">✨</span>Marketing Spotlight</div>
+  <div class="tab-item"><span class="tab-emoji">📚</span>Templates</div>
+  <div class="tab-item"><span class="tab-emoji">🎯</span>Event Library</div>
+  <div class="tab-item"><span class="tab-emoji">📅</span>Manage Events</div>
+  <div class="tab-item"><span class="tab-emoji">🔍</span>For Review</div>
+  <div class="tab-item"><span class="tab-emoji">📝</span>Submit Event</div>
+  <div class="tab-item"><span class="tab-emoji">🗂</span>My Drafts</div>
+  <div class="tab-item"><span class="tab-emoji">👥</span>User Access</div>
+  <div class="tab-item"><span class="tab-emoji">📊</span>Analytics</div>
+  <div class="tab-item"><span class="tab-emoji">📖</span>Client Stories</div>
+</div>
+
+<div class="hero-strip">
+  <h1>IBM UKI MARKETING HUB</h1>
+  <p>United Kingdom &amp; Ireland · Professional Communications</p>
+</div>
+
+
+<div class="app-container">
+  <div class="tab-panel">
+
+    
+    <div class="create-comm-hero">
+      <div>
+        <div class="hero-eyebrow">Carbon communication builder</div>
+        <div class="hero-h2">Create communication</div>
+        <p class="hero-sub">Build polished internal comms with rich text, reusable colour controls, and flexible additional sections.</p>
+        <div class="hero-pills">
+          <span class="hero-pill">Draft-ready</span>
+          <span class="hero-pill">Email export</span>
+          <span class="hero-pill">Carbon styled</span>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="form-section">
+      <div class="form-section-hdr">
+        <div>
+          <div class="section-eyebrow">Visual assets</div>
+          <div class="section-title">Banner/Hero Image</div>
+          <div class="section-desc">Optional hero artwork for the top of your communication.</div>
+        </div>
+      </div>
+      <div class="btn-set">
+        <button class="cds-btn cds-btn--secondary cds-btn--sm">📁 Upload Image</button>
+        <button class="cds-btn cds-btn--secondary cds-btn--sm">🖼 Choose from Gallery</button>
+      </div>
+      <div class="banner-ph">Banner preview will appear here (Outlook recommended: 600px × 90–200px)</div>
+    </div>
+
+    
+    <div class="field">
+      <label class="cds-label">Date</label>
+      <input class="cds-input" type="text" />
+      <div class="cds-helper">Appears at the top of the email</div>
+    </div>
+
+    
+    <div class="field">
+      <label class="cds-label">Main Title <span style="color:#da1e28">*</span></label>
+      <input class="cds-input" type="text" />
+    </div>
+
+    
+    <div class="field">
+      <label class="cds-label">Subtitle (Optional)</label>
+      <input class="cds-input" type="text" />
+    </div>
+
+    
+    <div class="form-section">
+      <div class="section-eyebrow">Typography</div>
+      <div class="section-title">Font settings</div>
+      <div class="section-desc">Set default typography for the main body and additional sections.</div>
+      <div class="two-col" style="margin-bottom:14px">
+        <div class="field" style="margin-bottom:0"><label class="cds-label">Font Family</label>
+          <select class="cds-select"><option>IBM Plex Sans</option><option>Arial</option><option>Helvetica</option><option>Georgia</option></select>
+        </div>
+        <div class="field" style="margin-bottom:0"><label class="cds-label">Body Font Size</label>
+          <select class="cds-select"><option>14px</option><option>15px</option><option>16px (Default)</option><option>18px</option></select>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field" style="margin-bottom:0"><label class="cds-label">Additional Section Title Size</label>
+          <select class="cds-select"><option>20px</option><option>22px</option><option>24px (Default)</option><option>26px</option></select>
+        </div>
+        <div class="field" style="margin-bottom:0"><label class="cds-label">Additional Section Body Size</label>
+          <select class="cds-select"><option>14px</option><option>15px</option><option>16px (Default)</option><option>18px</option></select>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="form-section">
+      <div class="form-section-hdr">
+        <div class="section-title" style="margin-bottom:0">Color Palette</div>
+        <button class="cds-btn cds-btn--ghost cds-btn--sm">↺ Reset to Default Colors</button>
+      </div>
+      <div class="four-col">
+        <div class="field" style="margin-bottom:0"><label class="cds-label">Title Color</label>
+          <div class="color-row"><div class="color-swatch" style="background:#161616"></div><input class="cds-input" style="font-size:12px" /></div>
+        </div>
+        <div class="field" style="margin-bottom:0"><label class="cds-label">Body Text Color</label>
+          <div class="color-row"><div class="color-swatch" style="background:#161616"></div><input class="cds-input" style="font-size:12px" /></div>
+        </div>
+        <div class="field" style="margin-bottom:0"><label class="cds-label">Subtitle Color</label>
+          <div class="color-row"><div class="color-swatch" style="background:#525252"></div><input class="cds-input" style="font-size:12px" /></div>
+        </div>
+        <div class="field" style="margin-bottom:0"><label class="cds-label">CTA Button Color</label>
+          <div class="color-row"><div class="color-swatch" style="background:#0f62fe"></div><input class="cds-input" style="font-size:12px" /></div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="form-section">
+      <div class="section-eyebrow">Content</div>
+      <div class="section-title">Message body</div>
+      <div class="section-desc">Compose the main message using the Carbon-aligned rich text editor.</div>
+      <label class="cds-label">Message Body</label>
+      <div class="rte">
+        <div class="rte-toolbar">
+          <button class="rte-btn"><b>B</b></button><button class="rte-btn"><i>I</i></button><button class="rte-btn"><u>U</u></button><button class="rte-btn"><s>S</s></button>
+          <div class="rte-sep"></div>
+          <button class="rte-btn">≡</button><button class="rte-btn">•≡</button><button class="rte-btn">1≡</button>
+          <div class="rte-sep"></div>
+          <select class="rte-select"><option>16px</option></select>
+          <div class="rte-sep"></div>
+          <button class="rte-btn">🎨</button><button class="rte-btn">😊</button><button class="rte-btn">🖼</button><button class="rte-btn">🔗</button>
+        </div>
+        <div class="rte-body">Enter your main message content…</div>
+      </div>
+    </div>
+
+    
+    <div class="field"><label class="cds-label">Call-to-Action Button Text (Optional)</label><input class="cds-input" type="text" /></div>
+    <div class="field"><label class="cds-label">Call-to-Action Button Link (Optional)</label><input class="cds-input" type="url" /></div>
+    <div class="field">
+      <label class="cds-label">Video URL (Optional)</label>
+      <input class="cds-input" type="url" />
+      <div class="cds-helper">Paste a YouTube or Vimeo link. A clickable thumbnail will be embedded in the email.</div>
+    </div>
+
+    
+    <div class="form-section">
+      <div class="section-eyebrow">Media</div>
+      <div class="section-title">Main content image</div>
+      <div class="section-desc">Optional image block displayed within the body content.</div>
+      <label class="cds-label">Main Content Image (Optional)</label>
+      <button class="cds-btn cds-btn--tertiary cds-btn--sm">🖼 Upload Image</button>
+      <div class="cds-helper" style="margin-top:6px">Recommended: Keep images under 500KB for best email performance.</div>
+    </div>
+
+    <div class="field"><label class="cds-label">Location (Optional)</label><input class="cds-input" type="text" /></div>
+
+    
+    <div class="form-section">
+      <div class="section-eyebrow">Additional content</div>
+      <div class="section-title">Additional event sections</div>
+      <div class="section-desc">Add supporting stories, events, webinars, and follow-up calls to action.</div>
+      <div class="accordion">
+        <div class="accordion-hdr">
+          <span class="accordion-hdr-title">Additional Event Sections (1)</span>
+          <span style="font-size:11px;color:#525252">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="event-intro">
+            <p>Add multiple events to your communication. Each event can have its own title, description, CTA, and location.</p>
+            <button class="cds-btn cds-btn--primary cds-btn--sm">+ Add Event</button>
+          </div>
+          <div class="event-card">
+            <div class="event-card-eyebrow">Section 1</div>
+            <div class="event-card-title">Event details</div>
+            <div class="field"><label class="cds-label">Event Title</label>
+              <div class="rte"><div class="rte-toolbar"><button class="rte-btn"><b>B</b></button><button class="rte-btn"><i>I</i></button><select class="rte-select"><option>24px</option></select><button class="rte-btn">🎨</button><button class="rte-btn">😊</button></div><div class="rte-body" style="min-height:60px">e.g., Webinar: AI in Marketing…</div></div>
+            </div>
+            <div class="field"><label class="cds-label">Event Description</label>
+              <div class="rte"><div class="rte-toolbar"><button class="rte-btn"><b>B</b></button><button class="rte-btn"><i>I</i></button><button class="rte-btn">•≡</button><select class="rte-select"><option>16px</option></select><button class="rte-btn">🎨</button><button class="rte-btn">🖼</button></div><div class="rte-body">Describe this event…</div></div>
+            </div>
+            <div class="field"><label class="cds-label">CTA Button Text (Optional)</label><input class="cds-input" type="text" /></div>
+            <div class="field"><label class="cds-label">CTA Button Link (Optional)</label><input class="cds-input" type="url" /></div>
+            <div class="field"><label class="cds-label">Video URL (Optional)</label><input class="cds-input" type="url" /></div>
+            <div class="field"><label class="cds-label">Location (Optional)</label><input class="cds-input" type="text" /></div>
+            <div class="field" style="margin-bottom:0"><label class="cds-label">Event Image (Optional)</label>
+              <button class="cds-btn cds-btn--tertiary cds-btn--sm">🖼 Upload Image</button>
+              <div class="cds-helper" style="margin-top:5px">Recommended: Keep images under 500KB for best email performance</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="action-groups">
+      <div class="action-group">
+        <div class="action-group-eyebrow">Drafts</div>
+        <div class="action-group-title">Save your work</div>
+        <div class="btn-set"><button class="cds-btn cds-btn--secondary cds-btn--sm">💾 Save as Draft</button></div>
+      </div>
+      <div class="action-group">
+        <div class="action-group-eyebrow">Review</div>
+        <div class="action-group-title">Preview before export</div>
+        <div class="btn-set"><button class="cds-btn cds-btn--tertiary cds-btn--sm">👁 Preview Email</button></div>
+      </div>
+      <div class="action-group">
+        <div class="action-group-eyebrow">Outputs</div>
+        <div class="action-group-title">Export and share</div>
+        <div class="btn-set">
+          <button class="cds-btn cds-btn--secondary cds-btn--sm">📄 Export as HTML</button>
+          <button class="cds-btn cds-btn--secondary cds-btn--sm">📑 Export as PDF</button>
+          <button class="cds-btn cds-btn--secondary cds-btn--sm">🖼 Export as JPG</button>
+          <button class="cds-btn cds-btn--secondary cds-btn--sm">💬 Post to Slack</button>
+        </div>
+      </div>
+      <div class="action-group">
+        <div class="action-group-eyebrow">Reset</div>
+        <div class="action-group-title">Start over</div>
+        <div class="btn-set"><button class="cds-btn cds-btn--danger-ghost cds-btn--sm">✕ Clear Form</button></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>Made with IBM Bob</footer>
+</body>
+</html>

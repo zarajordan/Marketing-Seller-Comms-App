@@ -14,7 +14,7 @@ import {
 } from '@carbon/react';
 import { Add, TrashCan, Checkmark, UserFollow, SendAlt, Save } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
-import { createEvent, saveDraft, updateDraft, uploadEventDocument } from '../lib/supabaseData';
+import { createEvent, listReturnedEvents, saveDraft, updateDraft, updateEvent, uploadEventDocument } from '../lib/supabaseData';
 import RichTextEditor from './RichTextEditor';
 import { useUser } from '../contexts/UserContext';
 
@@ -100,13 +100,33 @@ const INFO_BOX_STYLE = {
   alignItems: 'flex-start',
 };
 
-const SubmitEventTab = forwardRef((props, ref) => {
+const SubmitEventTab = forwardRef(({ onReturnedResolved } = {}, ref) => {
   const { currentUser } = useUser();
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [briefSummaryCount, setBriefSummaryCount] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
   const [currentDraftId, setCurrentDraftId] = useState(null);
+  const [returnedEvents, setReturnedEvents] = useState([]);
+  const [editingReturnedId, setEditingReturnedId] = useState(null);
+
+  // Load any events returned to this user
+  const loadReturnedEvents = async () => {
+    if (!currentUser?.email) return;
+    try {
+      const items = await listReturnedEvents(currentUser.email);
+      setReturnedEvents(items);
+    } catch {
+      // silently ignore
+    }
+  };
+
+  useEffect(() => {
+    loadReturnedEvents();
+    const handle = () => loadReturnedEvents();
+    window.addEventListener('eventsUpdated', handle);
+    return () => window.removeEventListener('eventsUpdated', handle);
+  }, [currentUser?.email]);
 
   useImperativeHandle(ref, () => ({
     loadDraft: (draftData, draftId) => {
@@ -117,6 +137,18 @@ const SubmitEventTab = forwardRef((props, ref) => {
       setErrors({});
     },
   }));
+
+  // Pre-fill the form from a returned event so the user can fix and resubmit
+  const handleEditReturned = (event) => {
+    const { id, reviewerNote: _note, status: _status, ...rest } = event;
+    setFormData({ ...EMPTY_FORM, ...rest, status: 'Draft' });
+    setBriefSummaryCount((rest.briefSummary || '').replace(/<[^>]*>/g, '').length);
+    setEditingReturnedId(id);
+    setCurrentDraftId(null);
+    setSubmitted(false);
+    setErrors({});
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -220,16 +252,22 @@ const SubmitEventTab = forwardRef((props, ref) => {
     }
 
     try {
-      await createEvent({
-        ...formData,
-        status: 'Draft',
-        ownerEmail: currentUser?.email || '',
-      });
-      toast.success('Event submitted for review!', { icon: <Checkmark size={24} />, autoClose: 3000 });
+      if (editingReturnedId) {
+        // Resubmit the returned event as a fresh Draft, removing the reviewer note
+        await updateEvent({ ...formData, id: editingReturnedId, status: 'Draft', ownerEmail: currentUser?.email || '', reviewerNote: '' });
+        toast.success('Event resubmitted for review!', { icon: <Checkmark size={24} />, autoClose: 3000 });
+        setEditingReturnedId(null);
+        await loadReturnedEvents();
+        window.dispatchEvent(new Event('eventsUpdated'));
+      } else {
+        await createEvent({ ...formData, status: 'Draft', ownerEmail: currentUser?.email || '' });
+        toast.success('Event submitted for review!', { icon: <Checkmark size={24} />, autoClose: 3000 });
+      }
       setFormData(EMPTY_FORM);
       setBriefSummaryCount(0);
       setErrors({});
       setSubmitted(true);
+      if (onReturnedResolved) onReturnedResolved();
     } catch (error) {
       toast.error(error.message || 'Failed to submit event');
     }
@@ -292,9 +330,37 @@ const SubmitEventTab = forwardRef((props, ref) => {
         </p>
       </div>
 
+      {/* ── Returned events alerts ── */}
+      {returnedEvents.map((ev) => (
+        <div key={ev.id} style={{ marginBottom: '12px', border: '2px solid #da1e28', borderRadius: '4px', background: '#fff1f1', padding: '16px 20px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+            <div>
+              <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '14px', color: '#da1e28' }}>
+                ⚠️ Action required — "{ev.title}" was returned for changes
+              </p>
+              {ev.reviewerNote && (
+                <p style={{ margin: '6px 0 0', fontSize: '13px', color: '#161616' }}>
+                  <strong>Reviewer note:</strong> {ev.reviewerNote}
+                </p>
+              )}
+            </div>
+            <Button kind="danger" size="sm" onClick={() => handleEditReturned(ev)}>
+              Edit &amp; Resubmit
+            </Button>
+          </div>
+        </div>
+      ))}
+
       <div style={{ background: '#edf5ff', border: '1px solid rgba(69,137,255,0.4)', borderRadius: '4px', padding: '12px 16px', fontSize: '13px', color: '#0043ce', marginBottom: '24px', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
         ℹ️ Your submission will be reviewed by an admin or manager before it appears in the Event Library. Fields marked <strong>*</strong> are required.
       </div>
+
+      {editingReturnedId && (
+        <div style={{ background: '#fff3cd', border: '1px solid #ffc107', borderRadius: '4px', padding: '12px 16px', fontSize: '13px', color: '#856404', marginBottom: '24px', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+          ✏️ You are editing a <strong>returned submission</strong>. Make your changes and click <strong>Submit for Review</strong> to resubmit.
+          <button onClick={() => { setEditingReturnedId(null); setFormData(EMPTY_FORM); setBriefSummaryCount(0); }} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#856404', fontWeight: 600, fontSize: '13px' }}>✕ Cancel</button>
+        </div>
+      )}
 
       <div style={{
         border: '1px solid #e0e0e0',
