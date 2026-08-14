@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import { getOrFetch, invalidate, invalidateAll } from './cache';
 
 export const TAB_PERMISSIONS = [
   'create-comm',
@@ -80,29 +81,29 @@ export const getUserPermissions = async (user) => {
 };
 
 export const listUsers = async () => {
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .order('created_at', { ascending: true });
+  return getOrFetch('users', async () => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, name, email, role, active, created_at')
+      .order('created_at', { ascending: true });
 
-  if (error) {
-    throw error;
-  }
+    if (error) {
+      throw error;
+    }
 
-  const usersWithPermissions = await Promise.all(
-    data.map(async (user) => ({
-      ...user,
-      permissions: await getUserPermissions(user),
-    }))
-  );
-
-  return usersWithPermissions;
+    return Promise.all(
+      data.map(async (user) => ({
+        ...user,
+        permissions: await getUserPermissions(user),
+      }))
+    );
+  });
 };
 
 export const findUserByEmail = async (email) => {
   const { data, error } = await supabase
     .from('users')
-    .select('*')
+    .select('id, name, email, role, active, created_at')
     .ilike('email', email)
     .eq('active', true)
     .limit(1)
@@ -123,6 +124,7 @@ export const findUserByEmail = async (email) => {
 };
 
 export const createUser = async (user) => {
+  invalidate('users');
   const { data, error } = await supabase
     .from('users')
     .insert({
@@ -131,7 +133,7 @@ export const createUser = async (user) => {
       role: user.role,
       active: user.active,
     })
-    .select('*')
+    .select('id, name, email, role, active, created_at')
     .single();
 
   if (error) {
@@ -147,6 +149,7 @@ export const createUser = async (user) => {
 };
 
 export const updateUser = async (user) => {
+  invalidate('users');
   const { data, error } = await supabase
     .from('users')
     .update({
@@ -156,7 +159,7 @@ export const updateUser = async (user) => {
       active: user.active,
     })
     .eq('id', user.id)
-    .select('*')
+    .select('id, name, email, role, active, created_at')
     .single();
 
   if (error) {
@@ -172,6 +175,7 @@ export const updateUser = async (user) => {
 };
 
 export const deleteUser = async (user) => {
+  invalidate('users');
   await supabase.from('user_tab_permissions').delete().eq('user_email', user.email);
 
   const { error } = await supabase.from('users').delete().eq('id', user.id);
@@ -297,20 +301,26 @@ export const uploadEventDocument = async (file, folder) => {
 };
 
 export const listEvents = async () => {
-  const { data, error } = await supabase.from('events').select('*').order('event_date', { ascending: true });
+  return getOrFetch('events', async () => {
+    const { data, error } = await supabase
+      .from('events')
+      .select('id, title, brief_summary, description, start_date, end_date, event_date, event_time, location_type, location_details, location, invite_only, contacts, speakers, detailed_description, event_agenda, registration_link, seismic_link, seismic_page_required, seller_invite_url, partner_invite_url, product_areas, event_type, target_audience, industry, target_roles, other_role, event_stream, status, post_event_follow_up, category, regions, invite_process, promote_our_presence, promote_documents, reviewer_note, owner_email')
+      .order('event_date', { ascending: true });
 
-  if (error) {
-    throw error;
-  }
+    if (error) {
+      throw error;
+    }
 
-  return data.map(mapEventRowToAppEvent);
+    return data.map(mapEventRowToAppEvent);
+  });
 };
 
 export const createEvent = async (event) => {
+  invalidate('events');
   const { data, error } = await supabase
     .from('events')
     .insert(mapEventFormToRow(event))
-    .select('*')
+    .select('id, title, brief_summary, description, start_date, end_date, event_date, event_time, location_type, location_details, location, invite_only, contacts, speakers, detailed_description, event_agenda, registration_link, seismic_link, seismic_page_required, seller_invite_url, partner_invite_url, product_areas, event_type, target_audience, industry, target_roles, other_role, event_stream, status, post_event_follow_up, category, regions, invite_process, promote_our_presence, promote_documents, reviewer_note, owner_email')
     .single();
 
   if (error) {
@@ -321,11 +331,13 @@ export const createEvent = async (event) => {
 };
 
 export const updateEvent = async (event) => {
+  invalidate('events');
+  invalidate(`returned-events:${event.ownerEmail}`);
   const { data, error } = await supabase
     .from('events')
     .update(mapEventFormToRow(event))
     .eq('id', event.id)
-    .select('*')
+    .select('id, title, brief_summary, description, start_date, end_date, event_date, event_time, location_type, location_details, location, invite_only, contacts, speakers, detailed_description, event_agenda, registration_link, seismic_link, seismic_page_required, seller_invite_url, partner_invite_url, product_areas, event_type, target_audience, industry, target_roles, other_role, event_stream, status, post_event_follow_up, category, regions, invite_process, promote_our_presence, promote_documents, reviewer_note, owner_email')
     .single();
 
   if (error) {
@@ -336,6 +348,7 @@ export const updateEvent = async (event) => {
 };
 
 export const deleteEvent = async (eventId) => {
+  invalidate('events');
   const { error } = await supabase.from('events').delete().eq('id', eventId);
 
   if (error) {
@@ -344,15 +357,17 @@ export const deleteEvent = async (eventId) => {
 };
 
 export const listReturnedEvents = async (ownerEmail) => {
-  const { data, error } = await supabase
-    .from('events')
-    .select('*')
-    .eq('owner_email', ownerEmail)
-    .eq('status', 'Returned')
-    .order('event_date', { ascending: true });
+  return getOrFetch(`returned-events:${ownerEmail}`, async () => {
+    const { data, error } = await supabase
+      .from('events')
+      .select('id, title, brief_summary, description, start_date, end_date, event_date, event_time, location_type, location_details, location, invite_only, contacts, speakers, detailed_description, event_agenda, registration_link, seismic_link, seismic_page_required, seller_invite_url, partner_invite_url, product_areas, event_type, target_audience, industry, target_roles, other_role, event_stream, status, post_event_follow_up, category, regions, invite_process, promote_our_presence, promote_documents, reviewer_note, owner_email')
+      .eq('owner_email', ownerEmail)
+      .eq('status', 'Returned')
+      .order('event_date', { ascending: true });
 
-  if (error) throw error;
-  return data.map(mapEventRowToAppEvent);
+    if (error) throw error;
+    return data.map(mapEventRowToAppEvent);
+  });
 };
 
 // ---------------------------------------------------------------------------
@@ -360,25 +375,28 @@ export const listReturnedEvents = async (ownerEmail) => {
 // ---------------------------------------------------------------------------
 
 export const listDrafts = async (ownerEmail) => {
-  const { data, error } = await supabase
-    .from('comms_drafts')
-    .select('*')
-    .eq('owner_email', ownerEmail)
-    .order('updated_at', { ascending: false });
+  return getOrFetch(`drafts:${ownerEmail}`, async () => {
+    const { data, error } = await supabase
+      .from('comms_drafts')
+      .select('id, name, owner_email, draft_data, updated_at')
+      .eq('owner_email', ownerEmail)
+      .order('updated_at', { ascending: false });
 
-  if (error) {
-    throw error;
-  }
+    if (error) {
+      throw error;
+    }
 
-  return data.map((row) => ({
-    id: row.id,
-    name: row.name,
-    date: row.updated_at,
-    data: row.draft_data,
-  }));
+    return data.map((row) => ({
+      id: row.id,
+      name: row.name,
+      date: row.updated_at,
+      data: row.draft_data,
+    }));
+  });
 };
 
 export const saveDraft = async (ownerEmail, name, draftData) => {
+  invalidate(`drafts:${ownerEmail}`);
   const { data, error } = await supabase
     .from('comms_drafts')
     .insert({
@@ -386,7 +404,7 @@ export const saveDraft = async (ownerEmail, name, draftData) => {
       name,
       draft_data: draftData,
     })
-    .select('*')
+    .select('id, name, owner_email, draft_data, updated_at')
     .single();
 
   if (error) {
@@ -397,6 +415,7 @@ export const saveDraft = async (ownerEmail, name, draftData) => {
 };
 
 export const updateDraft = async (draftId, ownerEmail, draftData) => {
+  invalidate(`drafts:${ownerEmail}`);
   const { data, error } = await supabase
     .from('comms_drafts')
     .update({
@@ -405,7 +424,7 @@ export const updateDraft = async (draftId, ownerEmail, draftData) => {
     })
     .eq('id', draftId)
     .eq('owner_email', ownerEmail)
-    .select('*')
+    .select('id, name, owner_email, draft_data, updated_at')
     .single();
 
   if (error) {
@@ -416,6 +435,7 @@ export const updateDraft = async (draftId, ownerEmail, draftData) => {
 };
 
 export const deleteDraft = async (draftId, ownerEmail) => {
+  invalidate(`drafts:${ownerEmail}`);
   const { error } = await supabase
     .from('comms_drafts')
     .delete()
@@ -463,36 +483,41 @@ const mapBookingToRow = (b) => ({
 });
 
 export const listFilmingBookings = async () => {
-  const { data, error } = await supabase
-    .from('filming_bookings')
-    .select('*')
-    .order('date', { ascending: true });
-  if (error) throw error;
-  return data.map(mapBookingRow);
+  return getOrFetch('filming-bookings', async () => {
+    const { data, error } = await supabase
+      .from('filming_bookings')
+      .select('id, date, time_slot, topic, partner_name, client_name, participants, approvals_confirmed, your_name, your_email, ibm_team, notes, status')
+      .order('date', { ascending: true });
+    if (error) throw error;
+    return data.map(mapBookingRow);
+  });
 };
 
 export const createFilmingBooking = async (booking) => {
+  invalidate('filming-bookings');
   const { data, error } = await supabase
     .from('filming_bookings')
     .insert(mapBookingToRow(booking))
-    .select('*')
+    .select('id, date, time_slot, topic, partner_name, client_name, participants, approvals_confirmed, your_name, your_email, ibm_team, notes, status')
     .single();
   if (error) throw error;
   return mapBookingRow(data);
 };
 
 export const updateFilmingBooking = async (booking) => {
+  invalidate('filming-bookings');
   const { data, error } = await supabase
     .from('filming_bookings')
     .update(mapBookingToRow(booking))
     .eq('id', booking.id)
-    .select('*')
+    .select('id, date, time_slot, topic, partner_name, client_name, participants, approvals_confirmed, your_name, your_email, ibm_team, notes, status')
     .single();
   if (error) throw error;
   return mapBookingRow(data);
 };
 
 export const deleteFilmingBooking = async (id) => {
+  invalidate('filming-bookings');
   const { error } = await supabase.from('filming_bookings').delete().eq('id', id);
   if (error) throw error;
 };
@@ -519,15 +544,18 @@ const mapStoryRow = (row) => ({
 });
 
 export const listStoryRequests = async () => {
-  const { data, error } = await supabase
-    .from('story_requests')
-    .select('*')
-    .order('submitted_at', { ascending: false });
-  if (error) throw error;
-  return data.map(mapStoryRow);
+  return getOrFetch('story-requests', async () => {
+    const { data, error } = await supabase
+      .from('story_requests')
+      .select('id, client_name, partner_name, your_name, your_email, phone, ibm_team, content_types, industry, overview, challenge, outcomes, notes, submitted_at, created_at')
+      .order('submitted_at', { ascending: false });
+    if (error) throw error;
+    return data.map(mapStoryRow);
+  });
 };
 
 export const createStoryRequest = async (req) => {
+  invalidate('story-requests');
   const { data, error } = await supabase
     .from('story_requests')
     .insert({
@@ -545,13 +573,14 @@ export const createStoryRequest = async (req) => {
       notes: req.notes || '',
       submitted_at: new Date().toISOString(),
     })
-    .select('*')
+    .select('id, client_name, partner_name, your_name, your_email, phone, ibm_team, content_types, industry, overview, challenge, outcomes, notes, submitted_at, created_at')
     .single();
   if (error) throw error;
   return mapStoryRow(data);
 };
 
 export const deleteStoryRequest = async (id) => {
+  invalidate('story-requests');
   const { error } = await supabase.from('story_requests').delete().eq('id', id);
   if (error) throw error;
 };
@@ -620,19 +649,40 @@ export const logActivity = async (eventType, payload = {}) => {
 
 // ---------------------------------------------------------------------------
 // Analytics queries — read from activity_log
+// All five functions share a single cached fetch per (days) window.
 // ---------------------------------------------------------------------------
 
-export const getAnalyticsSummary = async (days = 90) => {
+/**
+ * Fetches the full activity_log window once and caches it.
+ * The cache key includes `days` so different windows are stored separately.
+ */
+const fetchActivityLog = (days) => {
   const since = new Date(Date.now() - days * 86400000).toISOString();
+  return getOrFetch(`activity-log:${days}`, async () => {
+    const { data, error } = await supabase
+      .from('activity_log')
+      .select('event_type, user_email, user_name, user_role, metadata, created_at')
+      .gte('created_at', since);
+    return (error ? [] : data) || [];
+  });
+};
+
+export const getAnalyticsSummary = async (days = 90) => {
   const prevSince = new Date(Date.now() - days * 2 * 86400000).toISOString();
+  const since = new Date(Date.now() - days * 86400000).toISOString();
 
-  const [curr, prev] = await Promise.all([
-    supabase.from('activity_log').select('event_type, user_email, metadata, created_at').gte('created_at', since),
-    supabase.from('activity_log').select('event_type, user_email, created_at').gte('created_at', prevSince).lt('created_at', since),
+  const [rows, prevResult] = await Promise.all([
+    fetchActivityLog(days),
+    getOrFetch(`activity-log-prev:${days}`, async () => {
+      const { data, error } = await supabase
+        .from('activity_log')
+        .select('event_type, user_email, created_at')
+        .gte('created_at', prevSince)
+        .lt('created_at', since);
+      return (error ? [] : data) || [];
+    }),
   ]);
-
-  const rows = (curr.error ? [] : curr.data) || [];
-  const prevRows = (prev.error ? [] : prev.data) || [];
+  const prevRows = prevResult;
 
   const visits  = rows.filter((r) => r.event_type === 'login').length;
   const comms   = rows.filter((r) => r.event_type === 'comm_generated').length;
@@ -658,9 +708,7 @@ export const getAnalyticsSummary = async (days = 90) => {
 };
 
 export const getAnalyticsMonthly = async (days = 90) => {
-  const since = new Date(Date.now() - days * 86400000).toISOString();
-  const { data, error } = await supabase.from('activity_log').select('event_type, created_at').gte('created_at', since);
-  const rows = (error ? [] : data) || [];
+  const rows = await fetchActivityLog(days);
 
   const map = {};
   rows.forEach((r) => {
@@ -674,16 +722,16 @@ export const getAnalyticsMonthly = async (days = 90) => {
 };
 
 export const getAnalyticsTopEvents = async (days = 90) => {
-  const since = new Date(Date.now() - days * 86400000).toISOString();
-  const { data, error } = await supabase.from('activity_log').select('metadata').eq('event_type', 'comm_generated').gte('created_at', since);
-  const rows = (error ? [] : data) || [];
+  const rows = await fetchActivityLog(days);
 
   const counts = {};
-  rows.forEach((r) => {
-    (r.metadata?.eventTitles || []).forEach((title) => {
-      counts[title] = (counts[title] || 0) + 1;
+  rows
+    .filter((r) => r.event_type === 'comm_generated')
+    .forEach((r) => {
+      (r.metadata?.eventTitles || []).forEach((title) => {
+        counts[title] = (counts[title] || 0) + 1;
+      });
     });
-  });
 
   return Object.entries(counts)
     .map(([title, count]) => ({ title, count }))
@@ -692,15 +740,15 @@ export const getAnalyticsTopEvents = async (days = 90) => {
 };
 
 export const getAnalyticsTopViewedEvents = async (days = 90) => {
-  const since = new Date(Date.now() - days * 86400000).toISOString();
-  const { data, error } = await supabase.from('activity_log').select('metadata').eq('event_type', 'event_viewed').gte('created_at', since);
-  const rows = (error ? [] : data) || [];
+  const rows = await fetchActivityLog(days);
 
   const counts = {};
-  rows.forEach((r) => {
-    const title = r.metadata?.eventTitle;
-    if (title) counts[title] = (counts[title] || 0) + 1;
-  });
+  rows
+    .filter((r) => r.event_type === 'event_viewed')
+    .forEach((r) => {
+      const title = r.metadata?.eventTitle;
+      if (title) counts[title] = (counts[title] || 0) + 1;
+    });
 
   return Object.entries(counts)
     .map(([title, count]) => ({ title, count }))
@@ -708,12 +756,8 @@ export const getAnalyticsTopViewedEvents = async (days = 90) => {
     .slice(0, 8);
 };
 
-
-
 export const getAnalyticsUserBreakdown = async (days = 90) => {
-  const since = new Date(Date.now() - days * 86400000).toISOString();
-  const { data, error } = await supabase.from('activity_log').select('event_type, user_email, user_name, user_role, metadata, created_at').gte('created_at', since);
-  const rows = (error ? [] : data) || [];
+  const rows = await fetchActivityLog(days);
 
   const map = {};
   rows.forEach((r) => {
