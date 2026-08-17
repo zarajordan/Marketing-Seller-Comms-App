@@ -14,7 +14,7 @@ import {
 } from '@carbon/react';
 import { Add, TrashCan, Checkmark, UserFollow, SendAlt, Save } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
-import { createEvent, listReturnedEvents, saveDraft, updateDraft, updateEvent, uploadEventDocument } from '../lib/supabaseData';
+import { createEvent, deleteEvent, listReturnedEvents, saveDraft, updateDraft, updateEvent, uploadEventDocument } from '../lib/supabaseData';
 import RichTextEditor from './RichTextEditor';
 import { useUser } from '../contexts/UserContext';
 
@@ -137,6 +137,18 @@ const SubmitEventTab = forwardRef(({ onReturnedResolved } = {}, ref) => {
       setErrors({});
     },
   }));
+
+  const handleDeleteReturned = async (eventId) => {
+    try {
+      await deleteEvent(eventId);
+      setReturnedEvents((prev) => prev.filter((e) => e.id !== eventId));
+      toast.success('Event deleted');
+      if (onReturnedResolved) onReturnedResolved();
+      window.dispatchEvent(new Event('eventsUpdated'));
+    } catch (err) {
+      toast.error(err.message || 'Failed to delete event');
+    }
+  };
 
   // Pre-fill the form from a returned event so the user can fix and resubmit
   const handleEditReturned = (event) => {
@@ -344,9 +356,14 @@ const SubmitEventTab = forwardRef(({ onReturnedResolved } = {}, ref) => {
                 </p>
               )}
             </div>
-            <Button kind="danger" size="sm" onClick={() => handleEditReturned(ev)}>
-              Edit &amp; Resubmit
-            </Button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <Button kind="danger" size="sm" onClick={() => handleEditReturned(ev)}>
+                Edit &amp; Resubmit
+              </Button>
+              <Button kind="danger--ghost" size="sm" renderIcon={TrashCan} onClick={() => handleDeleteReturned(ev.id)}>
+                Delete
+              </Button>
+            </div>
           </div>
         </div>
       ))}

@@ -33,6 +33,8 @@ import SubmitEventTab from './components/SubmitEventTab';
 import ForReviewTab from './components/ForReviewTab';
 import AnalyticsTab from './components/AnalyticsTab';
 import ClientStoriesTab from './components/ClientStoriesTab';
+import SocialTilesTab from './components/SocialTilesTab';
+import CSRTab from './components/CSRTab';
 import SubmitPartnerStoryTab from './components/SubmitPartnerStoryTab';
 import BookFilmingTab from './components/BookFilmingTab';
 import ThemeSelector from './components/ThemeSelector';
@@ -75,6 +77,13 @@ const SIDEBAR_SECTIONS = [
     ],
   },
   {
+    label: 'Social',
+    items: [
+      { id: 'social-tiles', label: 'Social Tiles & Guidance', icon: Star },
+      { id: 'csr',          label: 'CSR & Volunteering',      icon: Star },
+    ],
+  },
+  {
     label: 'Admin',
     items: [
       { id: 'user-access', label: 'User Access', icon: UserAdmin },
@@ -98,6 +107,8 @@ const TAB_COMPONENTS = {
   'client-stories':           ClientStoriesTab,
   'submit-partner-story':     SubmitPartnerStoryTab,
   'book-filming':             BookFilmingTab,
+  'social-tiles':        SocialTilesTab,
+  'csr':                 CSRTab,
   'dashboard':           DashboardTab,
   'ai-assistant':        AIAssistantTab,
 };
