@@ -39,13 +39,37 @@ const PRODUCT_AREAS = [
 ];
 
 const EVENT_TYPES = [
-  { id: 'Webinar', label: 'Webinar' },
-  { id: 'In-Person', label: 'Event' },
-  { id: 'Workshop', label: 'Workshop' },
+  { id: 'Webinar',    label: 'Webinar' },
+  { id: 'In-Person',  label: 'Event' },
+  { id: 'Workshop',   label: 'Workshop' },
   { id: 'Conference', label: 'Conference' },
   { id: 'Roundtable', label: 'Roundtable' },
-  { id: 'Other', label: 'Other' },
+  { id: 'Other',      label: 'Other' },
 ];
+
+// #2 — border colour per event type
+const EVENT_TYPE_COLOR = {
+  'Webinar':    '#0f62fe',
+  'In-Person':  '#005d5d',
+  'Workshop':   '#005d5d',
+  'Conference': '#6929c4',
+  'Roundtable': '#b28600',
+  'Other':      '#525252',
+};
+
+// #3 — "days away" pill
+const getDaysAwayPill = (dateStr) => {
+  if (!dateStr) return null;
+  const diff = Math.ceil((new Date(dateStr) - new Date()) / 86400000);
+  if (diff < 0) return null;
+  let label, bg, color;
+  if (diff === 0)       { label = 'Today';           bg = '#fff1f1'; color = '#da1e28'; }
+  else if (diff === 1)  { label = 'Tomorrow';         bg = '#fff1f1'; color = '#da1e28'; }
+  else if (diff <= 7)   { label = `In ${diff} days`;  bg = '#fff1f1'; color = '#da1e28'; }
+  else if (diff <= 30)  { label = `In ${Math.ceil(diff / 7)} week${Math.ceil(diff / 7) > 1 ? 's' : ''}`; bg = '#ffd6ae'; color = '#8a3800'; }
+  else                  { label = `In ${Math.ceil(diff / 30)} month${Math.ceil(diff / 30) > 1 ? 's' : ''}`; bg = '#defbe6'; color = '#044317'; }
+  return <span style={{ display: 'inline-flex', alignItems: 'center', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 700, background: bg, color, whiteSpace: 'nowrap' }}>{label}</span>;
+};
 
 const INDUSTRIES = [
   { id: 'Cross-Industry', label: 'Cross-Industry' },
@@ -83,6 +107,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [selectedIndustries, setSelectedIndustries] = useState([]);
   const [dateFilter, setDateFilter] = useState('upcoming');
+  const [selectedTypeChip, setSelectedTypeChip] = useState('All'); // #5
   const [previewEvent, setPreviewEvent] = useState(null);
   const [showFilters, setShowFilters] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -110,7 +135,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
 
   useEffect(() => {
     applyFilters();
-  }, [events, archivedEvents, searchTerm, selectedProductAreas, selectedRegions, selectedIndustries, dateFilter, showArchive]);
+  }, [events, archivedEvents, searchTerm, selectedProductAreas, selectedRegions, selectedIndustries, dateFilter, showArchive, selectedTypeChip]);
 
   const loadEvents = async () => {
     setLoading(true);
@@ -141,6 +166,11 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
 
   const applyFilters = () => {
     let filtered = showArchive ? [...archivedEvents] : [...events];
+
+    // #5 — type chip filter
+    if (selectedTypeChip !== 'All') {
+      filtered = filtered.filter(event => event.eventType === selectedTypeChip);
+    }
 
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
@@ -506,9 +536,39 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
         )}
       </div>
 
-      {/* Action Bar — only for live events */}
+      {/* #5 — Type chips + event count */}
+      {!showArchive && (
+        <div style={{ padding: '10px 24px', background: '#fff', borderBottom: '1px solid #e5e7eb', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '12px', fontWeight: 600, color: '#57606a', marginRight: '4px' }}>Quick filter:</span>
+          {['All', ...EVENT_TYPES.map(t => t.id)].map(type => {
+            const count = type === 'All' ? events.length : events.filter(e => e.eventType === type).length;
+            if (type !== 'All' && count === 0) return null;
+            const label = type === 'All' ? 'All' : (EVENT_TYPES.find(t => t.id === type)?.label || type);
+            const isActive = selectedTypeChip === type;
+            return (
+              <button
+                key={type}
+                onClick={() => setSelectedTypeChip(type)}
+                style={{
+                  padding: '4px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', border: '1.5px solid',
+                  borderColor: isActive ? '#0f1f60' : '#e0e0e0',
+                  background: isActive ? '#0f1f60' : '#fff',
+                  color: isActive ? '#fff' : '#525252',
+                }}
+              >
+                {label} <span style={{ opacity: 0.7 }}>({count})</span>
+              </button>
+            );
+          })}
+          <span style={{ marginLeft: 'auto', fontSize: '12px', color: '#57606a' }}>
+            {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''} found
+          </span>
+        </div>
+      )}
+
+      {/* Top action bar — select-all + generate button */}
       {!showArchive && filteredEvents.length > 0 && (
-        <div style={{ padding: '12px 24px', borderBottom: '2px solid rgba(69,137,255,0.2)', background: 'linear-gradient(90deg, #060c2a 0%, #0c1a4a 100%)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '10px 24px', background: 'linear-gradient(90deg, #060c2a 0%, #0c1a4a 100%)', borderBottom: '2px solid rgba(69,137,255,0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
             <Checkbox
               id="select-all"
@@ -517,9 +577,11 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
               indeterminate={selectedEvents.length > 0 && selectedEvents.length < filteredEvents.length}
               onChange={handleSelectAll}
             />
-            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px' }}>
-              {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''} found
-            </span>
+            {selectedEvents.length > 0 && (
+              <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>
+                {selectedEvents.length} selected
+              </span>
+            )}
           </div>
           {(() => {
             const hasInviteOnly = selectedEvents.some(id => events.find(e => e.id === id)?.inviteOnly);
@@ -655,6 +717,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
                           marginBottom: '16px',
                           cursor: 'pointer',
                           border: selectedEvents.includes(event.id) ? '2px solid #0f62fe' : '1px solid #e0e0e0',
+                          borderLeft: `4px solid ${EVENT_TYPE_COLOR[event.eventType] || '#e0e0e0'}`, // #2
                           backgroundColor: selectedEvents.includes(event.id) ? '#edf5ff' : '#ffffff',
                           transition: 'all 0.15s ease',
                           position: 'relative',
@@ -702,6 +765,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
                               {event.endDate ? ` – ${formatDate(event.endDate)}` : ''}
                             </span>
                           </div>
+                          {getDaysAwayPill(event.startDate || event.date) /* #3 */}
                           {event.eventTime && (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <Time size={16} />
@@ -770,6 +834,45 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
           ))
         )}
       </div>
+
+      {/* #4 — Sticky bottom action bar */}
+      {!showArchive && (
+        <div style={{
+          position: 'sticky', bottom: 0, zIndex: 100,
+          background: '#0f1f60', borderTop: '2px solid #4589ff',
+          padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          transition: 'opacity 0.2s', opacity: selectedEvents.length > 0 ? 1 : 0.4, pointerEvents: selectedEvents.length > 0 ? 'auto' : 'none',
+        }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#fff', fontSize: '14px' }}>
+            <span>
+              {selectedEvents.length > 0
+                ? <><span style={{ background: '#4589ff', borderRadius: '12px', padding: '2px 10px', fontWeight: 700, marginRight: '8px' }}>{selectedEvents.length}</span> event{selectedEvents.length !== 1 ? 's' : ''} selected</>
+                : 'Select events above to generate a comm'}
+            </span>
+          </div>
+          {(() => {
+            const hasInviteOnly = selectedEvents.some(id => events.find(e => e.id === id)?.inviteOnly);
+            return (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                {hasInviteOnly && (
+                  <span style={{ color: '#ff8389', fontSize: '13px', fontWeight: 500 }}>
+                    🔒 Remove invite-only events to generate
+                  </span>
+                )}
+                <Button
+                  kind="primary"
+                  size="md"
+                  renderIcon={ArrowRight}
+                  disabled={selectedEvents.length === 0 || hasInviteOnly}
+                  onClick={handleGenerateCommunication}
+                >
+                  Generate Comm ({selectedEvents.length})
+                </Button>
+              </div>
+            );
+          })()}
+        </div>
+      )}
 
       {/* Personalization Modal */}
       <Modal
