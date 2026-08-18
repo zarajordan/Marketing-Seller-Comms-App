@@ -53,6 +53,7 @@ const TABS = [
   { id: 'client-stories', label: 'Client Stories', description: 'View IBM client stories dashboard' },
   { id: 'submit-partner-story', label: 'Submit Story Request', description: 'Submit a client/partner story request' },
   { id: 'book-filming', label: 'Book Filming', description: 'Book a filming session' },
+  { id: 'sales-people-finder', label: 'Sales People Finder', description: 'Search and find aligned sales team members' },
 ];
 
 const ROLES = Object.entries(ROLE_CONFIG).map(([id, cfg]) => ({ id, ...cfg }));

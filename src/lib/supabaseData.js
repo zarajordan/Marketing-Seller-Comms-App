@@ -17,6 +17,7 @@ export const TAB_PERMISSIONS = [
   'book-filming',
   'social-tiles',
   'csr',
+  'sales-people-finder',
 ];
 
 export const ROLE_CONFIG = {
@@ -48,14 +49,14 @@ export const getDefaultPermissions = (role) => {
 
   if (role === 'marketing') {
     return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-      permissions[tabId] = tabId === 'event-library' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'analytics' || tabId === 'social-tiles' || tabId === 'csr';
+      permissions[tabId] = tabId === 'event-library' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'analytics' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder';
       return permissions;
     }, {});
   }
 
   // seller — or any unrecognised/unauthorised role — gets Event Library only
   return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-    permissions[tabId] = tabId === 'event-library' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'social-tiles' || tabId === 'csr';
+    permissions[tabId] = tabId === 'event-library' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder';
     return permissions;
   }, {});
 };

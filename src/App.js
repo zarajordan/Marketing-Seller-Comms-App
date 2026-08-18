@@ -17,6 +17,7 @@ import {
   Portfolio,
   UserAdmin,
   ChartBar,
+  UserMultiple,
 } from '@carbon/icons-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -66,6 +67,7 @@ const SIDEBAR_SECTIONS = [
     label: 'Personal',
     items: [
       { id: 'drafts', label: 'My Drafts', icon: Document },
+      { id: 'sales-people-finder', label: 'Sales People Finder', icon: UserMultiple, href: 'https://pages.github.ibm.com/rob-woods/team-explorer-carbon/#/people' },
     ],
   },
   {
@@ -228,7 +230,14 @@ function MainAppContent({ onLogout }) {
   // Set initial tab once permissions are known
   useEffect(() => {
     if (accessibleIds.length > 0 && !accessibleIds.includes(selectedTabId)) {
-      setSelectedTabId(accessibleIds[0]);
+      const firstNavigableItem = SIDEBAR_SECTIONS
+        .flatMap((s) => s.items)
+        .find((item) => accessibleIds.includes(item.id) && !item.href);
+      if (firstNavigableItem) {
+        setSelectedTabId(firstNavigableItem.id);
+      } else {
+        setSelectedTabId(accessibleIds[0]);
+      }
     }
   }, [accessibleIds.join(',')]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -392,6 +401,26 @@ function MainAppContent({ onLogout }) {
                     const showBadge = item.badge && forReviewCount > 0;
                     const showReturnedBadge = item.id === 'submit-event' && returnedEventCount > 0;
                     const Icon = item.icon;
+
+                    if (item.href) {
+                      return (
+                        <a
+                          key={item.id}
+                          className="app-sidebar__item"
+                          href={item.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={sidebarCollapsed ? item.label : undefined}
+                          style={{ textDecoration: 'none' }}
+                        >
+                          <span className="app-sidebar__icon"><Icon size={16} /></span>
+                          {!sidebarCollapsed && (
+                            <span className="app-sidebar__label">{item.label}</span>
+                          )}
+                        </a>
+                      );
+                    }
+
                     return (
                       <button
                         key={item.id}
