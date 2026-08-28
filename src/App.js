@@ -73,7 +73,7 @@ const SIDEBAR_SECTIONS = [
   {
     label: 'Client Stories',
     items: [
-      { id: 'client-stories',        label: 'Client Stories',        icon: Portfolio },
+      { id: 'client-stories',        label: 'Client Stories',        icon: Portfolio, href: 'https://pages.github.ibm.com/AI-Analytics-Technical-Community/IBM-Client-Stories/' },
       { id: 'submit-partner-story',  label: 'Submit Story Request',  icon: Upload },
       { id: 'book-filming',          label: 'Book Filming',          icon: Calendar },
     ],
@@ -106,7 +106,6 @@ const TAB_COMPONENTS = {
   'drafts':              DraftsTab,
   'user-access':         UserAccessTab,
   'analytics':           AnalyticsTab,
-  'client-stories':           ClientStoriesTab,
   'submit-partner-story':     SubmitPartnerStoryTab,
   'book-filming':             BookFilmingTab,
   'social-tiles':        SocialTilesTab,

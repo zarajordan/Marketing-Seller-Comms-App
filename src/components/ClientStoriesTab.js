@@ -390,13 +390,23 @@ const ClientStoriesTab = () => {
           <span style={styles.headerDivider} />
           <span style={styles.headerTitle}>Client Stories</span>
         </div>
-        <button
-          onClick={handleFullscreenToggle}
-          style={styles.fullscreenBtn}
-          title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-        >
-          {isFullscreen ? '⛶' : '⛶'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <a
+            href="https://pages.github.ibm.com/AI-Analytics-Technical-Community/IBM-Client-Stories/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: 12, color: '#78a9ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
+          >
+            View Full Library ↗
+          </a>
+          <button
+            onClick={handleFullscreenToggle}
+            style={styles.fullscreenBtn}
+            title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+          >
+            {isFullscreen ? '⛶' : '⛶'}
+          </button>
+        </div>
       </div>
 
       {/* Stats bar */}
