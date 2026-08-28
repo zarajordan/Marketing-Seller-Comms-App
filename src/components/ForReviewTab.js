@@ -315,7 +315,7 @@ const ForReviewTab = ({ filmingBookings = [], onUpdateBookingStatus, onDeleteBoo
               <div>
                 <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Region <span style={{ fontSize: '13px', fontWeight: '400', color: '#525252' }}>(Select all that apply)</span></p>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '8px' }}>
-                  {['North', 'South', 'Midlands (Birmingham)', 'Ireland', 'Scotland', 'Wales', 'Europe', 'London', 'Virtual', 'America', 'EMEA'].map((region) => (
+                  {['North', 'Midlands (Birmingham)', 'Ireland', 'Scotland', 'Wales', 'London', 'Virtual', 'America', 'EMEA'].map((region) => (
                     <Checkbox key={region} id={`rv-region-${region}`} labelText={region} checked={formData.regions.includes(region)} onChange={() => handleCheckboxToggle('regions', region)} />
                   ))}
                 </div>
@@ -460,7 +460,7 @@ const ForReviewTab = ({ filmingBookings = [], onUpdateBookingStatus, onDeleteBoo
               </Select>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '16px' }}>
                 <Select id="rv-eventType" name="eventType" labelText="Event Type" value={formData.eventType} onChange={handleInputChange}>
-                  <SelectItem value="Webinar" text="Webinar" />
+                  <SelectItem value="Virtual Event" text="Virtual Event" />
                   <SelectItem value="In-Person" text="Event" />
                   <SelectItem value="Workshop" text="Workshop" />
                   <SelectItem value="Conference" text="Conference" />

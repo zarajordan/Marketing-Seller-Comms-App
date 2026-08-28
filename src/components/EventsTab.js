@@ -49,7 +49,7 @@ const EVENT_TYPES = [
 
 // #2 — border colour per event type
 const EVENT_TYPE_COLOR = {
-  'Webinar':    '#0f62fe',
+  'Virtual Event': '#0f62fe',
   'In-Person':  '#005d5d',
   'Workshop':   '#005d5d',
   'Conference': '#6929c4',
@@ -165,7 +165,11 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
   };
 
   const applyFilters = () => {
-    let filtered = showArchive ? [...archivedEvents] : [...events];
+    let filtered = showArchive
+      ? [...archivedEvents]
+      : dateFilter === 'past'
+        ? [...events, ...archivedEvents]
+        : [...events];
 
     // #5 — type chip filter
     if (selectedTypeChip !== 'All') {
@@ -500,7 +504,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
                   id="region-filter"
                   titleText="Region"
                   placeholder="Filter by region"
-                  items={['North', 'South', 'Midlands (Birmingham)', 'Ireland', 'Scotland', 'Wales', 'Europe', 'London', 'Virtual', 'America', 'EMEA'].map(r => ({ id: r, label: r }))}
+                  items={['North', 'Midlands (Birmingham)', 'Ireland', 'Scotland', 'Wales', 'London', 'Virtual', 'America', 'EMEA'].map(r => ({ id: r, label: r }))}
                   itemToString={(item) => item ? item.label : ''}
                   onChange={({ selectedItems }) => setSelectedRegions(selectedItems.map(i => i.id))}
                   size="lg"

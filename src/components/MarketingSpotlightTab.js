@@ -160,6 +160,10 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
   const [showCustomSectionLinkModal, setShowCustomSectionLinkModal] = useState(false);
   const [showCustomSectionEventModal, setShowCustomSectionEventModal] = useState(false);
   const [editingCustomSectionForLink, setEditingCustomSectionForLink] = useState(null);
+  const [editingCustomSectionLinkIndex, setEditingCustomSectionLinkIndex] = useState(null);
+  const [editingCustomSectionEventId, setEditingCustomSectionEventId] = useState(null);
+  const [customSectionImportModalOpen, setCustomSectionImportModalOpen] = useState(false);
+  const [customSectionImportSearch, setCustomSectionImportSearch] = useState('');
   const [customSectionEventForm, setCustomSectionEventForm] = useState({
     title: '',
     date: '',
@@ -585,11 +589,10 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
     featured: false,
   });
 
-  // Fetch active upcoming events when the import modal opens
+  // Fetch active upcoming events when any import modal opens
   useEffect(() => {
-    if (!importModalOpen) return;
+    if (!importModalOpen && !customSectionImportModalOpen) return;
     setImportLoading(true);
-    setImportSearch('');
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     listEvents()
@@ -601,7 +604,7 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
       })
       .catch(() => setImportEvents([]))
       .finally(() => setImportLoading(false));
-  }, [importModalOpen]);
+  }, [importModalOpen, customSectionImportModalOpen]);
 
   const handleAddEvent = () => {
     if (!eventForm.title || !eventForm.date) {
@@ -898,17 +901,23 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
     }
 
     const updatedSections = [...customSections];
-    const newLink = {
-      id: Date.now(),
-      ...customSectionLinkForm
-    };
-    updatedSections[editingCustomSectionForLink].links.push(newLink);
+    if (editingCustomSectionLinkIndex !== null) {
+      // Editing existing link
+      updatedSections[editingCustomSectionForLink].links[editingCustomSectionLinkIndex] = {
+        ...updatedSections[editingCustomSectionForLink].links[editingCustomSectionLinkIndex],
+        ...customSectionLinkForm
+      };
+      toast.success('Link updated');
+    } else {
+      // Adding new link
+      updatedSections[editingCustomSectionForLink].links.push({ id: Date.now(), ...customSectionLinkForm });
+      toast.success('Link added to section');
+    }
     setCustomSections(updatedSections);
-    
     setCustomSectionLinkForm({ title: '', url: '', description: '' });
     setShowCustomSectionLinkModal(false);
     setEditingCustomSectionForLink(null);
-    toast.success('Link added to section');
+    setEditingCustomSectionLinkIndex(null);
   };
 
   const handleDeleteLinkFromCustomSection = (sectionIndex, linkIndex) => {
@@ -934,17 +943,28 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
       updatedSections[editingCustomSectionForLink].events = [];
     }
 
-    // Create new event for this custom section only
-    const newEvent = {
-      id: Date.now(),
-      ...customSectionEventForm,
-      category: customSectionEventForm.category === 'thirdParty' ? 'third-party' :
-                customSectionEventForm.category === 'onDemand' ? 'on-demand' : 'ibm'
-    };
+    const mappedCategory = customSectionEventForm.category === 'thirdParty' ? 'third-party' :
+                           customSectionEventForm.category === 'onDemand' ? 'on-demand' : 'ibm';
 
-    updatedSections[editingCustomSectionForLink].events.push(newEvent);
+    if (editingCustomSectionEventId !== null) {
+      // Editing existing event
+      updatedSections[editingCustomSectionForLink].events = updatedSections[editingCustomSectionForLink].events.map(e =>
+        e.id === editingCustomSectionEventId
+          ? { ...e, ...customSectionEventForm, category: mappedCategory }
+          : e
+      );
+      toast.success('Event updated');
+    } else {
+      // Adding new event
+      updatedSections[editingCustomSectionForLink].events.push({
+        id: Date.now(),
+        ...customSectionEventForm,
+        category: mappedCategory
+      });
+      toast.success('Event added to section!');
+    }
+
     setCustomSections(updatedSections);
-    
     setCustomSectionEventForm({
       title: '',
       date: '',
@@ -958,7 +978,7 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
     });
     setShowCustomSectionEventModal(false);
     setEditingCustomSectionForLink(null);
-    toast.success('Event added to section!');
+    setEditingCustomSectionEventId(null);
   };
 
   const handleDeleteEventFromCustomSection = (sectionIndex, eventId) => {
@@ -3041,6 +3061,29 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
                                 </p>
                               </div>
                               <Button
+                                kind="ghost"
+                                size="sm"
+                                renderIcon={Edit}
+                                iconDescription="Edit event"
+                                hasIconOnly
+                                onClick={() => {
+                                  setEditingCustomSectionForLink(index);
+                                  setEditingCustomSectionEventId(event.id);
+                                  setCustomSectionEventForm({
+                                    title: event.title,
+                                    date: event.date,
+                                    category: event.category === 'third-party' ? 'thirdParty' : event.category === 'on-demand' ? 'onDemand' : 'ibm',
+                                    location: event.location || '',
+                                    audience: event.audience || '',
+                                    registrationLink: event.registrationLink || '',
+                                    contactEmail: event.contactEmail || '',
+                                    seismicLink: event.seismicLink || '',
+                                    featured: event.featured || false
+                                  });
+                                  setShowCustomSectionEventModal(true);
+                                }}
+                              />
+                              <Button
                                 kind="danger--ghost"
                                 size="sm"
                                 renderIcon={TrashCan}
@@ -3255,28 +3298,13 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
                   />
                 ) : (
                   <DatePicker
-                    datePickerType="range"
+                    datePickerType="single"
                     onChange={(dates) => {
-                      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                                         'July', 'August', 'September', 'October', 'November', 'December'];
-                      if (dates && dates.length === 2 && dates[1]) {
-                        const start = new Date(dates[0]);
-                        const end = new Date(dates[1]);
-                        const startDay = start.getDate();
-                        const endDay = end.getDate();
-                        const startMonth = monthNames[start.getMonth()];
-                        const endMonth = monthNames[end.getMonth()];
-                        const sameDay = start.getDate() === end.getDate() && start.getMonth() === end.getMonth();
-                        const formattedDate = sameDay
-                          ? `${startDay} ${startMonth}`
-                          : startMonth === endMonth
-                            ? `${startDay}–${endDay} ${startMonth}`
-                            : `${startDay} ${startMonth}–${endDay} ${endMonth}`;
-                        setEventForm({ ...eventForm, date: formattedDate });
-                      } else if (dates && dates.length >= 1 && dates[0]) {
-                        const start = new Date(dates[0]);
-                        const formattedDate = `${start.getDate()} ${monthNames[start.getMonth()]}`;
-                        setEventForm({ ...eventForm, date: formattedDate });
+                      if (dates && dates[0]) {
+                        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                                           'July', 'August', 'September', 'October', 'November', 'December'];
+                        const d = new Date(dates[0]);
+                        setEventForm(prev => ({ ...prev, _startDate: d, date: `${d.getDate()} ${monthNames[d.getMonth()]}` }));
                       }
                     }}
                   >
@@ -3285,13 +3313,40 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
                       labelText="Date *"
                       placeholder="Start date"
                     />
-                    <DatePickerInput
-                      id="event-date-end"
-                      labelText="End Date (optional)"
-                      placeholder="End date"
-                    />
                   </DatePicker>
                 )}
+              </div>
+              <div>
+                <DatePicker
+                  datePickerType="single"
+                  onChange={(dates) => {
+                    if (dates && dates[0]) {
+                      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                                         'July', 'August', 'September', 'October', 'November', 'December'];
+                      const end = new Date(dates[0]);
+                      const start = eventForm._startDate;
+                      if (start) {
+                        const startDay = start.getDate();
+                        const endDay = end.getDate();
+                        const startMonth = monthNames[start.getMonth()];
+                        const endMonth = monthNames[end.getMonth()];
+                        const sameDay = startDay === endDay && start.getMonth() === end.getMonth();
+                        const formattedDate = sameDay
+                          ? `${startDay} ${startMonth}`
+                          : startMonth === endMonth
+                            ? `${startDay}–${endDay} ${startMonth}`
+                            : `${startDay} ${startMonth}–${endDay} ${endMonth}`;
+                        setEventForm(prev => ({ ...prev, date: formattedDate }));
+                      }
+                    }
+                  }}
+                >
+                  <DatePickerInput
+                    id="event-date-end"
+                    labelText="End Date (optional)"
+                    placeholder="End date"
+                  />
+                </DatePicker>
               </div>
               <Select
                 id="event-category"
@@ -3714,9 +3769,10 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
           setShowCustomSectionLinkModal(false);
           setCustomSectionLinkForm({ title: '', url: '', description: '' });
           setEditingCustomSectionForLink(null);
+          setEditingCustomSectionLinkIndex(null);
         }}
-        modalHeading="Add Link to Section"
-        primaryButtonText="Add Link"
+        modalHeading={editingCustomSectionLinkIndex !== null ? 'Edit Link' : 'Add Link to Section'}
+        primaryButtonText={editingCustomSectionLinkIndex !== null ? 'Update Link' : 'Add Link'}
         secondaryButtonText="Cancel"
         onRequestSubmit={handleAddLinkToCustomSection}
         size="sm"
@@ -3768,15 +3824,29 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
             featured: false
           });
           setEditingCustomSectionForLink(null);
+          setEditingCustomSectionEventId(null);
         }}
-        modalHeading="Add Event to Section"
-        primaryButtonText="Add Event"
+        modalHeading={editingCustomSectionEventId !== null ? 'Edit Event' : 'Add Event to Section'}
+        primaryButtonText={editingCustomSectionEventId !== null ? 'Update Event' : 'Add Event'}
         secondaryButtonText="Cancel"
         onRequestSubmit={handleAddEventToCustomSection}
         size="sm"
       >
         <Form>
           <Stack gap={6}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button
+                kind="ghost"
+                size="sm"
+                renderIcon={Copy}
+                onClick={() => {
+                  setCustomSectionImportSearch('');
+                  setCustomSectionImportModalOpen(true);
+                }}
+              >
+                Import from Library
+              </Button>
+            </div>
             <TextInput
               id="custom-event-title"
               labelText="Event Title *"
@@ -3817,7 +3887,7 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
               >
                 <SelectItem value="ibm" text="IBM Event" />
                 <SelectItem value="thirdParty" text="3rd Party Event" />
-                <SelectItem value="onDemand" text="On-Demand/Webinar" />
+                <SelectItem value="onDemand" text="Virtual Event" />
               </Select>
             </div>
 
@@ -3868,6 +3938,68 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
             </p>
           </Stack>
         </Form>
+      </Modal>
+
+      {/* Custom Section — Import from Event Library Modal */}
+      <Modal
+        open={customSectionImportModalOpen}
+        onRequestClose={() => setCustomSectionImportModalOpen(false)}
+        modalHeading="Import from Event Library"
+        passiveModal
+        size="sm"
+      >
+        <div style={{ marginBottom: '1rem' }}>
+          <input
+            type="text"
+            placeholder="Search events..."
+            value={customSectionImportSearch}
+            onChange={(e) => setCustomSectionImportSearch(e.target.value)}
+            style={{ width: '100%', padding: '0.5rem 0.75rem', fontSize: '14px', border: '1px solid #e0e0e0', borderRadius: '4px', outline: 'none', boxSizing: 'border-box' }}
+          />
+        </div>
+        {importLoading ? (
+          <p style={{ color: '#525252', fontSize: '14px' }}>Loading events...</p>
+        ) : (() => {
+          const filtered = importEvents.filter((e) =>
+            e.title.toLowerCase().includes(customSectionImportSearch.toLowerCase())
+          );
+          if (filtered.length === 0) {
+            return <p style={{ color: '#525252', fontSize: '14px', textAlign: 'center', padding: '1rem 0' }}>No active upcoming events found.</p>;
+          }
+          return (
+            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+              {filtered.map((e) => (
+                <div
+                  key={e.id}
+                  onClick={() => {
+                    const mapped = mapLibraryEventToForm(e);
+                    setCustomSectionEventForm({
+                      title: mapped.title,
+                      date: mapped.date,
+                      category: mapped.category === 'ibm' ? 'ibm' : mapped.category === 'thirdParty' ? 'thirdParty' : 'onDemand',
+                      location: mapped.location,
+                      audience: mapped.audience,
+                      registrationLink: mapped.registrationLink,
+                      contactEmail: mapped.contactEmail,
+                      seismicLink: mapped.seismicLink,
+                      featured: false,
+                    });
+                    setCustomSectionImportModalOpen(false);
+                  }}
+                  style={{ padding: '0.75rem 1rem', marginBottom: '0.5rem', border: '1px solid #e0e0e0', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#fff' }}
+                  onMouseEnter={(ev) => ev.currentTarget.style.backgroundColor = '#f4f4f4'}
+                  onMouseLeave={(ev) => ev.currentTarget.style.backgroundColor = '#fff'}
+                >
+                  <div style={{ fontWeight: '600', fontSize: '14px', marginBottom: '2px' }}>{e.title}</div>
+                  <div style={{ fontSize: '12px', color: '#525252' }}>
+                    {formatLibraryDateRange(e.startDate, e.endDate)}
+                    {e.locationDetails ? ` · ${e.locationDetails}` : ''}
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
       </Modal>
 
       {/* Save Draft Modal */}

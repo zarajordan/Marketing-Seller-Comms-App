@@ -118,7 +118,7 @@ const LoginPage = ({ onLogin }) => {
     <div style={{ textAlign: 'center', marginBottom: '32px' }}>
       <Login size={48} style={{ color: '#4589ff', marginBottom: '16px' }} />
       <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#161616', margin: '0 0 8px 0', letterSpacing: '0.04em' }}>
-        IBM UKI MARKETING HUB
+        IBM UKI GO-TO-MARKET HUB
       </h2>
       <p style={{ fontSize: '14px', color: '#525252', margin: 0 }}>
         Sign in to your account

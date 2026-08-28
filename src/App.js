@@ -372,7 +372,7 @@ function MainAppContent({ onLogout }) {
         </button>
         <span className="app-topbar__logo">IBM</span>
         <div className="app-topbar__divider" />
-        <span className="app-topbar__name">IBM UKI MARKETING HUB</span>
+        <span className="app-topbar__name">IBM UKI GO-TO-MARKET HUB</span>
         <div className="app-topbar__right">
           <span className="app-topbar__role-pill">{currentUser.role}</span>
           <span className="app-topbar__username">{currentUser.name}</span>

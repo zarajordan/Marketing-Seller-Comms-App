@@ -215,6 +215,7 @@ export const replaceMarketerPermissions = async (user, permissions) => {
 export const mapEventRowToAppEvent = (row) => ({
   id: row.id,
   title: row.title || '',
+  subtitle: row.subtitle || '',
   // legacy fields
   description: row.brief_summary || row.description || '',
   date: row.start_date || row.event_date || '',
@@ -237,6 +238,7 @@ export const mapEventRowToAppEvent = (row) => ({
   seismicPageRequired: row.seismic_page_required ?? null,
   sellerInviteUrl: row.seller_invite_url || '',
   partnerInviteUrl: row.partner_invite_url || '',
+  emeaOnePagerUrl: row.emea_one_pager_url || '',
   productAreas: row.product_areas || [],
   eventType: row.event_type || 'Webinar',
   targetAudience: row.target_audience || 'All',
@@ -256,6 +258,7 @@ export const mapEventRowToAppEvent = (row) => ({
 
 export const mapEventFormToRow = (event) => ({
   title: event.title,
+  subtitle: event.subtitle || '',
   start_date: event.startDate || event.date || null,
   end_date: event.endDate || null,
   event_time: event.eventTime || null,
@@ -272,8 +275,9 @@ export const mapEventFormToRow = (event) => ({
   seismic_page_required: event.seismicPageRequired ?? null,
   seller_invite_url: event.sellerInviteUrl || '',
   partner_invite_url: event.partnerInviteUrl || '',
+  emea_one_pager_url: event.emeaOnePagerUrl || '',
   product_areas: event.productAreas || [],
-  event_type: event.eventType || 'Webinar',
+  event_type: event.eventType || 'Virtual Event',
   target_audience: event.targetAudience || 'All',
   industry: event.industry || 'Cross-Industry',
   target_roles: event.targetRoles || [],
@@ -307,7 +311,7 @@ export const listEvents = async () => {
   return getOrFetch('events', async () => {
     const { data, error } = await supabase
       .from('events')
-      .select('id, title, brief_summary, description, start_date, end_date, event_date, event_time, location_type, location_details, location, invite_only, contacts, speakers, detailed_description, event_agenda, registration_link, seismic_link, seismic_page_required, seller_invite_url, partner_invite_url, product_areas, event_type, target_audience, industry, target_roles, other_role, event_stream, status, post_event_follow_up, category, regions, invite_process, promote_our_presence, promote_documents, reviewer_note, owner_email')
+      .select('id, title, brief_summary, description, start_date, end_date, event_date, event_time, location_type, location_details, location, invite_only, contacts, speakers, detailed_description, event_agenda, registration_link, seismic_link, seismic_page_required, seller_invite_url, partner_invite_url, emea_one_pager_url, product_areas, event_type, target_audience, industry, target_roles, other_role, event_stream, status, post_event_follow_up, category, regions, invite_process, promote_our_presence, promote_documents, reviewer_note, owner_email')
       .order('event_date', { ascending: true });
 
     if (error) {
@@ -323,7 +327,7 @@ export const createEvent = async (event) => {
   const { data, error } = await supabase
     .from('events')
     .insert(mapEventFormToRow(event))
-    .select('id, title, brief_summary, description, start_date, end_date, event_date, event_time, location_type, location_details, location, invite_only, contacts, speakers, detailed_description, event_agenda, registration_link, seismic_link, seismic_page_required, seller_invite_url, partner_invite_url, product_areas, event_type, target_audience, industry, target_roles, other_role, event_stream, status, post_event_follow_up, category, regions, invite_process, promote_our_presence, promote_documents, reviewer_note, owner_email')
+    .select('id, title, brief_summary, description, start_date, end_date, event_date, event_time, location_type, location_details, location, invite_only, contacts, speakers, detailed_description, event_agenda, registration_link, seismic_link, seismic_page_required, seller_invite_url, partner_invite_url, emea_one_pager_url, product_areas, event_type, target_audience, industry, target_roles, other_role, event_stream, status, post_event_follow_up, category, regions, invite_process, promote_our_presence, promote_documents, reviewer_note, owner_email')
     .single();
 
   if (error) {
@@ -340,7 +344,7 @@ export const updateEvent = async (event) => {
     .from('events')
     .update(mapEventFormToRow(event))
     .eq('id', event.id)
-    .select('id, title, brief_summary, description, start_date, end_date, event_date, event_time, location_type, location_details, location, invite_only, contacts, speakers, detailed_description, event_agenda, registration_link, seismic_link, seismic_page_required, seller_invite_url, partner_invite_url, product_areas, event_type, target_audience, industry, target_roles, other_role, event_stream, status, post_event_follow_up, category, regions, invite_process, promote_our_presence, promote_documents, reviewer_note, owner_email')
+    .select('id, title, brief_summary, description, start_date, end_date, event_date, event_time, location_type, location_details, location, invite_only, contacts, speakers, detailed_description, event_agenda, registration_link, seismic_link, seismic_page_required, seller_invite_url, partner_invite_url, emea_one_pager_url, product_areas, event_type, target_audience, industry, target_roles, other_role, event_stream, status, post_event_follow_up, category, regions, invite_process, promote_our_presence, promote_documents, reviewer_note, owner_email')
     .single();
 
   if (error) {
@@ -363,7 +367,7 @@ export const listReturnedEvents = async (ownerEmail) => {
   return getOrFetch(`returned-events:${ownerEmail}`, async () => {
     const { data, error } = await supabase
       .from('events')
-      .select('id, title, brief_summary, description, start_date, end_date, event_date, event_time, location_type, location_details, location, invite_only, contacts, speakers, detailed_description, event_agenda, registration_link, seismic_link, seismic_page_required, seller_invite_url, partner_invite_url, product_areas, event_type, target_audience, industry, target_roles, other_role, event_stream, status, post_event_follow_up, category, regions, invite_process, promote_our_presence, promote_documents, reviewer_note, owner_email')
+      .select('id, title, brief_summary, description, start_date, end_date, event_date, event_time, location_type, location_details, location, invite_only, contacts, speakers, detailed_description, event_agenda, registration_link, seismic_link, seismic_page_required, seller_invite_url, partner_invite_url, emea_one_pager_url, product_areas, event_type, target_audience, industry, target_roles, other_role, event_stream, status, post_event_follow_up, category, regions, invite_process, promote_our_presence, promote_documents, reviewer_note, owner_email')
       .eq('owner_email', ownerEmail)
       .eq('status', 'Returned')
       .order('event_date', { ascending: true });
@@ -781,17 +785,17 @@ export const getAnalyticsUserBreakdown = async (days = 90) => {
 
 export const archiveExpiredEvents = async () => {
   const today = new Date().toISOString().split('T')[0];
-  // Find all Active events whose end_date (or start_date if no end) is before today
+  // Find all Active events whose end_date (or start_date/event_date if no end) is before today
   const { data, error } = await supabase
     .from('events')
-    .select('id, start_date, end_date')
+    .select('id, start_date, end_date, event_date')
     .eq('status', 'Active');
 
   if (error || !data) return;
 
   const expiredIds = data
     .filter(row => {
-      const dateToCheck = row.end_date || row.start_date;
+      const dateToCheck = row.end_date || row.start_date || row.event_date;
       return dateToCheck && dateToCheck < today;
     })
     .map(row => row.id);
@@ -802,4 +806,6 @@ export const archiveExpiredEvents = async () => {
     .from('events')
     .update({ status: 'Archived' })
     .in('id', expiredIds);
+
+  invalidate('events'); // callers must re-fetch after this
 };

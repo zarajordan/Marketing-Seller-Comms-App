@@ -44,6 +44,7 @@ const TARGET_ROLES = [
 
 const EMPTY_FORM = {
   title: '',
+  subtitle: '',
   startDate: '',
   endDate: '',
   eventTime: '',
@@ -60,6 +61,7 @@ const EMPTY_FORM = {
   seismicLink: '',
   sellerInviteUrl: '',
   partnerInviteUrl: '',
+  emeaOnePagerUrl: '',
   seismicPageRequired: null,
   eventStream: '',
   inviteProcess: '',
@@ -213,6 +215,10 @@ const ManageEventsTab = () => {
       toast.warning('Please fill in Event Title and Start Date');
       return;
     }
+    if (formData.contacts.length === 0 || !formData.contacts[0]?.name?.trim()) {
+      toast.warning('Please add at least one event contact');
+      return;
+    }
 
     try {
       if (isEditing && currentEvent) {
@@ -234,6 +240,7 @@ const ManageEventsTab = () => {
     setCurrentEvent(event);
     setFormData({
       title: event.title || '',
+      subtitle: event.subtitle || '',
       startDate: event.startDate || event.date || '',
       endDate: event.endDate || '',
       eventTime: event.eventTime || '',
@@ -250,6 +257,7 @@ const ManageEventsTab = () => {
       seismicLink: event.seismicLink || '',
       sellerInviteUrl: event.sellerInviteUrl || '',
       partnerInviteUrl: event.partnerInviteUrl || '',
+      emeaOnePagerUrl: event.emeaOnePagerUrl || '',
       seismicPageRequired: event.seismicPageRequired ?? null,
       eventStream: event.eventStream || '',
       productAreas: event.productAreas || [],
@@ -368,6 +376,14 @@ const ManageEventsTab = () => {
               value={formData.title}
               onChange={handleInputChange}
             />
+            <TextInput
+              id="subtitle"
+              name="subtitle"
+              labelText="Event Subtitle (Optional)"
+              placeholder="e.g., A deep dive into AI-powered automation"
+              value={formData.subtitle}
+              onChange={handleInputChange}
+            />
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '16px' }}>
               <div>
@@ -399,7 +415,7 @@ const ManageEventsTab = () => {
             <div>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Region <span style={{ fontSize: '13px', fontWeight: '400', color: '#525252' }}>(Select all that apply)</span></p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '8px' }}>
-                {['North', 'South', 'Midlands (Birmingham)', 'Ireland', 'Scotland', 'Wales', 'Europe', 'London', 'Virtual', 'America', 'EMEA'].map((region) => (
+                {['North', 'Midlands (Birmingham)', 'Ireland', 'Scotland', 'Wales', 'London', 'Virtual', 'America', 'EMEA'].map((region) => (
                   <Checkbox
                     key={region}
                     id={`region-manage-${region}`}
@@ -425,7 +441,7 @@ const ManageEventsTab = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '28px', marginBottom: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <UserFollow size={18} />
-              <span style={{ fontSize: '14px', fontWeight: '600', color: '#161616' }}>Event Contacts (Optional - Seller Reference Only)</span>
+              <span style={{ fontSize: '14px', fontWeight: '600', color: '#161616' }}>Event Contacts * <span style={{ fontWeight: '400', color: '#525252' }}>(Seller Reference Only)</span></span>
             </div>
             <Button kind="tertiary" size="sm" renderIcon={Add} onClick={handleAddContact}>
               Add Contact
@@ -614,6 +630,23 @@ const ManageEventsTab = () => {
               />
             </div>
             <div>
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>EMEA One Page Summary (Optional)</p>
+              <p style={{ fontSize: '13px', color: '#525252', marginBottom: '8px' }}>Upload a one-page summary document for EMEA audiences</p>
+              {formData.emeaOnePagerUrl && <p style={{ fontSize: '12px', color: '#198038', marginBottom: '6px' }}>✓ Uploaded: <a href={formData.emeaOnePagerUrl} target="_blank" rel="noopener noreferrer">View document</a></p>}
+              <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" style={{ width: '100%', padding: '8px', border: '1px solid #8d8d8d', background: '#fff', fontSize: '14px', boxSizing: 'border-box' }}
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  try {
+                    const url = await uploadEventDocument(file, 'emea-one-pagers');
+                    setFormData((prev) => ({ ...prev, emeaOnePagerUrl: url }));
+                    toast.success('EMEA one pager uploaded');
+                  } catch (err) { toast.error('Upload failed: ' + err.message); }
+                }}
+              />
+              <p style={{ fontSize: '12px', color: '#6f6f6f', marginTop: '4px' }}>Accepted formats: PDF, Word, PowerPoint</p>
+            </div>
+            <div>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Invite Process (Optional)</p>
               <p style={{ fontSize: '13px', color: '#525252', marginBottom: '8px' }}>Describe the process sellers should follow to invite clients to this event</p>
               <RichTextEditor
@@ -647,22 +680,22 @@ const ManageEventsTab = () => {
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Product Areas <span style={{ fontSize: '13px', fontWeight: '400', color: '#525252' }}>(Select all that apply)</span></p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '8px' }}>
                 {PRODUCT_AREAS.map((area) => (
-                  <Checkbox
-                    key={area.id}
-                    id={`product-${area.id}`}
-                    labelText={area.label}
-                    checked={formData.productAreas.includes(area.id)}
-                    onChange={() => {
-                      if (area.id === 'all-products') {
-                        setFormData((prev) => ({ ...prev, productAreas: prev.productAreas.includes('all-products') ? [] : ['all-products'] }));
-                      } else {
-                        setFormData((prev) => {
-                          const without = prev.productAreas.filter((x) => x !== 'all-products');
-                          return { ...prev, productAreas: without.includes(area.id) ? without.filter((x) => x !== area.id) : [...without, area.id] };
-                        });
-                      }
-                    }}
-                  />
+                   <Checkbox
+                     key={area.id}
+                     id={`manage-product-${area.id}`}
+                     labelText={area.label}
+                     checked={formData.productAreas.includes(area.id)}
+                     onChange={() => {
+                       if (area.id === 'all-products') {
+                         setFormData((prev) => ({ ...prev, productAreas: prev.productAreas.includes('all-products') ? [] : ['all-products'] }));
+                       } else {
+                         setFormData((prev) => {
+                           const without = prev.productAreas.filter((x) => x !== 'all-products');
+                           return { ...prev, productAreas: without.includes(area.id) ? without.filter((x) => x !== area.id) : [...without, area.id] };
+                         });
+                       }
+                     }}
+                   />
                 ))}
               </div>
             </div>
@@ -675,7 +708,7 @@ const ManageEventsTab = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '16px' }}>
               <Select id="eventType" name="eventType" labelText="Event Type" value={formData.eventType} onChange={handleInputChange}>
-                <SelectItem value="Webinar" text="Webinar" />
+                <SelectItem value="Virtual Event" text="Virtual Event" />
                 <SelectItem value="In-Person" text="Event" />
                 <SelectItem value="Workshop" text="Workshop" />
                 <SelectItem value="Conference" text="Conference" />
@@ -720,7 +753,7 @@ const ManageEventsTab = () => {
                 {TARGET_ROLES.map((role) => (
                   <Checkbox
                     key={role.id}
-                    id={`role-${role.id}`}
+                    id={`manage-role-${role.id}`}
                     labelText={role.label}
                     checked={formData.targetRoles.includes(role.id)}
                     onChange={() => handleCheckboxToggle('targetRoles', role.id)}

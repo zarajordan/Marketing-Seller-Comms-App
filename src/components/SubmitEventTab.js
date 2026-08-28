@@ -41,6 +41,7 @@ const DEFAULT_POST_EVENT_FOLLOW_UP = `<p><strong>For Select:</strong></p><p>For 
 
 const EMPTY_FORM = {
   title: '',
+  subtitle: '',
   startDate: '',
   endDate: '',
   eventTime: '',
@@ -57,10 +58,11 @@ const EMPTY_FORM = {
   seismicLink: '',
   sellerInviteUrl: '',
   partnerInviteUrl: '',
+  emeaOnePagerUrl: '',
   eventStream: '',
   inviteProcess: '',
   productAreas: [],
-  eventType: 'Webinar',
+  eventType: 'Virtual Event',
   targetAudience: 'All',
   industry: 'Cross-Industry',
   targetRoles: [],
@@ -250,6 +252,7 @@ const SubmitEventTab = forwardRef(({ onReturnedResolved } = {}, ref) => {
                                                                          e.eventAgenda = 'Event agenda is required';
     if (!formData.productAreas[0])                                       e.productAreas = 'Please select a product area';
     if (formData.targetRoles.length === 0)                               e.targetRoles = 'Please select at least one target role';
+    if (formData.contacts.length === 0 || !formData.contacts[0]?.name?.trim()) e.contacts = 'At least one contact with a name is required';
     return e;
   };
 
@@ -407,6 +410,14 @@ const SubmitEventTab = forwardRef(({ onReturnedResolved } = {}, ref) => {
               invalid={!!errors.title}
               invalidText={errors.title}
             />
+            <TextInput
+              id="subtitle"
+              name="subtitle"
+              labelText="Event Subtitle (Optional)"
+              placeholder="e.g., A deep dive into AI-powered automation"
+              value={formData.subtitle}
+              onChange={handleInputChange}
+            />
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '16px' }}>
               <div>
@@ -442,7 +453,7 @@ const SubmitEventTab = forwardRef(({ onReturnedResolved } = {}, ref) => {
             <div>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Region <span style={{ fontSize: '13px', fontWeight: '400', color: '#525252' }}>(Select all that apply)</span></p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '8px' }}>
-                {['North', 'South', 'Midlands (Birmingham)', 'Ireland', 'Scotland', 'Wales', 'Europe', 'London', 'Virtual', 'America', 'EMEA'].map((region) => (
+                {['North', 'Midlands (Birmingham)', 'Ireland', 'Scotland', 'Wales', 'London', 'Virtual', 'America', 'EMEA'].map((region) => (
                   <Checkbox
                     key={region}
                     id={`region-submit-${region}`}
@@ -468,12 +479,13 @@ const SubmitEventTab = forwardRef(({ onReturnedResolved } = {}, ref) => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '28px', marginBottom: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <UserFollow size={18} />
-              <span style={{ fontSize: '14px', fontWeight: '600', color: '#161616' }}>Event Contacts (Optional - Seller Reference Only)</span>
+              <span style={{ fontSize: '14px', fontWeight: '600', color: '#161616' }}>Event Contacts * <span style={{ fontWeight: '400', color: '#525252' }}>(Seller Reference Only)</span></span>
             </div>
             <Button kind="tertiary" size="sm" renderIcon={Add} onClick={handleAddContact}>
               Add Contact
             </Button>
           </div>
+          {errors.contacts && <p style={{ fontSize: '12px', color: '#da1e28', marginBottom: '8px' }}>{errors.contacts}</p>}
 
           <div style={INFO_BOX_STYLE}>
             ℹ️ Add key contacts for this event with their name, email, and profile image. This information is for <strong>seller reference only</strong> and will NOT appear in client communications.
@@ -647,6 +659,23 @@ const SubmitEventTab = forwardRef(({ onReturnedResolved } = {}, ref) => {
                   } catch (err) { toast.error('Upload failed: ' + err.message); }
                 }}
               />
+            </div>
+            <div>
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>EMEA One Page Summary (Optional)</p>
+              <p style={{ fontSize: '13px', color: '#525252', marginBottom: '8px' }}>Upload a one-page summary document for EMEA audiences</p>
+              {formData.emeaOnePagerUrl && <p style={{ fontSize: '12px', color: '#198038', marginBottom: '6px' }}>✓ Uploaded: <a href={formData.emeaOnePagerUrl} target="_blank" rel="noopener noreferrer">View document</a></p>}
+              <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" style={{ width: '100%', padding: '8px', border: '1px solid #8d8d8d', background: '#fff', fontSize: '14px', boxSizing: 'border-box' }}
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  try {
+                    const url = await uploadEventDocument(file, 'emea-one-pagers');
+                    setFormData((prev) => ({ ...prev, emeaOnePagerUrl: url }));
+                    toast.success('EMEA one pager uploaded');
+                  } catch (err) { toast.error('Upload failed: ' + err.message); }
+                }}
+              />
+              <p style={{ fontSize: '12px', color: '#6f6f6f', marginTop: '4px' }}>Accepted formats: PDF, Word, PowerPoint</p>
             </div>
             <div>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#161616', marginBottom: '4px' }}>Invite Process (Optional)</p>
