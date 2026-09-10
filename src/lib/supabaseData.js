@@ -367,10 +367,10 @@ export const listReturnedEvents = async (ownerEmail) => {
   return getOrFetch(`returned-events:${ownerEmail}`, async () => {
     const { data, error } = await supabase
       .from('events')
-      .select('id, title, brief_summary, description, start_date, end_date, event_date, event_time, location_type, location_details, location, invite_only, contacts, speakers, detailed_description, event_agenda, registration_link, seismic_link, seismic_page_required, seller_invite_url, partner_invite_url, emea_one_pager_url, product_areas, event_type, target_audience, industry, target_roles, other_role, event_stream, status, post_event_follow_up, category, regions, invite_process, promote_our_presence, promote_documents, reviewer_note, owner_email')
+      .select('*')
       .eq('owner_email', ownerEmail)
       .eq('status', 'Returned')
-      .order('event_date', { ascending: true });
+      .order('start_date', { ascending: true, nullsFirst: false });
 
     if (error) throw error;
     return data.map(mapEventRowToAppEvent);

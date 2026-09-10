@@ -139,9 +139,9 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
 
   const loadEvents = async () => {
     setLoading(true);
+    // Fire archive in background — never block or fail the events load
+    archiveExpiredEvents().catch(() => {});
     try {
-      // Auto-archive any events whose date has passed
-      await archiveExpiredEvents().catch(() => {});
       const data = await listEvents();
       setEvents(data.filter(e => !e.status || e.status === 'Active'));
       setArchivedEvents(data.filter(e => e.status === 'Archived'));
