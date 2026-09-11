@@ -91,7 +91,7 @@ export const UserProvider = ({ children }) => {
       email,
       role: 'seller',
       active: true,
-      permissions: { 'event-library': true, 'client-stories': true, 'submit-partner-story': true, 'book-filming': true, 'social-tiles': true, 'csr': true, 'sales-people-finder': true },
+      permissions: { 'event-library': true, 'on-demand': true, 'internal-events': true, 'client-stories': true, 'submit-partner-story': true, 'book-filming': true, 'social-tiles': true, 'csr': true, 'sales-people-finder': true },
     };
     setCurrentUser(guestUser);
     setIsAuthenticated(true);
