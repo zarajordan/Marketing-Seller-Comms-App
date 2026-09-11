@@ -47,6 +47,7 @@ import LoginPage from './components/LoginPage';
 import SetNewPasswordPage from './components/SetNewPasswordPage';
 import { UserProvider, useUser } from './contexts/UserContext';
 import { listEvents, listReturnedEvents, listFilmingBookings, createFilmingBooking, updateFilmingBooking, deleteFilmingBooking, listStoryRequests, createStoryRequest, deleteStoryRequest, listFilmingAvailableDays, addFilmingAvailableDay, removeFilmingAvailableDay } from './lib/supabaseData';
+import ibmLogo from '../public/ibm-logo.png';
 
 // ── Sidebar configuration ────────────────────────────────────────────────────
 const SIDEBAR_SECTIONS = [
@@ -388,7 +389,7 @@ function MainAppContent({ onLogout }) {
         >
           <span className="app-topbar__hamburger" />
         </button>
-        <img src="/ibm-logo.png" alt="IBM" className="app-topbar__logo" />
+        <img src={ibmLogo} alt="IBM" className="app-topbar__logo" />
         <div className="app-topbar__divider" />
         <span className="app-topbar__name">UKI GO-TO-MARKET HUB</span>
         <div className="app-topbar__right">
