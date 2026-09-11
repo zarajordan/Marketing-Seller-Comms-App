@@ -253,6 +253,8 @@ const SubmitEventTab = forwardRef(({ onReturnedResolved } = {}, ref) => {
     if (!formData.productAreas[0])                                       e.productAreas = 'Please select a product area';
     if (formData.targetRoles.length === 0)                               e.targetRoles = 'Please select at least one target role';
     if (formData.contacts.length === 0 || !formData.contacts[0]?.name?.trim()) e.contacts = 'At least one contact with a name is required';
+    if (formData.contacts.some(c => c.name.trim() && !c.email.trim())) e.contacts = 'Email is required for all named contacts';
+    if (formData.contacts.some(c => c.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email))) e.contacts = 'Please enter a valid email address for all contacts';
     return e;
   };
 
@@ -498,15 +500,18 @@ const SubmitEventTab = forwardRef(({ onReturnedResolved } = {}, ref) => {
             <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '12px', marginBottom: '12px', alignItems: 'flex-end' }}>
               <TextInput
                 id={`contact-name-${i}`}
-                labelText="Name"
+                labelText="Name *"
                 value={contact.name}
                 onChange={(e) => handleContactChange(i, 'name', e.target.value)}
+                required
               />
               <TextInput
                 id={`contact-email-${i}`}
-                labelText="Email"
+                labelText="Email *"
+                type="email"
                 value={contact.email}
                 onChange={(e) => handleContactChange(i, 'email', e.target.value)}
+                required
               />
               <div>
                 <label style={{ fontSize: '12px', fontWeight: '600', color: '#525252', display: 'block', marginBottom: '8px' }}>Profile Image</label>

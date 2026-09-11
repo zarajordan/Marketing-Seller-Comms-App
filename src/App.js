@@ -46,7 +46,7 @@ import ThemeSelector from './components/ThemeSelector';
 import LoginPage from './components/LoginPage';
 import SetNewPasswordPage from './components/SetNewPasswordPage';
 import { UserProvider, useUser } from './contexts/UserContext';
-import { listEvents, listReturnedEvents, listFilmingBookings, createFilmingBooking, updateFilmingBooking, deleteFilmingBooking, listStoryRequests, createStoryRequest, deleteStoryRequest } from './lib/supabaseData';
+import { listEvents, listReturnedEvents, listFilmingBookings, createFilmingBooking, updateFilmingBooking, deleteFilmingBooking, listStoryRequests, createStoryRequest, deleteStoryRequest, listFilmingAvailableDays, addFilmingAvailableDay, removeFilmingAvailableDay } from './lib/supabaseData';
 
 // ── Sidebar configuration ────────────────────────────────────────────────────
 const SIDEBAR_SECTIONS = [
@@ -188,12 +188,23 @@ function MainAppContent({ onLogout }) {
   const [forReviewCount, setForReviewCount] = useState(0);
   const [returnedEventCount, setReturnedEventCount] = useState(0);
   const [filmingBookings, setFilmingBookings] = useState([]);
+  const [filmingAvailableDays, setFilmingAvailableDays] = useState([]);
   const [storyRequests, setStoryRequests] = useState([]);
 
   // Load persisted data on mount
   useEffect(() => {
     listFilmingBookings().then(setFilmingBookings).catch(() => {});
+    listFilmingAvailableDays().then(setFilmingAvailableDays).catch(() => {});
     listStoryRequests().then(setStoryRequests).catch(() => {});
+  }, []);
+
+  const handleAddAvailableDay = useCallback(async (date, note) => {
+    const saved = await addFilmingAvailableDay(date, note);
+    setFilmingAvailableDays(days => [...days, saved].sort((a, b) => a.date.localeCompare(b.date)));
+  }, []);
+  const handleRemoveAvailableDay = useCallback(async (id) => {
+    await removeFilmingAvailableDay(id);
+    setFilmingAvailableDays(days => days.filter(d => d.id !== id));
   }, []);
 
   const handleAddStoryRequest = useCallback(async (req) => {
@@ -350,7 +361,7 @@ function MainAppContent({ onLogout }) {
       if (selectedTabId === 'event-library')   { props.onGenerateComm = handleGenerateComm; props.currentUser = currentUser; }
       if (selectedTabId === 'for-review')      { props.filmingBookings = filmingBookings; props.onUpdateBookingStatus = handleUpdateBookingStatus; props.onDeleteBooking = handleDeleteBooking; props.storyRequests = storyRequests; props.onDismissStoryRequest = handleDismissStoryRequest; }
       if (selectedTabId === 'submit-partner-story') { props.onAddStoryRequest = handleAddStoryRequest; }
-      if (selectedTabId === 'book-filming') { props.bookings = filmingBookings; props.onAddBooking = handleAddBooking; props.onUpdateBooking = handleUpdateBooking; props.onUpdateBookingStatus = handleUpdateBookingStatus; props.onDeleteBooking = handleDeleteBooking; }
+      if (selectedTabId === 'book-filming') { props.bookings = filmingBookings; props.availableDays = filmingAvailableDays; props.onAddBooking = handleAddBooking; props.onUpdateBooking = handleUpdateBooking; props.onUpdateBookingStatus = handleUpdateBookingStatus; props.onDeleteBooking = handleDeleteBooking; props.onAddAvailableDay = handleAddAvailableDay; props.onRemoveAvailableDay = handleRemoveAvailableDay; }
       return <Component {...props} />;
     };
 

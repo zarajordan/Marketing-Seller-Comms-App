@@ -19,12 +19,11 @@ import {
   uploadInternalEventImage,
 } from '../lib/supabaseData';
 
-const AUDIENCE_TAGS = ['Technology', 'Consulting', 'Both'];
+const AUDIENCE_OPTIONS = ['Technology', 'Consulting'];
 
 const AUDIENCE_STYLES = {
   Technology: { bg: '#edf5ff', color: '#0043ce' },
   Consulting:  { bg: '#defbe6', color: '#044317' },
-  Both:        { bg: '#f6f2ff', color: '#6929c4' },
 };
 
 const EMPTY_FORM = {
@@ -36,7 +35,7 @@ const EMPTY_FORM = {
   speaker: '',
   contact: '',
   register_url: '',
-  audience: 'Both',
+  audience: ['Technology', 'Consulting'],
   image_url: '',
 };
 
@@ -56,13 +55,6 @@ export default function InternalEventsTab() {
   const [saving, setSaving]               = useState(false);
   const [imageFile, setImageFile]         = useState(null);
   const [imagePreview, setImagePreview]   = useState(null);
-
-  // Submit form (for non-admins)
-  const [isSubmitOpen, setIsSubmitOpen]   = useState(false);
-  const [submitForm, setSubmitForm]       = useState(EMPTY_FORM);
-  const [submitImageFile, setSubmitImageFile] = useState(null);
-  const [submitImagePreview, setSubmitImagePreview] = useState(null);
-  const [submitting, setSubmitting]       = useState(false);
 
   useEffect(() => { load(); }, []);
 
@@ -96,7 +88,7 @@ export default function InternalEventsTab() {
       speaker:      ev.speaker || '',
       contact:      ev.contact || '',
       register_url: ev.register_url || '',
-      audience:     ev.audience || 'Both',
+      audience:     Array.isArray(ev.audience) ? ev.audience : (ev.audience ? [ev.audience] : ['Technology', 'Consulting']),
       image_url:    ev.image_url || '',
     });
     setEditingId(ev.id);
@@ -147,35 +139,12 @@ export default function InternalEventsTab() {
     }
   };
 
-  const handleSubmit = async () => {
-    if (!submitForm.title.trim()) { toast.error('Title is required'); return; }
-    if (!submitForm.date) { toast.error('Date is required'); return; }
-    setSubmitting(true);
-    try {
-      let finalForm = { ...submitForm, status: 'pending' };
-      if (submitImageFile) {
-        finalForm.image_url = await uploadInternalEventImage(submitImageFile);
-      }
-      await createInternalEvent(finalForm);
-      toast.success('Event submitted for review!');
-      setIsSubmitOpen(false);
-      setSubmitForm(EMPTY_FORM);
-      setSubmitImageFile(null);
-      setSubmitImagePreview(null);
-      await load();
-    } catch (err) {
-      toast.error(`Failed to submit: ${err.message}`);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const today = new Date().toISOString().split('T')[0];
   const filtered = events
-    .filter(ev => !ev.status || ev.status === 'approved' || isAdmin)
+    .filter(ev => !ev.status || ev.status !== 'pending')
     .filter(ev => {
       const matchSearch   = !search || ev.title?.toLowerCase().includes(search.toLowerCase()) || ev.speaker?.toLowerCase().includes(search.toLowerCase());
-      const matchAudience = filterAudience === 'All' || ev.audience === filterAudience;
+      const evAudience = Array.isArray(ev.audience) ? ev.audience : [ev.audience];
+      const matchAudience = filterAudience === 'All' || evAudience.includes(filterAudience);
       return matchSearch && matchAudience;
     })
     .sort((a, b) => (a.date || '') > (b.date || '') ? 1 : -1);
@@ -196,10 +165,10 @@ export default function InternalEventsTab() {
 
       {/* Intro */}
       <div style={{ background: '#f4f7ff', borderBottom: '1px solid #dde4f5', padding: '20px 24px' }}>
-        <p style={{ margin: 0, fontSize: '14px', color: '#1f2937', lineHeight: 1.7, maxWidth: '900px' }}>
+        <p style={{ margin: 0, fontSize: '14px', color: '#1f2937', lineHeight: 1.7 }}>
           This section highlights upcoming IBMer events, enablement sessions and briefings designed to keep you informed, connected and ahead of the latest business priorities. These events offer valuable opportunities to hear from subject matter experts, expand your network and stay up to date on key initiatives across the business.
         </p>
-        <p style={{ margin: '10px 0 0', fontSize: '14px', color: '#1f2937', lineHeight: 1.7, maxWidth: '900px' }}>
+        <p style={{ margin: '10px 0 0', fontSize: '14px', color: '#1f2937', lineHeight: 1.7 }}>
           We encourage all IBMers to review and attend relevant sessions where possible. In addition, participation in eligible events contributes towards your <strong>YourLearning hours</strong>, helping you continue your growth while staying connected to what's happening across IBM.
         </p>
       </div>
@@ -220,12 +189,9 @@ export default function InternalEventsTab() {
           <div style={{ minWidth: '180px' }}>
             <Select id="ie-filter" labelText="Audience" value={filterAudience} onChange={e => setFilterAudience(e.target.value)}>
               <SelectItem value="All" text="All" />
-              {AUDIENCE_TAGS.map(t => <SelectItem key={t} value={t} text={t} />)}
+              {AUDIENCE_OPTIONS.map(t => <SelectItem key={t} value={t} text={t} />)}
             </Select>
           </div>
-          <Button kind="tertiary" renderIcon={Add} onClick={() => { setSubmitForm(EMPTY_FORM); setSubmitImageFile(null); setSubmitImagePreview(null); setIsSubmitOpen(true); }}>
-            Submit an Event
-          </Button>
           {isAdmin && (
             <Button renderIcon={Add} onClick={openAdd}>
               Add Event
@@ -278,30 +244,6 @@ export default function InternalEventsTab() {
         />
       </Modal>
 
-      {/* Submit Event Modal (all users) */}
-      <Modal
-        open={isSubmitOpen}
-        modalHeading="Submit an Internal Event"
-        primaryButtonText={submitting ? 'Submitting…' : 'Submit for Review'}
-        secondaryButtonText="Cancel"
-        onRequestSubmit={handleSubmit}
-        onRequestClose={() => setIsSubmitOpen(false)}
-        onSecondarySubmit={() => setIsSubmitOpen(false)}
-        primaryButtonDisabled={submitting}
-        size="md"
-      >
-        <p style={{ fontSize: '13px', color: '#525252', marginBottom: '16px' }}>
-          Your submission will be reviewed by an admin before appearing on the page.
-        </p>
-        <EventFormFields
-          form={submitForm}
-          setForm={setSubmitForm}
-          imagePreview={submitImagePreview}
-          onImageChange={e => handleImageChange(e, setSubmitImageFile, setSubmitImagePreview)}
-          onClearImage={() => { setSubmitImageFile(null); setSubmitImagePreview(null); setSubmitForm({ ...submitForm, image_url: '' }); }}
-        />
-      </Modal>
-
       {/* Delete Confirm */}
       <Modal
         open={!!deleteConfirm}
@@ -332,9 +274,25 @@ function EventFormFields({ form, setForm, imagePreview, onImageChange, onClearIm
       <TextInput id="ie-location" labelText="Location" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} placeholder="e.g. IBM South Bank or Microsoft Teams" />
       <TextInput id="ie-speaker" labelText="Speaker(s)" value={form.speaker} onChange={e => setForm({ ...form, speaker: e.target.value })} placeholder="e.g. Jane Smith, VP Technology" />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        <Select id="ie-audience" labelText="Audience" value={form.audience} onChange={e => setForm({ ...form, audience: e.target.value })}>
-          {AUDIENCE_TAGS.map(t => <SelectItem key={t} value={t} text={t} />)}
-        </Select>
+        <div>
+          <p style={{ fontSize: '12px', fontWeight: 600, color: '#161616', marginBottom: '8px' }}>Audience *</p>
+          <div style={{ display: 'flex', gap: '16px' }}>
+            {AUDIENCE_OPTIONS.map(opt => {
+              const checked = Array.isArray(form.audience) ? form.audience.includes(opt) : false;
+              const toggle = () => {
+                const current = Array.isArray(form.audience) ? form.audience : [];
+                const next = checked ? current.filter(a => a !== opt) : [...current, opt];
+                setForm({ ...form, audience: next });
+              };
+              return (
+                <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', cursor: 'pointer', userSelect: 'none' }}>
+                  <input type="checkbox" checked={checked} onChange={toggle} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
+                  {opt}
+                </label>
+              );
+            })}
+          </div>
+        </div>
         <TextInput id="ie-contact" labelText="Contact" value={form.contact} onChange={e => setForm({ ...form, contact: e.target.value })} placeholder="email or name" />
       </div>
       <TextInput id="ie-register" labelText="Register URL" value={form.register_url} onChange={e => setForm({ ...form, register_url: e.target.value })} placeholder="https://…" />
@@ -354,8 +312,6 @@ function EventFormFields({ form, setForm, imagePreview, onImageChange, onClearIm
 
 // ── Event Card ────────────────────────────────────────────────────────────────
 function EventCard({ ev, isAdmin, onEdit, onDelete }) {
-  const audienceStyle = AUDIENCE_STYLES[ev.audience] || AUDIENCE_STYLES['Both'];
-
   const formatDate = (d) => {
     if (!d) return null;
     return new Date(d).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
@@ -378,7 +334,10 @@ function EventCard({ ev, isAdmin, onEdit, onDelete }) {
       {/* Body */}
       <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 10px', borderRadius: '12px', background: audienceStyle.bg, color: audienceStyle.color }}>{ev.audience}</span>
+          {(Array.isArray(ev.audience) ? ev.audience : [ev.audience]).filter(Boolean).map(a => {
+            const s = AUDIENCE_STYLES[a] || { bg: '#f4f4f4', color: '#525252' };
+            return <span key={a} style={{ fontSize: '11px', fontWeight: 700, padding: '2px 10px', borderRadius: '12px', background: s.bg, color: s.color }}>{a}</span>;
+          })}
         </div>
         <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#161616', lineHeight: 1.4 }}>{ev.title}</h3>
 

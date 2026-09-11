@@ -629,6 +629,35 @@ export const deleteFilmingBooking = async (id) => {
 };
 
 // ---------------------------------------------------------------------------
+// Filming Available Days
+export const listFilmingAvailableDays = async () => {
+  const { data, error } = await supabase
+    .from('filming_available_days')
+    .select('id, date, note')
+    .order('date', { ascending: true });
+  if (error) throw error;
+  return data;
+};
+
+export const addFilmingAvailableDay = async (date, note = '') => {
+  const { data, error } = await supabase
+    .from('filming_available_days')
+    .insert([{ date, note }])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const removeFilmingAvailableDay = async (id) => {
+  const { error } = await supabase
+    .from('filming_available_days')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+};
+
+// ---------------------------------------------------------------------------
 // Story Requests
 // ---------------------------------------------------------------------------
 

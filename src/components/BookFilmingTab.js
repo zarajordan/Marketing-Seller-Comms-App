@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useUser } from '../contexts/UserContext';
+import { toast } from 'react-toastify';
 
 const BOOKING_STATUSES = ['Pending', 'Confirmed', 'Completed', 'Cancelled'];
 const STATUS_STYLES = {
@@ -13,7 +14,7 @@ const today = new Date();
 const fmt = (d) => d.toISOString().slice(0, 10);
 
 // ── Filming Calendar ──────────────────────────────────────────────────────────
-function FilmingCalendar({ bookings, selectedDate, onSelectDate, currentMonth, onChangeMonth }) {
+function FilmingCalendar({ bookings, availableDays = [], selectedDate, onSelectDate, onUnavailableClick, currentMonth, onChangeMonth, isAdmin }) {
   const todayDate = new Date();
   const { year, month } = currentMonth;
   const firstDay = new Date(year, month, 1).getDay();
@@ -21,6 +22,8 @@ function FilmingCalendar({ bookings, selectedDate, onSelectDate, currentMonth, o
   const monthLabel = new Date(year, month).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
   const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const startOffset = (firstDay + 6) % 7;
+
+  const availableSet = useMemo(() => new Set(availableDays.map(d => d.date)), [availableDays]);
 
   const byDate = useMemo(() => {
     const m = {};
@@ -39,6 +42,8 @@ function FilmingCalendar({ bookings, selectedDate, onSelectDate, currentMonth, o
     return '#9ca3af';
   };
 
+  const hasAvailableDays = availableSet.size > 0;
+
   return (
     <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '16px 20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
@@ -53,13 +58,34 @@ function FilmingCalendar({ bookings, selectedDate, onSelectDate, currentMonth, o
         {calCells.map((day, i) => {
           if (!day) return <div key={`e${i}`} />;
           const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-          const isToday = dateStr === fmt(todayDate);
+          const isToday    = dateStr === fmt(todayDate);
           const isSelected = selectedDate === dateStr;
+          const isAvailable = !hasAvailableDays || availableSet.has(dateStr);
           const dayBookings = (byDate[dateStr] || []).filter(b => b.status !== 'Cancelled');
-          const hasBooking = dayBookings.length > 0;
+          const hasBooking  = dayBookings.length > 0;
+          const isPast      = new Date(dateStr + 'T23:59:59') < todayDate;
+          const isUnavailable = hasAvailableDays && !availableSet.has(dateStr);
+
+          let bg     = 'transparent';
+          let color  = '#374151';
+          let border = '1px solid transparent';
+          let cursor = 'pointer';
+          let opacity = 1;
+
+          if (isSelected)       { bg = '#2563eb'; color = '#fff'; border = '2px solid #2563eb'; }
+          else if (isUnavailable && !isAdmin) { bg = '#f9fafb'; color = '#d1d5db'; border = '1px solid #f3f4f6'; cursor = 'not-allowed'; opacity = 0.5; }
+          else if (isAvailable && availableSet.has(dateStr)) { bg = '#f0fdf4'; color = '#166534'; border = '1px solid #bbf7d0'; }
+          else if (isToday)     { bg = '#eff6ff'; color = '#2563eb'; border = '1px solid #bfdbfe'; }
+          else if (hasBooking)  { bg = '#f0fdf4'; border = '1px solid #bbf7d0'; }
+
           return (
-            <div key={day} onClick={() => onSelectDate(isSelected ? null : dateStr)}
-              style={{ textAlign: 'center', padding: '6px 2px 8px', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', background: isSelected ? '#2563eb' : isToday ? '#eff6ff' : hasBooking ? '#f0fdf4' : 'transparent', color: isSelected ? '#fff' : isToday ? '#2563eb' : '#374151', fontWeight: isToday || isSelected ? 700 : 400, border: isSelected ? '2px solid #2563eb' : isToday ? '1px solid #bfdbfe' : hasBooking ? '1px solid #bbf7d0' : '1px solid transparent', position: 'relative', minHeight: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+            <div key={day}
+              onClick={() => {
+                if (isUnavailable && !isAdmin) { onUnavailableClick && onUnavailableClick(); return; }
+                onSelectDate(isSelected ? null : dateStr);
+              }}
+              title={isUnavailable ? 'Not available for booking' : availableSet.has(dateStr) ? 'Available for booking' : undefined}
+              style={{ textAlign: 'center', padding: '6px 2px 8px', borderRadius: '8px', fontSize: '13px', cursor, background: bg, color, fontWeight: isToday || isSelected ? 700 : 400, border, position: 'relative', minHeight: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', opacity }}>
               <span>{day}</span>
               {hasBooking && !isSelected && (
                 <span style={{ display: 'flex', gap: '2px', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -74,9 +100,9 @@ function FilmingCalendar({ bookings, selectedDate, onSelectDate, currentMonth, o
         })}
       </div>
       <div style={{ display: 'flex', gap: '16px', marginTop: '12px', flexWrap: 'wrap' }}>
-        {[['#16a34a', 'Confirmed'], ['#d97706', 'Pending'], ['#2563eb', 'Completed'], ['#eff6ff', 'Today']].map(([bg, lbl]) => (
+        {[['#bbf7d0', '#166534', 'Available'], ['#16a34a', '#fff', 'Confirmed'], ['#d97706', '#fff', 'Pending'], ['#2563eb', '#fff', 'Completed']].map(([bg, fg, lbl]) => (
           <span key={lbl} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#6b7280' }}>
-            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: bg, display: 'inline-block', border: lbl === 'Today' ? '1px solid #bfdbfe' : 'none' }} />
+            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: bg, display: 'inline-block', border: '1px solid #e5e7eb' }} />
             {lbl}
           </span>
         ))}
@@ -192,7 +218,7 @@ function BookingDetailModal({ booking, onClose, isAdmin, onEdit, onUpdateStatus,
 }
 
 // ── Main Tab ──────────────────────────────────────────────────────────────────
-export default function BookFilmingTab({ bookings = [], onAddBooking, onUpdateBooking, onUpdateBookingStatus, onDeleteBooking }) {
+export default function BookFilmingTab({ bookings = [], availableDays = [], onAddBooking, onUpdateBooking, onUpdateBookingStatus, onDeleteBooking, onAddAvailableDay, onRemoveAvailableDay }) {
   const { currentUser } = useUser();
   const isAdmin = currentUser?.role === 'admin-manager' || currentUser?.role === 'marketer' || currentUser?.role === 'marketing';
   const isSeller = !isAdmin;
@@ -205,6 +231,25 @@ export default function BookFilmingTab({ bookings = [], onAddBooking, onUpdateBo
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [editingBooking, setEditingBooking] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
+
+  // Availability management state
+  const [newAvailDate, setNewAvailDate] = useState('');
+  const [newAvailNote, setNewAvailNote] = useState('');
+  const [addingAvail, setAddingAvail] = useState(false);
+
+  const availableSet = useMemo(() => new Set(availableDays.map(d => d.date)), [availableDays]);
+
+  const handleAddAvail = async () => {
+    if (!newAvailDate) return;
+    if (availableSet.has(newAvailDate)) { alert('This date is already marked as available.'); return; }
+    setAddingAvail(true);
+    try {
+      await onAddAvailableDay(newAvailDate, newAvailNote);
+      setNewAvailDate('');
+      setNewAvailNote('');
+    } catch (e) { alert('Failed to add date: ' + e.message); }
+    finally { setAddingAvail(false); }
+  };
 
   const [reqForm, setReqForm] = useState({ date: '', timeStart: '', timeEnd: '', topic: '', partnerName: '', clientName: '', approvalsConfirmed: false, participants: '', yourName: '', yourEmail: '', ibmTeam: '', notes: '' });
   const [reqSubmitted, setReqSubmitted] = useState(false);
@@ -227,6 +272,10 @@ export default function BookFilmingTab({ bookings = [], onAddBooking, onUpdateBo
 
   const handleReqSubmit = async (e) => {
     e.preventDefault();
+    if (availableSet.size > 0 && !availableSet.has(reqForm.date)) {
+      alert('Sorry, that date is not available for filming. Please select a date highlighted in green on the calendar.');
+      return;
+    }
     try {
       await onAddBooking({ ...reqForm, timeSlot: reqForm.timeStart && reqForm.timeEnd ? `${reqForm.timeStart}–${reqForm.timeEnd}` : reqForm.timeStart || '', status: 'Pending' });
       setReqSubmitted(true);
@@ -251,6 +300,7 @@ export default function BookFilmingTab({ bookings = [], onAddBooking, onUpdateBo
             <button style={viewBtnStyle('calendar')} onClick={() => setView('calendar')}>📅 Calendar</button>
             <button style={viewBtnStyle('list')} onClick={() => setView('list')}>📋 All Bookings</button>
             <button style={viewBtnStyle('request')} onClick={() => setView('request')}>✏️ Book a Session</button>
+            <button style={viewBtnStyle('availability')} onClick={() => setView('availability')}>🗓 Manage Availability</button>
             <button onClick={() => setShowAddForm(true)} style={{ padding: '7px 16px', borderRadius: '7px', border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>+ Add Slot</button>
           </div>
         )}
@@ -271,7 +321,7 @@ export default function BookFilmingTab({ bookings = [], onAddBooking, onUpdateBo
       {/* CALENDAR VIEW */}
       {view === 'calendar' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '20px', alignItems: 'start' }}>
-          <FilmingCalendar bookings={bookings} selectedDate={selectedDate} onSelectDate={setSelectedDate} currentMonth={currentMonth} onChangeMonth={changeMonth} />
+          <FilmingCalendar bookings={bookings} availableDays={availableDays} isAdmin={isAdmin} selectedDate={selectedDate} onSelectDate={setSelectedDate} currentMonth={currentMonth} onChangeMonth={changeMonth} />
           <div style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '16px', minHeight: '300px' }}>
             {!selectedDate ? (
               <div style={{ textAlign: 'center', padding: '40px 16px', color: '#9ca3af' }}>
@@ -374,16 +424,37 @@ export default function BookFilmingTab({ bookings = [], onAddBooking, onUpdateBo
             <button onClick={clearReq} style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>Submit Another</button>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px', alignItems: 'start', gridTemplateRows: 'auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '24px', alignItems: 'start', gridTemplateRows: 'auto' }}>
             <form onSubmit={handleReqSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '16px', borderBottom: '1px solid #e5e7eb' }}>
                 <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>📝 Book a Filming Session</h3>
-                <span style={{ fontSize: '13px', color: '#6b7280', maxWidth: '260px', textAlign: 'right' }}>Check the calendar for availability, then fill out the form.</span>
+                <span style={{ fontSize: '13px', color: '#6b7280', maxWidth: '260px', textAlign: 'right' }}>Select an available date from the calendar, then fill out the form.</span>
               </div>
               <div>
                 {sectionTitle('Session Details')}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: '12px' }}>
-                  <div>{lbl('Preferred Date', true)}<input type="date" style={inputStyle} value={reqForm.date} onChange={e => setReq('date', e.target.value)} required /></div>
+                  <div>
+                    {lbl('Preferred Date', true)}
+                    {(() => {
+                      const isDateUnavailable = reqForm.date && availableSet.size > 0 && !availableSet.has(reqForm.date);
+                      const borderColor = !reqForm.date ? '#d1d5db' : isDateUnavailable ? '#dc2626' : '#16a34a';
+                      const bgColor     = !reqForm.date ? '#f9fafb' : isDateUnavailable ? '#fef2f2' : '#f0fdf4';
+                      const textColor   = !reqForm.date ? '#9ca3af' : isDateUnavailable ? '#dc2626' : '#166534';
+                      return (
+                        <div style={{ padding: '10px 12px', border: `1px solid ${borderColor}`, borderRadius: '8px', fontSize: '13px', background: bgColor, color: textColor, fontWeight: reqForm.date ? 600 : 400 }}>
+                          {reqForm.date
+                            ? <>
+                                {new Date(reqForm.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                                {isDateUnavailable && <span style={{ display: 'block', fontSize: '11px', fontWeight: 400, marginTop: '3px' }}>This date is not available — please select a green date</span>}
+                              </>
+                            : 'Select a date from the calendar →'
+                          }
+                        </div>
+                      );
+                    })()}
+                    {/* Hidden input keeps form validation */}
+                    <input type="hidden" value={reqForm.date} required />
+                  </div>
                   <div style={{ gridColumn: 'span 2' }}>
                     {lbl('Preferred Time Slot', true)}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -425,11 +496,81 @@ export default function BookFilmingTab({ bookings = [], onAddBooking, onUpdateBo
               </div>
             </form>
             <div style={{ position: 'sticky', top: '16px' }}>
-              <div style={{ fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>📅 Availability</div>
-              <FilmingCalendar bookings={bookings} selectedDate={reqForm.date} onSelectDate={(d) => setReq('date', d || '')} currentMonth={currentMonth} onChangeMonth={changeMonth} />
+              <div style={{ fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>📅 Select an Available Date</div>
+              {availableDays.length > 0
+                ? <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 8px' }}>Green dates are available — click to select.</p>
+                : <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 8px' }}>Click any date to select it.</p>
+              }
+              <FilmingCalendar bookings={bookings} availableDays={availableDays} isAdmin={isAdmin} selectedDate={reqForm.date} onSelectDate={(d) => setReq('date', d || '')} onUnavailableClick={() => toast.error("This date isn't available for booking — dates marked in green are available.", { autoClose: 4000 })} currentMonth={currentMonth} onChangeMonth={changeMonth} />
             </div>
           </div>
         )
+      )}
+
+      {/* MANAGE AVAILABILITY VIEW */}
+      {view === 'availability' && isAdmin && (
+        <div style={{ maxWidth: '700px' }}>
+          <div style={{ marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid #e5e7eb' }}>
+            <h3 style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 700 }}>Manage Filming Availability</h3>
+            <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>Mark specific dates as available for booking. Only these dates will be selectable by users.</p>
+          </div>
+
+          {/* Add new date */}
+          <div style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '16px', marginBottom: '24px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '12px' }}>Add Available Date</div>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>Date *</label>
+                <input type="date" value={newAvailDate} onChange={e => setNewAvailDate(e.target.value)} style={{ padding: '9px 11px', border: '1px solid #d1d5db', borderRadius: '7px', fontSize: '13px', fontFamily: 'inherit', outline: 'none', background: '#fff' }} />
+              </div>
+              <div style={{ flex: 1, minWidth: '200px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>Note (optional)</label>
+                <input type="text" value={newAvailNote} onChange={e => setNewAvailNote(e.target.value)} placeholder="e.g. IBM South Bank Studio" style={{ width: '100%', padding: '9px 11px', border: '1px solid #d1d5db', borderRadius: '7px', fontSize: '13px', fontFamily: 'inherit', outline: 'none', background: '#fff', boxSizing: 'border-box' }} />
+              </div>
+              <button onClick={handleAddAvail} disabled={!newAvailDate || addingAvail} style={{ padding: '9px 18px', borderRadius: '7px', border: 'none', background: newAvailDate ? '#16a34a' : '#d1d5db', color: '#fff', cursor: newAvailDate ? 'pointer' : 'not-allowed', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                {addingAvail ? 'Adding…' : '+ Add Date'}
+              </button>
+            </div>
+          </div>
+
+          {/* List of available dates */}
+          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '10px', overflow: 'hidden' }}>
+            {availableDays.length === 0 ? (
+              <div style={{ padding: '32px', textAlign: 'center', color: '#9ca3af', fontSize: '13px' }}>No available dates set. Add dates above to open them for booking.</div>
+            ) : (
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                <thead>
+                  <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
+                    <th style={{ padding: '10px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase' }}>Date</th>
+                    <th style={{ padding: '10px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase' }}>Note</th>
+                    <th style={{ padding: '10px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase' }}>Bookings</th>
+                    <th style={{ padding: '10px 16px' }} />
+                  </tr>
+                </thead>
+                <tbody>
+                  {availableDays.map((d, i) => {
+                    const bookingCount = bookings.filter(b => b.date === d.date && b.status !== 'Cancelled').length;
+                    return (
+                      <tr key={d.id} style={{ borderBottom: '1px solid #f0f0f0', background: i % 2 === 0 ? '#fff' : '#fafafa' }}>
+                        <td style={{ padding: '10px 16px', fontWeight: 600 }}>{new Date(d.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })}</td>
+                        <td style={{ padding: '10px 16px', color: '#6b7280' }}>{d.note || '—'}</td>
+                        <td style={{ padding: '10px 16px' }}>
+                          {bookingCount > 0
+                            ? <span style={{ padding: '2px 8px', borderRadius: '10px', background: '#dbeafe', color: '#1d4ed8', fontSize: '11px', fontWeight: 700 }}>{bookingCount} booking{bookingCount !== 1 ? 's' : ''}</span>
+                            : <span style={{ color: '#9ca3af', fontSize: '12px' }}>None</span>
+                          }
+                        </td>
+                        <td style={{ padding: '10px 16px', textAlign: 'right' }}>
+                          <button onClick={() => onRemoveAvailableDay(d.id)} style={{ padding: '4px 10px', borderRadius: '5px', border: '1px solid #fca5a5', background: '#fef2f2', cursor: 'pointer', fontSize: '11px', color: '#dc2626' }}>Remove</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Modals */}
