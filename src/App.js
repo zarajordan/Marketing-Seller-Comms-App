@@ -19,6 +19,7 @@ import {
   ChartBar,
   UserMultiple,
   VideoFilled,
+  Events,
 } from '@carbon/icons-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -40,6 +41,7 @@ import CSRTab from './components/CSRTab';
 import SubmitPartnerStoryTab from './components/SubmitPartnerStoryTab';
 import BookFilmingTab from './components/BookFilmingTab';
 import OnDemandTab from './components/OnDemandTab';
+import InternalEventsTab from './components/InternalEventsTab';
 import ThemeSelector from './components/ThemeSelector';
 import LoginPage from './components/LoginPage';
 import SetNewPasswordPage from './components/SetNewPasswordPage';
@@ -59,9 +61,10 @@ const SIDEBAR_SECTIONS = [
   {
     label: 'Events',
     items: [
-      { id: 'event-library',  label: 'Event Library',  icon: EventsAlt },
-      { id: 'on-demand',      label: 'On Demand',      icon: VideoFilled },
-      { id: 'manage-events',  label: 'Manage Events',  icon: Calendar },
+      { id: 'event-library',    label: 'Event Library',    icon: EventsAlt },
+      { id: 'on-demand',        label: 'On Demand',        icon: VideoFilled },
+      { id: 'internal-events',  label: 'Internal Events',  icon: Events },
+      { id: 'manage-events',    label: 'Manage Events',    icon: Calendar },
       { id: 'for-review',     label: 'For Review',     icon: CheckmarkOutline, badge: true },
       { id: 'submit-event',   label: 'Submit Event',   icon: Upload },
     ],
@@ -107,6 +110,7 @@ const TAB_COMPONENTS = {
   'for-review':          ForReviewTab,
   'submit-event':        SubmitEventTab,
   'on-demand':           OnDemandTab,
+  'internal-events':     InternalEventsTab,
   'drafts':              DraftsTab,
   'user-access':         UserAccessTab,
   'analytics':           AnalyticsTab,

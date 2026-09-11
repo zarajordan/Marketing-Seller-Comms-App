@@ -7,6 +7,7 @@ export const TAB_PERMISSIONS = [
   'templates',
   'event-library',
   'on-demand',
+  'internal-events',
   'manage-events',
   'for-review',
   'submit-event',
@@ -50,14 +51,14 @@ export const getDefaultPermissions = (role) => {
 
   if (role === 'marketing') {
     return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-      permissions[tabId] = tabId === 'event-library' || tabId === 'on-demand' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'analytics' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder';
+      permissions[tabId] = tabId === 'event-library' || tabId === 'on-demand' || tabId === 'internal-events' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'analytics' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder';
       return permissions;
     }, {});
   }
 
   // seller — or any unrecognised/unauthorised role — gets Event Library + On Demand
   return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-    permissions[tabId] = tabId === 'event-library' || tabId === 'on-demand' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder';
+    permissions[tabId] = tabId === 'event-library' || tabId === 'on-demand' || tabId === 'internal-events' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder';
     return permissions;
   }, {});
 };
@@ -127,6 +128,54 @@ export const deleteOnDemandRecording = async (id) => {
 export const uploadOnDemandThumbnail = async (file) => {
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
   const fileName = `on-demand-thumbnails/${Date.now()}-${safeName}`;
+  const { error } = await supabase.storage.from('event-documents').upload(fileName, file, { upsert: true });
+  if (error) throw error;
+  const { data } = supabase.storage.from('event-documents').getPublicUrl(fileName);
+  return data.publicUrl;
+};
+
+// ── Internal IBM Events ───────────────────────────────────────────────────────
+export const listInternalEvents = async () => {
+  const { data, error } = await supabase
+    .from('internal_events')
+    .select('*')
+    .order('date', { ascending: true });
+  if (error) throw error;
+  return data;
+};
+
+export const createInternalEvent = async (fields) => {
+  const { data, error } = await supabase
+    .from('internal_events')
+    .insert([fields])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const updateInternalEvent = async (id, fields) => {
+  const { data, error } = await supabase
+    .from('internal_events')
+    .update(fields)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteInternalEvent = async (id) => {
+  const { error } = await supabase
+    .from('internal_events')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+};
+
+export const uploadInternalEventImage = async (file) => {
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const fileName = `internal-event-images/${Date.now()}-${safeName}`;
   const { error } = await supabase.storage.from('event-documents').upload(fileName, file, { upsert: true });
   if (error) throw error;
   const { data } = supabase.storage.from('event-documents').getPublicUrl(fileName);
