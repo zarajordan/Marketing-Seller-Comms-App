@@ -13,7 +13,7 @@ import {
   TextInput,
   Tile,
 } from '@carbon/react';
-import { Add, Checkmark, Edit, Reply, TrashCan, UserFollow, View } from '@carbon/icons-react';
+import { Add, Checkmark, CheckmarkOutline, Edit, Reply, TrashCan, UserFollow, View } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
 import { deleteEvent, listEvents, updateEvent, uploadEventDocument } from '../lib/supabaseData';
 import RichTextEditor from './RichTextEditor';
@@ -178,7 +178,7 @@ const ForReviewTab = ({ filmingBookings = [], onUpdateBookingStatus, onDeleteBoo
       eventStream: event.eventStream || '',
       inviteProcess: event.inviteProcess || '',
       productAreas: event.productAreas || [],
-      eventType: event.eventType || 'Webinar',
+      eventType: event.eventType || 'Virtual',
       targetAudience: event.targetAudience || 'All',
       industry: event.industry || 'Cross-Industry',
       targetRoles: event.targetRoles || [],
@@ -463,7 +463,6 @@ const ForReviewTab = ({ filmingBookings = [], onUpdateBookingStatus, onDeleteBoo
                   <SelectItem value="Virtual Event" text="Virtual Event" />
                   <SelectItem value="In-Person" text="Event" />
                   <SelectItem value="Workshop" text="Workshop" />
-                  <SelectItem value="Conference" text="Conference" />
                   <SelectItem value="Roundtable" text="Roundtable" />
                   <SelectItem value="Other" text="Other" />
                 </Select>
@@ -579,7 +578,10 @@ const ForReviewTab = ({ filmingBookings = [], onUpdateBookingStatus, onDeleteBoo
     <div className="for-review-tab">
       {/* Header */}
       <div style={{ padding: '24px', marginBottom: '24px', background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)', borderBottom: '2px solid rgba(69,137,255,0.3)' }}>
-        <h2 style={{ color: '#fff', fontWeight: 700, letterSpacing: '0.04em', marginBottom: '8px' }}>🔍 FOR REVIEW</h2>
+        <h2 style={{ color: '#fff', fontWeight: 700, letterSpacing: '0.04em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <CheckmarkOutline size={24} />
+          FOR REVIEW
+        </h2>
         <p style={{ color: 'rgba(255,255,255,0.5)', marginTop: '0' }}>
           All pending submissions — event drafts, story requests, and filming booking requests — in one place.
         </p>

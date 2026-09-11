@@ -6,6 +6,7 @@ export const TAB_PERMISSIONS = [
   'marketing-spotlight',
   'templates',
   'event-library',
+  'on-demand',
   'manage-events',
   'for-review',
   'submit-event',
@@ -49,14 +50,14 @@ export const getDefaultPermissions = (role) => {
 
   if (role === 'marketing') {
     return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-      permissions[tabId] = tabId === 'event-library' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'analytics' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder';
+      permissions[tabId] = tabId === 'event-library' || tabId === 'on-demand' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'analytics' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder';
       return permissions;
     }, {});
   }
 
-  // seller — or any unrecognised/unauthorised role — gets Event Library only
+  // seller — or any unrecognised/unauthorised role — gets Event Library + On Demand
   return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-    permissions[tabId] = tabId === 'event-library' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder';
+    permissions[tabId] = tabId === 'event-library' || tabId === 'on-demand' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder';
     return permissions;
   }, {});
 };
@@ -81,6 +82,55 @@ export const getUserPermissions = async (user) => {
     permissions[entry.tab_id] = entry.enabled;
     return permissions;
   }, { ...defaultPermissions });
+};
+
+
+// ── On-Demand Recordings ──────────────────────────────────────────────────────
+export const listOnDemandRecordings = async () => {
+  const { data, error } = await supabase
+    .from('on_demand_recordings')
+    .select('*')
+    .order('event_date', { ascending: false });
+  if (error) throw error;
+  return data;
+};
+
+export const createOnDemandRecording = async (fields) => {
+  const { data, error } = await supabase
+    .from('on_demand_recordings')
+    .insert([fields])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const updateOnDemandRecording = async (id, fields) => {
+  const { data, error } = await supabase
+    .from('on_demand_recordings')
+    .update(fields)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteOnDemandRecording = async (id) => {
+  const { error } = await supabase
+    .from('on_demand_recordings')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+};
+
+export const uploadOnDemandThumbnail = async (file) => {
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const fileName = `on-demand-thumbnails/${Date.now()}-${safeName}`;
+  const { error } = await supabase.storage.from('event-documents').upload(fileName, file, { upsert: true });
+  if (error) throw error;
+  const { data } = supabase.storage.from('event-documents').getPublicUrl(fileName);
+  return data.publicUrl;
 };
 
 export const listUsers = async () => {
@@ -240,7 +290,7 @@ export const mapEventRowToAppEvent = (row) => ({
   partnerInviteUrl: row.partner_invite_url || '',
   emeaOnePagerUrl: row.emea_one_pager_url || '',
   productAreas: row.product_areas || [],
-  eventType: row.event_type || 'Webinar',
+  eventType: row.event_type || 'Virtual',
   targetAudience: row.target_audience || 'All',
   industry: row.industry || 'Cross-Industry',
   targetRoles: row.target_roles || [],

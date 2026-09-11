@@ -18,6 +18,7 @@ import {
   UserAdmin,
   ChartBar,
   UserMultiple,
+  VideoFilled,
 } from '@carbon/icons-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -38,6 +39,7 @@ import SocialTilesTab from './components/SocialTilesTab';
 import CSRTab from './components/CSRTab';
 import SubmitPartnerStoryTab from './components/SubmitPartnerStoryTab';
 import BookFilmingTab from './components/BookFilmingTab';
+import OnDemandTab from './components/OnDemandTab';
 import ThemeSelector from './components/ThemeSelector';
 import LoginPage from './components/LoginPage';
 import SetNewPasswordPage from './components/SetNewPasswordPage';
@@ -58,6 +60,7 @@ const SIDEBAR_SECTIONS = [
     label: 'Events',
     items: [
       { id: 'event-library',  label: 'Event Library',  icon: EventsAlt },
+      { id: 'on-demand',      label: 'On Demand',      icon: VideoFilled },
       { id: 'manage-events',  label: 'Manage Events',  icon: Calendar },
       { id: 'for-review',     label: 'For Review',     icon: CheckmarkOutline, badge: true },
       { id: 'submit-event',   label: 'Submit Event',   icon: Upload },
@@ -103,6 +106,7 @@ const TAB_COMPONENTS = {
   'manage-events':       ManageEventsTab,
   'for-review':          ForReviewTab,
   'submit-event':        SubmitEventTab,
+  'on-demand':           OnDemandTab,
   'drafts':              DraftsTab,
   'user-access':         UserAccessTab,
   'analytics':           AnalyticsTab,
@@ -369,9 +373,9 @@ function MainAppContent({ onLogout }) {
         >
           <span className="app-topbar__hamburger" />
         </button>
-        <span className="app-topbar__logo">IBM</span>
+        <img src="/ibm-logo.png" alt="IBM" className="app-topbar__logo" />
         <div className="app-topbar__divider" />
-        <span className="app-topbar__name">IBM UKI GO-TO-MARKET HUB</span>
+        <span className="app-topbar__name">UKI GO-TO-MARKET HUB</span>
         <div className="app-topbar__right">
           <span className="app-topbar__role-pill">{currentUser.role}</span>
           <span className="app-topbar__username">{currentUser.name}</span>

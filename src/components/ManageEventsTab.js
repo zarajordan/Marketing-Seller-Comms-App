@@ -18,7 +18,7 @@ import {
   Tile,
   Tag,
 } from '@carbon/react';
-import { Add, Edit, TrashCan, View, Checkmark, UserFollow, Copy } from '@carbon/icons-react';
+import { Add, Edit, TrashCan, View, Checkmark, UserFollow, Copy, Calendar } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
 import { createEvent, deleteEvent, listEvents, updateEvent, uploadEventDocument } from '../lib/supabaseData';
 import RichTextEditor from './RichTextEditor';
@@ -66,7 +66,7 @@ const EMPTY_FORM = {
   eventStream: '',
   inviteProcess: '',
   productAreas: [],
-  eventType: 'Webinar',
+  eventType: 'Virtual',
   targetAudience: 'All',
   industry: 'Cross-Industry',
   targetRoles: [],
@@ -261,7 +261,7 @@ const ManageEventsTab = () => {
       seismicPageRequired: event.seismicPageRequired ?? null,
       eventStream: event.eventStream || '',
       productAreas: event.productAreas || [],
-      eventType: event.eventType || 'Webinar',
+      eventType: event.eventType || 'Virtual',
       targetAudience: event.targetAudience || 'All',
       industry: event.industry || 'Cross-Industry',
       targetRoles: event.targetRoles || [],
@@ -335,7 +335,10 @@ const ManageEventsTab = () => {
   return (
     <div className="manage-events-tab">
       <div style={{ padding: '24px', marginBottom: '24px', background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)', borderBottom: '2px solid rgba(69,137,255,0.3)' }}>
-        <h2 style={{ color: '#fff', fontWeight: 700, letterSpacing: '0.04em', marginBottom: '8px' }}>📅 MANAGE EVENTS</h2>
+        <h2 style={{ color: '#fff', fontWeight: 700, letterSpacing: '0.04em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Calendar size={24} />
+          MANAGE EVENTS
+        </h2>
         <p style={{ color: 'rgba(255,255,255,0.5)', marginTop: '0' }}>Create and manage events for the UKI Marketing team.</p>
       </div>
 
@@ -703,6 +706,7 @@ const ManageEventsTab = () => {
             <Select id="category" name="category" labelText="Category" value={formData.category} onChange={handleInputChange}>
               <SelectItem value="ibm" text="IBM Event" />
               <SelectItem value="thirdParty" text="3rd Party Event" />
+              <SelectItem value="partnerLed" text="Partner-led Event" />
               <SelectItem value="onDemand" text="On-Demand/Webinar" />
             </Select>
 
@@ -711,7 +715,6 @@ const ManageEventsTab = () => {
                 <SelectItem value="Virtual Event" text="Virtual Event" />
                 <SelectItem value="In-Person" text="Event" />
                 <SelectItem value="Workshop" text="Workshop" />
-                <SelectItem value="Conference" text="Conference" />
                 <SelectItem value="Roundtable" text="Roundtable" />
                 <SelectItem value="Other" text="Other" />
               </Select>

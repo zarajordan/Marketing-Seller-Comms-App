@@ -1013,6 +1013,7 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
     revTechEvents,
     bannerTitle,
     bannerSubtitle,
+    introText,
     useCustomColors,
     customColors,
     customSections,
@@ -1076,6 +1077,7 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
       year,
       quarter,
       events,
+      introText,
       savedAt: new Date().toISOString(),
     };
     localStorage.setItem('marketingSpotlightQuickDraft', JSON.stringify(draft));
@@ -1090,6 +1092,9 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
       setYear(draft.year);
       setQuarter(draft.quarter);
       setEvents(draft.events || []);
+      if (draft.introText) {
+        setIntroText(draft.introText);
+      }
       toast.success('Quick draft loaded!');
     } else {
       toast.info('No quick draft found');
@@ -1136,6 +1141,9 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
       setRevTechLinks(draftData.revTechLinks || []);
       setBannerTitle(draftData.bannerTitle || 'UKI Marketing Spotlight');
       setBannerSubtitle(draftData.bannerSubtitle || "Don't miss what's coming up in");
+      if (draftData.introText) {
+        setIntroText(draftData.introText);
+      }
       setUseCustomColors(draftData.useCustomColors || false);
       if (draftData.customColors) {
         setCustomColors(draftData.customColors);
@@ -1153,6 +1161,7 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
     // Filter by category and SORT by date - featured events will appear in BOTH featured section AND their category section
     const ibmEvents = sortEventsByDate(events.filter(e => e.category === 'ibm'));
     const thirdPartyEvents = sortEventsByDate(events.filter(e => e.category === 'thirdParty'));
+    const partnerLedEvents = sortEventsByDate(events.filter(e => e.category === 'partnerLed'));
     const onDemandEvents = sortEventsByDate(events.filter(e => e.category === 'onDemand'));
 
     // Helper function to generate two-column event grid
@@ -1462,6 +1471,10 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
                 categoryLabel = '3rd Party Event';
                 categoryColor = currentColors.thirdPartyBorder;
                 borderColor = currentColors.thirdPartyBorder;
+              } else if (event.category === 'partnerLed') {
+                categoryLabel = 'Partner-led Event';
+                categoryColor = currentColors.thirdPartyBorder;
+                borderColor = currentColors.thirdPartyBorder;
               } else if (event.category === 'onDemand') {
                 categoryLabel = 'On-Demand';
                 categoryColor = currentColors.onDemandBorder;
@@ -1588,6 +1601,33 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
           thirdPartyEvents.filter(e => !e.featured),
           currentColors.thirdPartyBorder,
           '3rd Party',
+          currentColors.thirdPartyBorder
+        )}
+      </td>
+    </tr>
+    ` : ''}
+
+    ${partnerLedEvents.filter(e => !e.featured).length > 0 ? `
+    <!-- Partner-led Events Section -->
+    <tr>
+      <td style="padding: 15px 15px 10px 15px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.sectionHeaderBg}" style="border-radius: 4px; border-left: 3px solid ${currentColors.sectionHeaderBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
+          <tr>
+            <td style="padding: 10px; text-align: center;">
+              <h2 style="margin: 0; font-size: 14px; color: ${currentColors.sectionHeaderColor}; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
+                Partner-led Events
+              </h2>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 0 15px 15px 15px;">
+        ${generateTwoColumnGrid(
+          partnerLedEvents.filter(e => !e.featured),
+          currentColors.thirdPartyBorder,
+          'Partner-led Event',
           currentColors.thirdPartyBorder
         )}
       </td>
@@ -2008,6 +2048,7 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
 
     const ibmEvents = events.filter(e => e.category === 'ibm');
     const thirdPartyEvents = events.filter(e => e.category === 'thirdParty');
+    const partnerLedEvents = events.filter(e => e.category === 'partnerLed');
     const onDemandEvents = events.filter(e => e.category === 'onDemand');
     const featuredEvents = events.filter(e => e.featured);
 
@@ -2018,6 +2059,10 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
     const thirdPartyEventsHTML = thirdPartyEvents.length > 0 ? `
       ${sectionRibbon('3rd Party Events', '&#127942;')}
       ${twoColumnEventGrid(thirdPartyEvents, currentColors.thirdPartyBorder, currentColors.thirdPartyBg)}` : '';
+
+    const partnerLedEventsHTML = partnerLedEvents.length > 0 ? `
+      ${sectionRibbon('Partner-led Events', '&#129309;')}
+      ${twoColumnEventGrid(partnerLedEvents, currentColors.thirdPartyBorder, currentColors.thirdPartyBg)}` : '';
 
     const onDemandEventsHTML = onDemandEvents.length > 0 ? `
       ${sectionRibbon('On-Demand Webinars', '&#127909;')}
@@ -2146,6 +2191,9 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
   <!-- ── 3RD PARTY EVENTS ──────────────────────────────────────────────── -->
   ${thirdPartyEventsHTML ? `<tr><td style="padding:0 32px 8px 32px; background:#ffffff;">${thirdPartyEventsHTML}</td></tr>` : ''}
 
+  <!-- ── PARTNER-LED EVENTS ───────────────────────────────────────────── -->
+  ${partnerLedEventsHTML ? `<tr><td style="padding:0 32px 8px 32px; background:#ffffff;">${partnerLedEventsHTML}</td></tr>` : ''}
+
   <!-- ── ON-DEMAND EVENTS ──────────────────────────────────────────────── -->
   ${onDemandEventsHTML ? `<tr><td style="padding:0 32px 8px 32px; background:#ffffff;">${onDemandEventsHTML}</td></tr>` : ''}
 
@@ -2228,9 +2276,9 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
   return (
     <div className="marketing-spotlight-tab">
       <div style={{ padding: '24px', marginBottom: '2rem', background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)', borderBottom: '2px solid rgba(69,137,255,0.3)' }}>
-        <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fff', fontWeight: 700, letterSpacing: '0.04em', marginBottom: '8px' }}>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#fff', fontWeight: 700, letterSpacing: '0.04em', marginBottom: '8px' }}>
           <Star size={24} />
-          ✨ MARKETING SPOTLIGHT EMAIL BUILDER
+          MARKETING SPOTLIGHT EMAIL BUILDER
         </h2>
         <p style={{ color: 'rgba(255,255,255,0.5)', marginTop: '0' }}>
           Create your monthly Marketing Spotlight email with Quick Summary, Featured Events, and collapsible sections.
@@ -3356,7 +3404,8 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
               >
                 <SelectItem value="ibm" text="IBM Event" />
                 <SelectItem value="thirdParty" text="3rd Party Event" />
-                <SelectItem value="onDemand" text="On-Demand/Webinar" />
+                <SelectItem value="partnerLed" text="Partner-led Event" />
+                <SelectItem value="onDemand" text="On-Demand/Virtual" />
               </Select>
               <Select
                 id="event-industry"
@@ -3671,7 +3720,8 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
               >
                 <SelectItem value="ibm" text="IBM Event" />
                 <SelectItem value="thirdParty" text="3rd Party Event" />
-                <SelectItem value="onDemand" text="On-Demand/Webinar" />
+                <SelectItem value="partnerLed" text="Partner-led Event" />
+                <SelectItem value="onDemand" text="On-Demand/Virtual" />
               </Select>
             </div>
 
@@ -3887,6 +3937,7 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
               >
                 <SelectItem value="ibm" text="IBM Event" />
                 <SelectItem value="thirdParty" text="3rd Party Event" />
+                <SelectItem value="partnerLed" text="Partner-led Event" />
                 <SelectItem value="onDemand" text="Virtual Event" />
               </Select>
             </div>

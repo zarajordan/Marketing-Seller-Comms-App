@@ -22,6 +22,7 @@ import {
   Filter,
   Close,
   Renew,
+  Archive,
 } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
 import { listEvents, updateEvent } from '../lib/supabaseData';
@@ -169,11 +170,14 @@ export default function ArchiveTab() {
     <div className="archive-tab" style={{ padding: '0' }}>
 
       {/* Header */}
-      <div style={{ padding: '24px', borderBottom: '1px solid #e0e0e0', backgroundColor: '#ffffff' }}>
+      <div style={{ padding: '24px', borderBottom: '2px solid rgba(69,137,255,0.3)', background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
           <div>
-            <h2 style={{ marginBottom: '8px' }}>🗄️ Event Archive</h2>
-            <p style={{ color: '#525252', fontSize: '14px' }}>
+            <h2 style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '10px', color: '#ffffff', fontWeight: 700, letterSpacing: '0.04em' }}>
+              <Archive size={24} />
+              EVENT ARCHIVE
+            </h2>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>
               Past events are automatically archived here once their date has passed.
             </p>
           </div>

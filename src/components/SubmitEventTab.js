@@ -12,7 +12,7 @@ import {
   TextInput,
   Tile,
 } from '@carbon/react';
-import { Add, TrashCan, Checkmark, UserFollow, SendAlt, Save } from '@carbon/icons-react';
+import { Add, TrashCan, Checkmark, UserFollow, SendAlt, Save, Upload } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
 import { createEvent, deleteEvent, listReturnedEvents, saveDraft, updateDraft, updateEvent, uploadEventDocument } from '../lib/supabaseData';
 import RichTextEditor from './RichTextEditor';
@@ -339,7 +339,10 @@ const SubmitEventTab = forwardRef(({ onReturnedResolved } = {}, ref) => {
   return (
     <div className="submit-event-tab">
       <div style={{ padding: '24px', marginBottom: '24px', background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)', borderBottom: '2px solid rgba(69,137,255,0.3)' }}>
-        <h2 style={{ color: '#fff', fontWeight: 700, letterSpacing: '0.04em', marginBottom: '8px' }}>📝 SUBMIT AN EVENT</h2>
+        <h2 style={{ color: '#fff', fontWeight: 700, letterSpacing: '0.04em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Upload size={24} />
+          SUBMIT AN EVENT
+        </h2>
         <p style={{ color: 'rgba(255,255,255,0.5)', marginTop: '0' }}>
           Fill in the details below to submit an event for admin review. It will be saved as a Draft until approved.
         </p>
@@ -735,15 +738,15 @@ const SubmitEventTab = forwardRef(({ onReturnedResolved } = {}, ref) => {
             <Select id="category" name="category" labelText="Category *" value={formData.category} onChange={handleInputChange}>
               <SelectItem value="ibm" text="IBM Event" />
               <SelectItem value="thirdParty" text="3rd Party Event" />
+              <SelectItem value="partnerLed" text="Partner-led Event" />
               <SelectItem value="onDemand" text="On-Demand/Webinar" />
             </Select>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '16px' }}>
               <Select id="eventType" name="eventType" labelText="Event Type" value={formData.eventType} onChange={handleInputChange}>
-                <SelectItem value="Webinar" text="Webinar" />
+                <SelectItem value="Virtual" text="Virtual" />
                 <SelectItem value="In-Person" text="Event" />
                 <SelectItem value="Workshop" text="Workshop" />
-                <SelectItem value="Conference" text="Conference" />
                 <SelectItem value="Roundtable" text="Roundtable" />
                 <SelectItem value="Other" text="Other" />
               </Select>

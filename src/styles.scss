@@ -121,11 +121,10 @@ html, body {
   z-index: 8000;
 
   &__logo {
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 5px;
-    color: #fff;
+    height: 38px;
+    width: auto;
     flex-shrink: 0;
+    display: block;
   }
 
   &__divider {

@@ -5,7 +5,7 @@ import {
   Tile,
   Button,
 } from '@carbon/react';
-import { Checkmark } from '@carbon/icons-react';
+import { Checkmark, Template } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
 
 const templates = [
@@ -186,7 +186,10 @@ const TemplatesTab = ({ onUseTemplate }) => {
   return (
     <div className="templates-tab">
       <div className="templates-header">
-        <h2>📚 Template Library</h2>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Template size={24} />
+          TEMPLATE LIBRARY
+        </h2>
         <p className="templates-description">
           Choose from pre-built templates to get started quickly. Click "Use Template" to load it into the editor.
         </p>

@@ -25,6 +25,7 @@ import {
   Document,
   UserFollow,
   Checkmark,
+  EventsAlt,
 } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
 import { listEvents, logActivity, archiveExpiredEvents } from '../lib/supabaseData';
@@ -39,10 +40,9 @@ const PRODUCT_AREAS = [
 ];
 
 const EVENT_TYPES = [
-  { id: 'Webinar',    label: 'Webinar' },
+  { id: 'Virtual',    label: 'Virtual' },
   { id: 'In-Person',  label: 'Event' },
   { id: 'Workshop',   label: 'Workshop' },
-  { id: 'Conference', label: 'Conference' },
   { id: 'Roundtable', label: 'Roundtable' },
   { id: 'Other',      label: 'Other' },
 ];
@@ -52,7 +52,7 @@ const EVENT_TYPE_COLOR = {
   'Virtual Event': '#0f62fe',
   'In-Person':  '#005d5d',
   'Workshop':   '#005d5d',
-  'Conference': '#6929c4',
+  'Conference': '#005d5d',
   'Roundtable': '#b28600',
   'Other':      '#525252',
 };
@@ -442,7 +442,10 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
       <div style={{ padding: '24px', borderBottom: '2px solid rgba(69,137,255,0.3)', background: 'linear-gradient(135deg, #060c2a 0%, #0f1f60 55%, #162880 100%)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
           <div>
-            <h2 style={{ marginBottom: '8px', color: '#ffffff', fontWeight: 700, letterSpacing: '0.04em' }}>{showArchive ? '🗄️ EVENT ARCHIVE' : '🎯 EVENT LIBRARY'}</h2>
+            <h2 style={{ marginBottom: '8px', color: '#ffffff', fontWeight: 700, letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <EventsAlt size={24} />
+              {showArchive ? 'EVENT ARCHIVE' : 'EVENT LIBRARY'}
+            </h2>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>
               {showArchive
                 ? 'Past events are automatically archived here once their date has passed.'
