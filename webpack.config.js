@@ -9,7 +9,7 @@ module.exports = (env, argv) => {
   
   if (argv.mode === 'production') {
     // Check if we're building for IBM GitHub or public GitHub based on env variable
-    const targetRepo = process.env.GITHUB_REPO || 'public';
+    const targetRepo = process.env.GITHUB_REPO || 'ibm';
     if (targetRepo === 'ibm') {
       publicPath = '/Zara-Jordan/AI-Comms-Generator/';
     } else if (targetRepo === 'public') {
