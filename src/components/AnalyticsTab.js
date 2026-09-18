@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Select, SelectItem, Tag, Tile } from '@carbon/react';
+import { useUser } from '../contexts/UserContext';
 import { Loading } from '@carbon/react';
 import { getAnalyticsSummary, getAnalyticsUserBreakdown, getAnalyticsMonthly, getAnalyticsTopEvents, getAnalyticsTopViewedEvents } from '../lib/supabaseData';
 
@@ -38,6 +39,8 @@ const timeAgo = (iso) => {
 };
 
 export default function AnalyticsTab() {
+  const { currentUser } = useUser();
+  const isAdmin = currentUser?.role === 'admin-manager';
   const [days, setDays] = useState(90);
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState(null);
@@ -303,7 +306,7 @@ export default function AnalyticsTab() {
           </div>
 
           {/* ── User drill-down ── */}
-          <Tile style={{ padding: '20px' }}>
+          {isAdmin && <Tile style={{ padding: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <p style={{ fontSize: '14px', fontWeight: 600 }}>User Activity Drill-down</p>
               <Tag type="gray" size="sm">{users.length} users</Tag>
@@ -357,7 +360,7 @@ export default function AnalyticsTab() {
                 </table>
               </div>
             )}
-          </Tile>
+          </Tile>}
         </>
       )}
       </div>

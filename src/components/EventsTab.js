@@ -33,7 +33,7 @@ import { listEvents, logActivity, archiveExpiredEvents } from '../lib/supabaseDa
 const PRODUCT_AREAS = [
   { id: 'hybrid-cloud', label: '☁️ Hybrid Cloud & Infrastructure Management' },
   { id: 'data-ai', label: '🤖 Data & AI' },
-  { id: 'automation', label: '⚙️ Business Automation' },
+  { id: 'automation', label: '⚙️ Automation' },
   { id: 'security', label: '🔒 Security' },
   { id: 'transaction', label: '💳 Transaction Processing' },
   { id: 'quantum', label: '🔬 Quantum' },

@@ -6,7 +6,6 @@ import {
   Select,
   SelectItem,
   Modal,
-  Tag,
 } from '@carbon/react';
 import { Add, TrashCan, Edit, Location, Time, UserMultiple, Launch, Events } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
@@ -19,12 +18,9 @@ import {
   uploadInternalEventImage,
 } from '../lib/supabaseData';
 
-const AUDIENCE_OPTIONS = ['Technology', 'Consulting'];
-
-const AUDIENCE_STYLES = {
-  Technology: { bg: '#edf5ff', color: '#0043ce' },
-  Consulting:  { bg: '#defbe6', color: '#044317' },
-};
+const SEGMENTS = ['Technology', 'Consulting', 'Both'];
+const PRODUCTS = ['IBM Z', 'Power', 'Storage', 'Security', 'Automation', 'Hybrid Cloud', 'Data & AI', 'Sustainability', 'Other'];
+const INDUSTRIES = ['Financial Services', 'Healthcare', 'Government', 'Retail', 'Telco', 'Energy', 'Manufacturing', 'Cross-Industry', 'Other'];
 
 const EMPTY_FORM = {
   title: '',
@@ -35,8 +31,10 @@ const EMPTY_FORM = {
   speaker: '',
   contact: '',
   register_url: '',
-  audience: ['Technology', 'Consulting'],
   image_url: '',
+  segment: '',
+  product: '',
+  industry: '',
 };
 
 export default function InternalEventsTab() {
@@ -46,7 +44,9 @@ export default function InternalEventsTab() {
   const [events, setEvents]           = useState([]);
   const [loading, setLoading]         = useState(true);
   const [search, setSearch]           = useState('');
-  const [filterAudience, setFilterAudience] = useState('All');
+  const [filterSegment, setFilterSegment]   = useState('All');
+  const [filterProduct, setFilterProduct]   = useState('All');
+  const [filterIndustry, setFilterIndustry] = useState('All');
 
   const [isModalOpen, setIsModalOpen]     = useState(false);
   const [editingId, setEditingId]         = useState(null);
@@ -88,8 +88,10 @@ export default function InternalEventsTab() {
       speaker:      ev.speaker || '',
       contact:      ev.contact || '',
       register_url: ev.register_url || '',
-      audience:     Array.isArray(ev.audience) ? ev.audience : (ev.audience ? [ev.audience] : ['Technology', 'Consulting']),
       image_url:    ev.image_url || '',
+      segment:      ev.segment || '',
+      product:      ev.product || '',
+      industry:     ev.industry || '',
     });
     setEditingId(ev.id);
     setImageFile(null);
@@ -143,9 +145,10 @@ export default function InternalEventsTab() {
     .filter(ev => !ev.status || ev.status !== 'pending')
     .filter(ev => {
       const matchSearch   = !search || ev.title?.toLowerCase().includes(search.toLowerCase()) || ev.speaker?.toLowerCase().includes(search.toLowerCase());
-      const evAudience = Array.isArray(ev.audience) ? ev.audience : [ev.audience];
-      const matchAudience = filterAudience === 'All' || evAudience.includes(filterAudience);
-      return matchSearch && matchAudience;
+      const matchSegment  = filterSegment === 'All' || ev.segment === filterSegment;
+      const matchProduct  = filterProduct === 'All' || ev.product === filterProduct;
+      const matchIndustry = filterIndustry === 'All' || ev.industry === filterIndustry;
+      return matchSearch && matchSegment && matchProduct && matchIndustry;
     })
     .sort((a, b) => (a.date || '') > (b.date || '') ? 1 : -1);
 
@@ -186,10 +189,22 @@ export default function InternalEventsTab() {
               onChange={e => setSearch(e.target.value)}
             />
           </div>
-          <div style={{ minWidth: '180px' }}>
-            <Select id="ie-filter" labelText="Audience" value={filterAudience} onChange={e => setFilterAudience(e.target.value)}>
-              <SelectItem value="All" text="All" />
-              {AUDIENCE_OPTIONS.map(t => <SelectItem key={t} value={t} text={t} />)}
+          <div style={{ minWidth: '150px' }}>
+            <Select id="ie-filter-segment" labelText="Segment" value={filterSegment} onChange={e => setFilterSegment(e.target.value)}>
+              <SelectItem value="All" text="All Segments" />
+              {SEGMENTS.map(s => <SelectItem key={s} value={s} text={s} />)}
+            </Select>
+          </div>
+          <div style={{ minWidth: '160px' }}>
+            <Select id="ie-filter-product" labelText="Product" value={filterProduct} onChange={e => setFilterProduct(e.target.value)}>
+              <SelectItem value="All" text="All Products" />
+              {PRODUCTS.map(p => <SelectItem key={p} value={p} text={p} />)}
+            </Select>
+          </div>
+          <div style={{ minWidth: '160px' }}>
+            <Select id="ie-filter-industry" labelText="Industry" value={filterIndustry} onChange={e => setFilterIndustry(e.target.value)}>
+              <SelectItem value="All" text="All Industries" />
+              {INDUSTRIES.map(i => <SelectItem key={i} value={i} text={i} />)}
             </Select>
           </div>
           {isAdmin && (
@@ -273,29 +288,22 @@ function EventFormFields({ form, setForm, imagePreview, onImageChange, onClearIm
       </div>
       <TextInput id="ie-location" labelText="Location" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} placeholder="e.g. IBM South Bank or Microsoft Teams" />
       <TextInput id="ie-speaker" labelText="Speaker(s)" value={form.speaker} onChange={e => setForm({ ...form, speaker: e.target.value })} placeholder="e.g. Jane Smith, VP Technology" />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        <div>
-          <p style={{ fontSize: '12px', fontWeight: 600, color: '#161616', marginBottom: '8px' }}>Audience *</p>
-          <div style={{ display: 'flex', gap: '16px' }}>
-            {AUDIENCE_OPTIONS.map(opt => {
-              const checked = Array.isArray(form.audience) ? form.audience.includes(opt) : false;
-              const toggle = () => {
-                const current = Array.isArray(form.audience) ? form.audience : [];
-                const next = checked ? current.filter(a => a !== opt) : [...current, opt];
-                setForm({ ...form, audience: next });
-              };
-              return (
-                <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', cursor: 'pointer', userSelect: 'none' }}>
-                  <input type="checkbox" checked={checked} onChange={toggle} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
-                  {opt}
-                </label>
-              );
-            })}
-          </div>
-        </div>
-        <TextInput id="ie-contact" labelText="Contact" value={form.contact} onChange={e => setForm({ ...form, contact: e.target.value })} placeholder="email or name" />
-      </div>
+      <TextInput id="ie-contact" labelText="Contact" value={form.contact} onChange={e => setForm({ ...form, contact: e.target.value })} placeholder="email or name" />
       <TextInput id="ie-register" labelText="Register URL" value={form.register_url} onChange={e => setForm({ ...form, register_url: e.target.value })} placeholder="https://…" />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+        <Select id="ie-segment" labelText="Segment" value={form.segment} onChange={e => setForm({ ...form, segment: e.target.value })}>
+          <SelectItem value="" text="— Select —" />
+          {SEGMENTS.map(s => <SelectItem key={s} value={s} text={s} />)}
+        </Select>
+        <Select id="ie-product" labelText="Product" value={form.product} onChange={e => setForm({ ...form, product: e.target.value })}>
+          <SelectItem value="" text="— Select —" />
+          {PRODUCTS.map(p => <SelectItem key={p} value={p} text={p} />)}
+        </Select>
+        <Select id="ie-industry" labelText="Industry" value={form.industry} onChange={e => setForm({ ...form, industry: e.target.value })}>
+          <SelectItem value="" text="— Select —" />
+          {INDUSTRIES.map(i => <SelectItem key={i} value={i} text={i} />)}
+        </Select>
+      </div>
       <div>
         <p style={{ fontSize: '12px', fontWeight: 600, color: '#161616', marginBottom: '6px' }}>Event Image (optional)</p>
         <input type="file" accept="image/*" onChange={onImageChange} style={{ fontSize: '13px', color: '#161616' }} />
@@ -333,12 +341,6 @@ function EventCard({ ev, isAdmin, onEdit, onDelete }) {
 
       {/* Body */}
       <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-          {(Array.isArray(ev.audience) ? ev.audience : [ev.audience]).filter(Boolean).map(a => {
-            const s = AUDIENCE_STYLES[a] || { bg: '#f4f4f4', color: '#525252' };
-            return <span key={a} style={{ fontSize: '11px', fontWeight: 700, padding: '2px 10px', borderRadius: '12px', background: s.bg, color: s.color }}>{a}</span>;
-          })}
-        </div>
         <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#161616', lineHeight: 1.4 }}>{ev.title}</h3>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>

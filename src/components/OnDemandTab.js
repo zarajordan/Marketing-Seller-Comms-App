@@ -19,17 +19,21 @@ import {
   uploadOnDemandThumbnail,
 } from '../lib/supabaseData';
 
-const CATEGORIES = ['IBM Event', '3rd Party Event', 'Partner-led Event', 'Workshop', 'Virtual Event', 'Other'];
+const SEGMENTS = ['Technology', 'Consulting', 'Both'];
+const PRODUCTS = ['IBM Z', 'Power', 'Storage', 'Security', 'Automation', 'Hybrid Cloud', 'Data & AI', 'Sustainability', 'Other'];
+const INDUSTRIES = ['Financial Services', 'Healthcare', 'Government', 'Retail', 'Telco', 'Energy', 'Manufacturing', 'Cross-Industry', 'Other'];
 
 const EMPTY_FORM = {
   title: '',
   description: '',
   event_date: '',
-  category: 'IBM Event',
   recording_url: '',
   thumbnail_url: '',
   duration: '',
   presenter: '',
+  segment: '',
+  product: '',
+  industry: '',
 };
 
 export default function OnDemandTab() {
@@ -39,7 +43,9 @@ export default function OnDemandTab() {
   const [recordings, setRecordings] = useState([]);
   const [loading, setLoading]       = useState(true);
   const [search, setSearch]         = useState('');
-  const [filterCategory, setFilterCategory] = useState('All');
+  const [filterSegment, setFilterSegment]   = useState('All');
+  const [filterProduct, setFilterProduct]   = useState('All');
+  const [filterIndustry, setFilterIndustry] = useState('All');
 
   const [isModalOpen, setIsModalOpen]     = useState(false);
   const [editingId, setEditingId]         = useState(null);
@@ -78,11 +84,13 @@ export default function OnDemandTab() {
       title:         rec.title || '',
       description:   rec.description || '',
       event_date:    rec.event_date || '',
-      category:      rec.category || 'IBM Event',
       recording_url: rec.recording_url || '',
       thumbnail_url: rec.thumbnail_url || '',
       duration:      rec.duration || '',
       presenter:     rec.presenter || '',
+      segment:       rec.segment || '',
+      product:       rec.product || '',
+      industry:      rec.industry || '',
     });
     setEditingId(rec.id);
     setThumbnailFile(null);
@@ -135,9 +143,11 @@ export default function OnDemandTab() {
   };
 
   const filtered = recordings.filter(r => {
-    const matchSearch = !search || r.title?.toLowerCase().includes(search.toLowerCase()) || r.presenter?.toLowerCase().includes(search.toLowerCase());
-    const matchCat    = filterCategory === 'All' || r.category === filterCategory;
-    return matchSearch && matchCat;
+    const matchSearch   = !search || r.title?.toLowerCase().includes(search.toLowerCase()) || r.presenter?.toLowerCase().includes(search.toLowerCase());
+    const matchSegment  = filterSegment === 'All' || r.segment === filterSegment;
+    const matchProduct  = filterProduct === 'All' || r.product === filterProduct;
+    const matchIndustry = filterIndustry === 'All' || r.industry === filterIndustry;
+    return matchSearch && matchSegment && matchProduct && matchIndustry;
   });
 
   return (
@@ -167,15 +177,22 @@ export default function OnDemandTab() {
               onChange={e => setSearch(e.target.value)}
             />
           </div>
-          <div style={{ minWidth: '180px' }}>
-            <Select
-              id="od-filter-category"
-              labelText="Category"
-              value={filterCategory}
-              onChange={e => setFilterCategory(e.target.value)}
-            >
-              <SelectItem value="All" text="All Categories" />
-              {CATEGORIES.map(c => <SelectItem key={c} value={c} text={c} />)}
+          <div style={{ minWidth: '150px' }}>
+            <Select id="od-filter-segment" labelText="Segment" value={filterSegment} onChange={e => setFilterSegment(e.target.value)}>
+              <SelectItem value="All" text="All Segments" />
+              {SEGMENTS.map(s => <SelectItem key={s} value={s} text={s} />)}
+            </Select>
+          </div>
+          <div style={{ minWidth: '160px' }}>
+            <Select id="od-filter-product" labelText="Product" value={filterProduct} onChange={e => setFilterProduct(e.target.value)}>
+              <SelectItem value="All" text="All Products" />
+              {PRODUCTS.map(p => <SelectItem key={p} value={p} text={p} />)}
+            </Select>
+          </div>
+          <div style={{ minWidth: '160px' }}>
+            <Select id="od-filter-industry" labelText="Industry" value={filterIndustry} onChange={e => setFilterIndustry(e.target.value)}>
+              <SelectItem value="All" text="All Industries" />
+              {INDUSTRIES.map(i => <SelectItem key={i} value={i} text={i} />)}
             </Select>
           </div>
           {isAdmin && (
@@ -252,21 +269,25 @@ export default function OnDemandTab() {
               onChange={e => setForm({ ...form, event_date: e.target.value })}
             />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <Select
-              id="od-category"
-              labelText="Category"
-              value={form.category}
-              onChange={e => setForm({ ...form, category: e.target.value })}
-            >
-              {CATEGORIES.map(c => <SelectItem key={c} value={c} text={c} />)}
+          <TextInput
+            id="od-duration"
+            labelText="Duration (e.g. 45 mins)"
+            value={form.duration}
+            onChange={e => setForm({ ...form, duration: e.target.value })}
+          />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+            <Select id="od-segment" labelText="Segment" value={form.segment} onChange={e => setForm({ ...form, segment: e.target.value })}>
+              <SelectItem value="" text="— Select —" />
+              {SEGMENTS.map(s => <SelectItem key={s} value={s} text={s} />)}
             </Select>
-            <TextInput
-              id="od-duration"
-              labelText="Duration (e.g. 45 mins)"
-              value={form.duration}
-              onChange={e => setForm({ ...form, duration: e.target.value })}
-            />
+            <Select id="od-product" labelText="Product" value={form.product} onChange={e => setForm({ ...form, product: e.target.value })}>
+              <SelectItem value="" text="— Select —" />
+              {PRODUCTS.map(p => <SelectItem key={p} value={p} text={p} />)}
+            </Select>
+            <Select id="od-industry" labelText="Industry" value={form.industry} onChange={e => setForm({ ...form, industry: e.target.value })}>
+              <SelectItem value="" text="— Select —" />
+              {INDUSTRIES.map(i => <SelectItem key={i} value={i} text={i} />)}
+            </Select>
           </div>
           <TextInput
             id="od-recording-url"
@@ -319,16 +340,6 @@ export default function OnDemandTab() {
 }
 
 function RecordingCard({ rec, isAdmin, onEdit, onDelete }) {
-  const categoryColors = {
-    'IBM Event':        { bg: '#edf5ff', color: '#0043ce' },
-    '3rd Party Event':  { bg: '#defbe6', color: '#044317' },
-    'Partner-led Event':{ bg: '#f6f2ff', color: '#6929c4' },
-    'Workshop':         { bg: '#fff8e1', color: '#b45309' },
-    'Virtual Event':    { bg: '#e5f6ff', color: '#00539a' },
-    'Other':            { bg: '#f4f4f4', color: '#525252' },
-  };
-  const tagStyle = categoryColors[rec.category] || categoryColors['Other'];
-
   return (
     <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
       {/* Thumbnail */}
@@ -351,10 +362,11 @@ function RecordingCard({ rec, isAdmin, onEdit, onDelete }) {
 
       {/* Body */}
       <div style={{ padding: '14px 16px', flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '12px', background: tagStyle.bg, color: tagStyle.color }}>{rec.category}</span>
-          {rec.duration && <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '12px', background: '#f4f4f4', color: '#525252' }}>{rec.duration} mins</span>}
-        </div>
+        {rec.duration && (
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '12px', background: '#f4f4f4', color: '#525252' }}>{rec.duration} mins</span>
+          </div>
+        )}
         <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#161616', lineHeight: 1.4 }}>{rec.title}</h3>
         {rec.presenter && <p style={{ margin: 0, fontSize: '12px', color: '#525252' }}>Presenter: {rec.presenter}</p>}
         {rec.event_date && <p style={{ margin: 0, fontSize: '12px', color: '#8d8d8d' }}>{new Date(rec.event_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>}
