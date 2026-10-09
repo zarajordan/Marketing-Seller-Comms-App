@@ -377,3 +377,59 @@ INSERT INTO sp_social_kits (partner_slug, title, post_copy, downloadable_assets,
   '[{"label": "LinkedIn Banner (1200x627)", "url": "https://example.com/oracle-linkedin-banner.jpg"}]',
   1
 );
+
+-- ── Row Level Security (RLS) & Policies ────────────────────────
+ALTER TABLE sp_achievements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sp_partners ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sp_contacts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sp_team_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sp_activities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sp_stories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sp_assets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sp_business_resources ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sp_social_kits ENABLE ROW LEVEL SECURITY;
+
+-- SELECT Policies (Allow public/anon/authenticated read access)
+CREATE POLICY "Allow public select on sp_achievements" ON sp_achievements FOR SELECT USING (true);
+CREATE POLICY "Allow public select on sp_partners" ON sp_partners FOR SELECT USING (true);
+CREATE POLICY "Allow public select on sp_contacts" ON sp_contacts FOR SELECT USING (true);
+CREATE POLICY "Allow public select on sp_team_members" ON sp_team_members FOR SELECT USING (true);
+CREATE POLICY "Allow public select on sp_activities" ON sp_activities FOR SELECT USING (true);
+CREATE POLICY "Allow public select on sp_stories" ON sp_stories FOR SELECT USING (true);
+CREATE POLICY "Allow public select on sp_assets" ON sp_assets FOR SELECT USING (true);
+CREATE POLICY "Allow public select on sp_business_resources" ON sp_business_resources FOR SELECT USING (true);
+CREATE POLICY "Allow public select on sp_social_kits" ON sp_social_kits FOR SELECT USING (true);
+
+-- WRITE Policies (Restrict write/edit actions to active admin managers)
+CREATE POLICY "Allow admin write on sp_partners" ON sp_partners FOR ALL TO public USING (
+  EXISTS (SELECT 1 FROM users WHERE users.email = auth.jwt() ->> 'email' AND users.role = 'admin-manager' AND users.active = true)
+);
+CREATE POLICY "Allow admin write on sp_contacts" ON sp_contacts FOR ALL TO public USING (
+  EXISTS (SELECT 1 FROM users WHERE users.email = auth.jwt() ->> 'email' AND users.role = 'admin-manager' AND users.active = true)
+);
+CREATE POLICY "Allow admin write on sp_team_members" ON sp_team_members FOR ALL TO public USING (
+  EXISTS (SELECT 1 FROM users WHERE users.email = auth.jwt() ->> 'email' AND users.role = 'admin-manager' AND users.active = true)
+);
+CREATE POLICY "Allow admin write on sp_activities" ON sp_activities FOR ALL TO public USING (
+  EXISTS (SELECT 1 FROM users WHERE users.email = auth.jwt() ->> 'email' AND users.role = 'admin-manager' AND users.active = true)
+);
+CREATE POLICY "Allow admin write on sp_stories" ON sp_stories FOR ALL TO public USING (
+  EXISTS (SELECT 1 FROM users WHERE users.email = auth.jwt() ->> 'email' AND users.role = 'admin-manager' AND users.active = true)
+);
+CREATE POLICY "Allow admin write on sp_assets" ON sp_assets FOR ALL TO public USING (
+  EXISTS (SELECT 1 FROM users WHERE users.email = auth.jwt() ->> 'email' AND users.role = 'admin-manager' AND users.active = true)
+);
+CREATE POLICY "Allow admin write on sp_business_resources" ON sp_business_resources FOR ALL TO public USING (
+  EXISTS (SELECT 1 FROM users WHERE users.email = auth.jwt() ->> 'email' AND users.role = 'admin-manager' AND users.active = true)
+);
+CREATE POLICY "Allow admin write on sp_social_kits" ON sp_social_kits FOR ALL TO public USING (
+  EXISTS (SELECT 1 FROM users WHERE users.email = auth.jwt() ->> 'email' AND users.role = 'admin-manager' AND users.active = true)
+);
+
+-- Achievements Write (Sellers can submit new achievements as pending, admins manage all)
+CREATE POLICY "Allow active user insert on sp_achievements" ON sp_achievements FOR INSERT TO public WITH CHECK (
+  EXISTS (SELECT 1 FROM users WHERE users.email = auth.jwt() ->> 'email' AND users.active = true)
+);
+CREATE POLICY "Allow admin write on sp_achievements" ON sp_achievements FOR ALL TO public USING (
+  EXISTS (SELECT 1 FROM users WHERE users.email = auth.jwt() ->> 'email' AND users.role = 'admin-manager' AND users.active = true)
+);

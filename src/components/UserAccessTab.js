@@ -54,6 +54,7 @@ const TABS = [
   { id: 'submit-partner-story', label: 'Submit Story Request', description: 'Submit a client/partner story request' },
   { id: 'book-filming', label: 'Book Filming', description: 'Book a filming session' },
   { id: 'sales-people-finder', label: 'Sales People Finder', description: 'Search and find aligned sales team members' },
+  { id: 'strategic-partnerships', label: 'Strategic Partnerships', description: 'View UKI strategic partnerships hub and resources' },
 ];
 
 const ROLES = Object.entries(ROLE_CONFIG).map(([id, cfg]) => ({ id, ...cfg }));
