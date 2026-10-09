@@ -15,7 +15,7 @@ import {
 } from '@carbon/react';
 import { Add, Checkmark, CheckmarkOutline, Edit, Reply, TrashCan, UserFollow, View } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
-import { deleteEvent, listEvents, updateEvent, uploadEventDocument } from '../lib/supabaseData';
+import { deleteEvent, listEvents, updateEvent, uploadEventDocument, listSpAchievements, updateSpAchievement, deleteSpAchievement } from '../lib/supabaseData';
 import RichTextEditor from './RichTextEditor';
 
 const PRODUCT_AREAS = [
@@ -72,7 +72,7 @@ const STATUS_STYLES = {
   Cancelled: { bg: '#fee2e2', color: '#991b1b' },
 };
 
-const ForReviewTab = ({ filmingBookings = [], onUpdateBookingStatus, onDeleteBooking, storyRequests = [], onDismissStoryRequest }) => {
+const ForReviewTab = ({ filmingBookings = [], onUpdateBookingStatus, onDeleteBooking, storyRequests = [], onDismissStoryRequest, onDemandSubmissions = [], onApproveOnDemand, onRejectOnDemand }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -83,7 +83,12 @@ const ForReviewTab = ({ filmingBookings = [], onUpdateBookingStatus, onDeleteBoo
   const [returnNote, setReturnNote] = useState('');
   const [expandedBooking, setExpandedBooking] = useState(null);
   const [expandedStory, setExpandedStory] = useState(null);
-  const [activeSection, setActiveSection] = useState('events'); // 'events' | 'filming' | 'story-requests'
+  const [activeSection, setActiveSection] = useState('events'); // 'events' | 'filming' | 'story-requests' | 'on-demand' | 'sp-achievements'
+  const [expandedOnDemand, setExpandedOnDemand] = useState(null);
+  const [rejectOnDemandId, setRejectOnDemandId] = useState(null);
+  const [approvingOnDemand, setApprovingOnDemand] = useState(null);
+  const [spAchievements, setSpAchievements] = useState([]);
+  const [rejectSpAchievementId, setRejectSpAchievementId] = useState(null);
 
   // Edit state
   const [editingEvent, setEditingEvent] = useState(null); // the original event being edited
@@ -93,10 +98,41 @@ const ForReviewTab = ({ filmingBookings = [], onUpdateBookingStatus, onDeleteBoo
 
   useEffect(() => {
     loadDrafts();
+    loadSpAchievements();
     const handleUpdate = () => loadDrafts();
     window.addEventListener('eventsUpdated', handleUpdate);
     return () => window.removeEventListener('eventsUpdated', handleUpdate);
   }, []);
+
+  const loadSpAchievements = async () => {
+    try {
+      const data = await listSpAchievements({ status: 'pending' });
+      setSpAchievements(data);
+    } catch {
+      // silently fail — SP tab may not be set up yet
+    }
+  };
+
+  const handleApproveSpAchievement = async (item) => {
+    try {
+      await updateSpAchievement(item.id, { status: 'active' });
+      toast.success(`"${item.title}" approved and added to the carousel`);
+      loadSpAchievements();
+    } catch (err) {
+      toast.error('Approve failed: ' + err.message);
+    }
+  };
+
+  const handleRejectSpAchievement = async (id) => {
+    try {
+      await deleteSpAchievement(id);
+      toast.success('Achievement submission removed');
+      setRejectSpAchievementId(null);
+      loadSpAchievements();
+    } catch (err) {
+      toast.error('Delete failed: ' + err.message);
+    }
+  };
 
   const loadDrafts = async () => {
     try {
@@ -573,6 +609,17 @@ const ForReviewTab = ({ filmingBookings = [], onUpdateBookingStatus, onDeleteBoo
 
   // ── Normal list view ────────────────────────────────────────────────────────
   const pendingBookings = filmingBookings.filter(b => b.status === 'Pending');
+  const handleApproveOnDemand = async (sub) => {
+    setApprovingOnDemand(sub.id);
+    try {
+      await onApproveOnDemand(sub);
+      toast.success(`"${sub.title}" approved and published to On Demand`);
+    } catch (err) {
+      toast.error('Failed to approve: ' + err.message);
+    } finally {
+      setApprovingOnDemand(null);
+    }
+  };
 
   return (
     <div className="for-review-tab">
@@ -593,6 +640,8 @@ const ForReviewTab = ({ filmingBookings = [], onUpdateBookingStatus, onDeleteBoo
           { id: 'events',          label: '📅 Event Submissions',  count: events.length },
           { id: 'story-requests',  label: '📝 Story Requests',     count: storyRequests.length },
           { id: 'filming',         label: '🎬 Filming Requests',   count: pendingBookings.length },
+          { id: 'on-demand',       label: '▶ On Demand',           count: onDemandSubmissions.length },
+          { id: 'sp-achievements', label: '🏆 SP Achievements',    count: spAchievements.length },
         ].map(s => (
           <button key={s.id} onClick={() => setActiveSection(s.id)}
             style={{ padding: '10px 20px', border: 'none', background: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: 500, fontFamily: 'inherit',
@@ -858,6 +907,185 @@ const ForReviewTab = ({ filmingBookings = [], onUpdateBookingStatus, onDeleteBoo
           })}
         </div>
       ))}
+
+      {/* ── ON DEMAND SUBMISSIONS ── */}
+      {activeSection === 'on-demand' && (onDemandSubmissions.length === 0 ? (
+        <Tile style={{ textAlign: 'center', padding: '64px 24px' }}>
+          <div style={{ fontSize: '40px', marginBottom: '16px' }}>✅</div>
+          <h3 style={{ marginBottom: '8px' }}>No On Demand submissions</h3>
+          <p style={{ color: '#525252' }}>No recordings have been submitted for review yet.</p>
+        </Tile>
+      ) : (
+        <div>
+          <p style={{ fontSize: '13px', color: '#525252', marginBottom: '20px' }}>
+            {onDemandSubmissions.length} recording{onDemandSubmissions.length !== 1 ? 's' : ''} awaiting review
+          </p>
+          {onDemandSubmissions.map(sub => {
+            const isExpanded = expandedOnDemand === sub.id;
+            return (
+              <div key={sub.id} style={{ border: '1px solid #e0e0e0', borderRadius: '4px', background: '#fff', marginBottom: '16px', overflow: 'hidden' }}>
+                {/* Card header */}
+                <div style={{ background: '#f4f4f4', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e0e0e0' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '15px', fontWeight: '600', color: '#161616' }}>{sub.title}</span>
+                    <span style={{ padding: '2px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, background: '#fef3c7', color: '#92400e' }}>Pending Review</span>
+                    {sub.product && <span style={{ padding: '2px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 600, background: '#e8daff', color: '#6929c4' }}>{sub.product}</span>}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ fontSize: '12px', color: '#6f6f6f' }}>
+                      {sub.submitted_at ? new Date(sub.submitted_at).toLocaleDateString('en-GB') : ''}
+                    </span>
+                    <button onClick={() => setExpandedOnDemand(isExpanded ? null : sub.id)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', color: '#0f62fe', padding: '4px 8px' }}>
+                      {isExpanded ? '▲ Less' : '▼ Details'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Card body */}
+                <div style={{ padding: '16px 20px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '12px', marginBottom: '16px' }}>
+                    {[
+                      ['Submitted by', sub.submitted_by_name || '—'],
+                      ['Email', sub.submitted_by_email || '—'],
+                      ['Duration', sub.duration || '—'],
+                    ].map(([label, value]) => (
+                      <div key={label}>
+                        <p style={{ fontSize: '11px', fontWeight: '600', color: '#6f6f6f', marginBottom: '2px', textTransform: 'uppercase' }}>{label}</p>
+                        <p style={{ fontSize: '14px', color: '#161616' }}>{value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {isExpanded && (
+                    <div style={{ borderTop: '1px solid #e0e0e0', paddingTop: '14px', marginBottom: '14px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '12px', marginBottom: '14px' }}>
+                        {[
+                          ['Presenter', sub.presenter || '—'],
+                          ['Segment', sub.segment || '—'],
+                          ['Industry', sub.industry || '—'],
+                          ['Original Event Date', sub.event_date ? new Date(sub.event_date + 'T12:00:00').toLocaleDateString('en-GB') : '—'],
+                        ].map(([label, value]) => (
+                          <div key={label}>
+                            <p style={{ fontSize: '11px', fontWeight: '600', color: '#6f6f6f', marginBottom: '2px', textTransform: 'uppercase' }}>{label}</p>
+                            <p style={{ fontSize: '13px', color: '#161616' }}>{value}</p>
+                          </div>
+                        ))}
+                      </div>
+                      {sub.description && (
+                        <div style={{ marginBottom: '12px' }}>
+                          <p style={{ fontSize: '11px', fontWeight: '600', color: '#6f6f6f', marginBottom: '4px', textTransform: 'uppercase' }}>Description</p>
+                          <p style={{ fontSize: '13px', color: '#525252', lineHeight: 1.6 }}>{sub.description}</p>
+                        </div>
+                      )}
+                      {sub.recording_url && (
+                        <div style={{ marginBottom: '12px' }}>
+                          <p style={{ fontSize: '11px', fontWeight: '600', color: '#6f6f6f', marginBottom: '4px', textTransform: 'uppercase' }}>Recording URL</p>
+                          <a href={sub.recording_url} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#0f62fe', wordBreak: 'break-all' }}>{sub.recording_url}</a>
+                        </div>
+                      )}
+                      {sub.thumbnail_url && (
+                        <div style={{ marginBottom: '12px' }}>
+                          <p style={{ fontSize: '11px', fontWeight: '600', color: '#6f6f6f', marginBottom: '6px', textTransform: 'uppercase' }}>Thumbnail</p>
+                          <img src={sub.thumbnail_url} alt="thumbnail" style={{ height: '80px', borderRadius: '4px', border: '1px solid #e5e7eb', objectFit: 'cover' }} />
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div style={{ display: 'flex', gap: '12px', borderTop: '1px solid #e0e0e0', paddingTop: '16px' }}>
+                    <Button kind="primary" renderIcon={Checkmark}
+                      disabled={approvingOnDemand === sub.id}
+                      onClick={() => handleApproveOnDemand(sub)}>
+                      {approvingOnDemand === sub.id ? 'Publishing…' : 'Approve & Publish'}
+                    </Button>
+                    <Button kind="danger--ghost" renderIcon={TrashCan}
+                      onClick={() => setRejectOnDemandId(sub.id)}>
+                      Reject
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ))}
+
+      {/* ── SP ACHIEVEMENTS ── */}
+      {activeSection === 'sp-achievements' && (spAchievements.length === 0 ? (
+        <Tile style={{ textAlign: 'center', padding: '64px 24px' }}>
+          <div style={{ fontSize: '40px', marginBottom: '16px' }}>🏆</div>
+          <h3 style={{ marginBottom: '8px' }}>No pending achievements</h3>
+          <p style={{ color: '#525252' }}>No partnership achievement submissions awaiting review.</p>
+        </Tile>
+      ) : (
+        <div>
+          <p style={{ fontSize: '13px', color: '#525252', marginBottom: '20px' }}>
+            {spAchievements.length} achievement{spAchievements.length !== 1 ? 's' : ''} submitted by sellers awaiting review
+          </p>
+          {spAchievements.map((item) => (
+            <div key={item.id} style={{ border: '1px solid #e0e0e0', borderRadius: '4px', background: '#fff', marginBottom: '16px', overflow: 'hidden' }}>
+              <div style={{ background: '#f4f4f4', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e0e0e0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '15px', fontWeight: '600', color: '#161616' }}>{item.title}</span>
+                  <span style={{ padding: '2px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, background: '#fef3c7', color: '#92400e' }}>Pending Review</span>
+                  <span style={{ padding: '2px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 600, background: '#d0e2ff', color: '#0043ce' }}>{item.partner_slug}</span>
+                </div>
+                <span style={{ fontSize: '12px', color: '#6f6f6f' }}>
+                  {item.created_at ? new Date(item.created_at).toLocaleDateString('en-GB') : ''}
+                </span>
+              </div>
+              <div style={{ padding: '16px 20px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '12px', marginBottom: '16px' }}>
+                  {[
+                    ['Submitted by', item.submitted_by_email || '—'],
+                    ['Achievement Date', item.achievement_date ? new Date(item.achievement_date).toLocaleDateString('en-GB') : '—'],
+                    ['Partner', item.partner_slug || '—'],
+                  ].map(([label, value]) => (
+                    <div key={label}>
+                      <p style={{ fontSize: '11px', fontWeight: '600', color: '#6f6f6f', marginBottom: '2px', textTransform: 'uppercase' }}>{label}</p>
+                      <p style={{ fontSize: '14px', color: '#161616', margin: 0 }}>{value}</p>
+                    </div>
+                  ))}
+                </div>
+                {item.short_overview && (
+                  <div style={{ background: '#f4f4f4', borderRadius: 4, padding: '10px 14px', marginBottom: '16px', fontSize: '14px', color: '#393939' }}>
+                    {item.short_overview}
+                  </div>
+                )}
+                {item.hero_image_url && (
+                  <img src={item.hero_image_url} alt={item.title} style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 4, marginBottom: '16px' }} />
+                )}
+                <div style={{ display: 'flex', gap: '12px', borderTop: '1px solid #e0e0e0', paddingTop: '16px' }}>
+                  <Button kind="primary" renderIcon={Checkmark} onClick={() => handleApproveSpAchievement(item)}>
+                    Approve & Add to Carousel
+                  </Button>
+                  <Button kind="danger--ghost" renderIcon={TrashCan} onClick={() => setRejectSpAchievementId(item.id)}>
+                    Reject
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ))}
+
+      {/* Reject SP Achievement Confirmation Modal */}
+      <Modal open={!!rejectSpAchievementId} onRequestClose={() => setRejectSpAchievementId(null)}
+        modalHeading="Reject Achievement Submission"
+        primaryButtonText="Yes, Reject" secondaryButtonText="Cancel" danger
+        onRequestSubmit={() => handleRejectSpAchievement(rejectSpAchievementId)}>
+        <p>Are you sure you want to reject this achievement submission? It will be permanently deleted.</p>
+      </Modal>
+
+      {/* Reject On Demand Confirmation Modal */}
+      <Modal open={!!rejectOnDemandId} onRequestClose={() => setRejectOnDemandId(null)}
+        modalHeading="Reject On Demand Submission"
+        primaryButtonText="Yes, Reject" secondaryButtonText="Cancel" danger
+        onRequestSubmit={async () => { try { await onRejectOnDemand(rejectOnDemandId); setRejectOnDemandId(null); toast.success('Submission rejected and removed'); } catch (err) { toast.error('Failed to reject: ' + err.message); } }}>
+        <p>Are you sure you want to reject this recording submission? It will be permanently deleted.</p>
+      </Modal>
 
       {/* Preview Modal */}
       <Modal open={previewOpen} onRequestClose={() => setPreviewOpen(false)} modalHeading="Event Preview" passiveModal size="sm">

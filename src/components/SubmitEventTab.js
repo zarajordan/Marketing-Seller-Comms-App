@@ -69,7 +69,7 @@ const EMPTY_FORM = {
   otherRole: '',
   status: 'Draft',
   postEventFollowUp: DEFAULT_POST_EVENT_FOLLOW_UP,
-  category: 'ibm',
+  category: '',
   promoteOurPresence: '',
   promoteDocuments: [],
 };
@@ -240,6 +240,7 @@ const SubmitEventTab = forwardRef(({ onReturnedResolved } = {}, ref) => {
 
   const validate = () => {
     const e = {};
+    if (!formData.category)                                              e.category = 'Category is required';
     if (!formData.title.trim())                                          e.title = 'Event title is required';
     if (!formData.startDate)                                             e.startDate = 'Start date is required';
     if (!formData.eventTime)                                             e.eventTime = 'Event time is required';
@@ -424,6 +425,14 @@ const SubmitEventTab = forwardRef(({ onReturnedResolved } = {}, ref) => {
               onChange={handleInputChange}
             />
 
+            <Select id="category" name="category" labelText="Category *" value={formData.category} onChange={handleInputChange} invalid={!!errors.category} invalidText={errors.category}>
+              <SelectItem value="" text="— Select a category —" />
+              <SelectItem value="ibm" text="IBM Event" />
+              <SelectItem value="thirdParty" text="3rd Party Event" />
+              <SelectItem value="partnerLed" text="Partner-led Event" />
+              <SelectItem value="onDemand" text="On-Demand/Webinar" />
+            </Select>
+
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '16px' }}>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: '600', color: '#525252', display: 'block', marginBottom: '8px' }}>Start Date *</label>
@@ -577,7 +586,7 @@ const SubmitEventTab = forwardRef(({ onReturnedResolved } = {}, ref) => {
             <div>
               <RichTextEditor
                 label="Brief Summary * (500 characters)"
-                labelNote="(when drafting this summary please consider this will be included on the seller comm and sent to the client)"
+                warning="This text will be included in a communication sent directly to clients. Before submitting, ask yourself: would you be comfortable if this appeared in a client-facing email exactly as written?"
                 value={formData.briefSummary}
                 onChange={(val) => {
                   setBriefSummaryCount(val.replace(/<[^>]*>/g, '').length);
@@ -739,13 +748,6 @@ const SubmitEventTab = forwardRef(({ onReturnedResolved } = {}, ref) => {
               </div>
               {errors.productAreas && <p style={{ fontSize: '12px', color: '#da1e28', marginTop: '8px' }}>{errors.productAreas}</p>}
             </div>
-
-            <Select id="category" name="category" labelText="Category *" value={formData.category} onChange={handleInputChange}>
-              <SelectItem value="ibm" text="IBM Event" />
-              <SelectItem value="thirdParty" text="3rd Party Event" />
-              <SelectItem value="partnerLed" text="Partner-led Event" />
-              <SelectItem value="onDemand" text="On-Demand/Webinar" />
-            </Select>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '16px' }}>
               <Select id="eventType" name="eventType" labelText="Event Type" value={formData.eventType} onChange={handleInputChange}>

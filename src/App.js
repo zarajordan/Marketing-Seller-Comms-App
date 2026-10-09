@@ -42,11 +42,12 @@ import SubmitPartnerStoryTab from './components/SubmitPartnerStoryTab';
 import BookFilmingTab from './components/BookFilmingTab';
 import OnDemandTab from './components/OnDemandTab';
 import InternalEventsTab from './components/InternalEventsTab';
+import StrategicPartnershipsTab from './components/StrategicPartnershipsTab';
 import ThemeSelector from './components/ThemeSelector';
 import LoginPage from './components/LoginPage';
 import SetNewPasswordPage from './components/SetNewPasswordPage';
 import { UserProvider, useUser } from './contexts/UserContext';
-import { listEvents, listReturnedEvents, listFilmingBookings, createFilmingBooking, updateFilmingBooking, deleteFilmingBooking, listStoryRequests, createStoryRequest, deleteStoryRequest, listFilmingAvailableDays, addFilmingAvailableDay, removeFilmingAvailableDay } from './lib/supabaseData';
+import { listEvents, listReturnedEvents, listFilmingBookings, createFilmingBooking, updateFilmingBooking, deleteFilmingBooking, listStoryRequests, createStoryRequest, deleteStoryRequest, listFilmingAvailableDays, addFilmingAvailableDay, removeFilmingAvailableDay, listOnDemandSubmissions, createOnDemandRecording, deleteOnDemandSubmission } from './lib/supabaseData';
 import ibmLogo from '../public/ibm-logo.png';
 
 // ── Sidebar configuration ────────────────────────────────────────────────────
@@ -86,6 +87,12 @@ const SIDEBAR_SECTIONS = [
     ],
   },
   {
+    label: 'Partners',
+    items: [
+      { id: 'strategic-partnerships', label: 'UKI Strategic Partnerships', icon: Portfolio },
+    ],
+  },
+  {
     label: 'Social',
     items: [
       { id: 'social-tiles', label: 'Social Tiles & Guidance', icon: Star },
@@ -117,6 +124,7 @@ const TAB_COMPONENTS = {
   'analytics':           AnalyticsTab,
   'submit-partner-story':     SubmitPartnerStoryTab,
   'book-filming':             BookFilmingTab,
+  'strategic-partnerships': StrategicPartnershipsTab,
   'social-tiles':        SocialTilesTab,
   'csr':                 CSRTab,
   'dashboard':           DashboardTab,
@@ -191,12 +199,14 @@ function MainAppContent({ onLogout }) {
   const [filmingBookings, setFilmingBookings] = useState([]);
   const [filmingAvailableDays, setFilmingAvailableDays] = useState([]);
   const [storyRequests, setStoryRequests] = useState([]);
+  const [onDemandSubmissions, setOnDemandSubmissions] = useState([]);
 
   // Load persisted data on mount
   useEffect(() => {
     listFilmingBookings().then(setFilmingBookings).catch(() => {});
     listFilmingAvailableDays().then(setFilmingAvailableDays).catch(() => {});
     listStoryRequests().then(setStoryRequests).catch(() => {});
+    listOnDemandSubmissions().then(setOnDemandSubmissions).catch(() => {});
   }, []);
 
   const handleAddAvailableDay = useCallback(async (date, note) => {
@@ -267,11 +277,11 @@ function MainAppContent({ onLogout }) {
       const data = await listEvents();
       const draftCount = data.filter((e) => e.status === 'Draft').length;
       const pendingFilming = filmingBookings.filter(b => b.status === 'Pending').length;
-      setForReviewCount(draftCount + pendingFilming + storyRequests.length);
+      setForReviewCount(draftCount + pendingFilming + storyRequests.length + onDemandSubmissions.length);
     } catch {
       // silently ignore
     }
-  }, [hasPermission, filmingBookings, storyRequests]);
+  }, [hasPermission, filmingBookings, storyRequests, onDemandSubmissions]);
 
   useEffect(() => {
     loadReviewCount();
@@ -357,10 +367,11 @@ function MainAppContent({ onLogout }) {
       const Component = TAB_COMPONENTS[selectedTabId];
       if (!Component) return null;
       const props = {};
-      if (selectedTabId === 'templates')       props.onUseTemplate = handleLoadTemplate;
-      if (selectedTabId === 'drafts')          { props.onEditDraft = handleEditDraft; props.currentUser = currentUser; }
-      if (selectedTabId === 'event-library')   { props.onGenerateComm = handleGenerateComm; props.currentUser = currentUser; }
-      if (selectedTabId === 'for-review')      { props.filmingBookings = filmingBookings; props.onUpdateBookingStatus = handleUpdateBookingStatus; props.onDeleteBooking = handleDeleteBooking; props.storyRequests = storyRequests; props.onDismissStoryRequest = handleDismissStoryRequest; }
+      if (selectedTabId === 'templates')              props.onUseTemplate = handleLoadTemplate;
+      if (selectedTabId === 'drafts')                 { props.onEditDraft = handleEditDraft; props.currentUser = currentUser; }
+      if (selectedTabId === 'event-library')          { props.onGenerateComm = handleGenerateComm; props.currentUser = currentUser; }
+      if (selectedTabId === 'strategic-partnerships') props.currentUser = currentUser;
+      if (selectedTabId === 'for-review')      { props.filmingBookings = filmingBookings; props.onUpdateBookingStatus = handleUpdateBookingStatus; props.onDeleteBooking = handleDeleteBooking; props.storyRequests = storyRequests; props.onDismissStoryRequest = handleDismissStoryRequest; props.onDemandSubmissions = onDemandSubmissions; props.onApproveOnDemand = async (sub) => { await createOnDemandRecording({ title: sub.title, description: sub.description, event_date: sub.event_date, recording_url: sub.recording_url, thumbnail_url: sub.thumbnail_url, duration: sub.duration, presenter: sub.presenter, segment: sub.segment, product: sub.product, industry: sub.industry }); await deleteOnDemandSubmission(sub.id); setOnDemandSubmissions(prev => prev.filter(s => s.id !== sub.id)); }; props.onRejectOnDemand = async (id) => { await deleteOnDemandSubmission(id); setOnDemandSubmissions(prev => prev.filter(s => s.id !== id)); }; }
       if (selectedTabId === 'submit-partner-story') { props.onAddStoryRequest = handleAddStoryRequest; }
       if (selectedTabId === 'book-filming') { props.bookings = filmingBookings; props.availableDays = filmingAvailableDays; props.onAddBooking = handleAddBooking; props.onUpdateBooking = handleUpdateBooking; props.onUpdateBookingStatus = handleUpdateBookingStatus; props.onDeleteBooking = handleDeleteBooking; props.onAddAvailableDay = handleAddAvailableDay; props.onRemoveAvailableDay = handleRemoveAvailableDay; }
       return <Component {...props} />;

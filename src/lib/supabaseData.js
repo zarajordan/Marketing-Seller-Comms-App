@@ -20,6 +20,7 @@ export const TAB_PERMISSIONS = [
   'social-tiles',
   'csr',
   'sales-people-finder',
+  'strategic-partnerships',
 ];
 
 export const ROLE_CONFIG = {
@@ -51,14 +52,14 @@ export const getDefaultPermissions = (role) => {
 
   if (role === 'marketing') {
     return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-      permissions[tabId] = tabId === 'event-library' || tabId === 'on-demand' || tabId === 'internal-events' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'analytics' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder';
+      permissions[tabId] = tabId === 'event-library' || tabId === 'on-demand' || tabId === 'internal-events' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'analytics' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder' || tabId === 'strategic-partnerships';
       return permissions;
     }, {});
   }
 
   // seller — or any unrecognised/unauthorised role — gets Event Library + On Demand
   return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-    permissions[tabId] = tabId === 'event-library' || tabId === 'on-demand' || tabId === 'internal-events' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder';
+    permissions[tabId] = tabId === 'event-library' || tabId === 'on-demand' || tabId === 'internal-events' || tabId === 'submit-event' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder' || tabId === 'strategic-partnerships';
     return permissions;
   }, {});
 };
@@ -132,6 +133,39 @@ export const uploadOnDemandThumbnail = async (file) => {
   if (error) throw error;
   const { data } = supabase.storage.from('event-documents').getPublicUrl(fileName);
   return data.publicUrl;
+};
+
+// ── On-Demand Submissions (pending review) ───────────────────────────────────
+
+export const listOnDemandSubmissions = async () => {
+  return getOrFetch('on-demand-submissions', async () => {
+    const { data, error } = await supabase
+      .from('on_demand_submissions')
+      .select('*')
+      .order('submitted_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const createOnDemandSubmission = async (fields) => {
+  invalidate('on-demand-submissions');
+  const { data, error } = await supabase
+    .from('on_demand_submissions')
+    .insert([{ ...fields, submitted_at: new Date().toISOString() }])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteOnDemandSubmission = async (id) => {
+  invalidate('on-demand-submissions');
+  const { error } = await supabase
+    .from('on_demand_submissions')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
 };
 
 // ── Internal IBM Events ───────────────────────────────────────────────────────
@@ -936,4 +970,386 @@ export const archiveExpiredEvents = async () => {
     .in('id', expiredIds);
 
   invalidate('events'); // callers must re-fetch after this
+};
+
+
+// ============================================================
+// ── UKI Strategic Partnerships ───────────────────────────────
+// ============================================================
+
+// ── Shared image upload helper ────────────────────────────────
+export const uploadSpImage = async (file, folder) => {
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const fileName = `${folder}/${Date.now()}-${safeName}`;
+  const { error } = await supabase.storage.from('event-documents').upload(fileName, file, { upsert: true });
+  if (error) throw error;
+  const { data } = supabase.storage.from('event-documents').getPublicUrl(fileName);
+  return data.publicUrl;
+};
+
+// ── sp_achievements ───────────────────────────────────────────
+export const listSpAchievements = async (filters = {}) => {
+  const cacheKey = filters.status ? `sp-achievements:${filters.status}` : 'sp-achievements';
+  return getOrFetch(cacheKey, async () => {
+    let query = supabase
+      .from('sp_achievements')
+      .select('*')
+      .order('is_featured', { ascending: false })
+      .order('display_order', { ascending: true });
+    if (filters.status) query = query.eq('status', filters.status);
+    else query = query.eq('status', 'active');
+    const { data, error } = await query;
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const createSpAchievement = async (fields) => {
+  invalidate('sp-achievements');
+  invalidate('sp-achievements:pending');
+  const { data, error } = await supabase
+    .from('sp_achievements')
+    .insert([{ ...fields, updated_at: new Date().toISOString() }])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const updateSpAchievement = async (id, fields) => {
+  invalidate('sp-achievements');
+  invalidate('sp-achievements:pending');
+  invalidate('sp-achievements:active');
+  const { data, error } = await supabase
+    .from('sp_achievements')
+    .update({ ...fields, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteSpAchievement = async (id) => {
+  invalidate('sp-achievements');
+  invalidate('sp-achievements:pending');
+  const { error } = await supabase.from('sp_achievements').delete().eq('id', id);
+  if (error) throw error;
+};
+
+// ── sp_partners ───────────────────────────────────────────────
+export const listSpPartners = async () => {
+  return getOrFetch('sp-partners', async () => {
+    const { data, error } = await supabase
+      .from('sp_partners')
+      .select('*')
+      .order('display_order', { ascending: true });
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const updateSpPartner = async (id, fields) => {
+  invalidate('sp-partners');
+  const { data, error } = await supabase
+    .from('sp_partners')
+    .update({ ...fields, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+// ── sp_contacts ───────────────────────────────────────────────
+export const listSpContacts = async (partnerSlug) => {
+  return getOrFetch(`sp-contacts:${partnerSlug}`, async () => {
+    const { data, error } = await supabase
+      .from('sp_contacts')
+      .select('*')
+      .eq('partner_slug', partnerSlug)
+      .order('display_order', { ascending: true });
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const createSpContact = async (fields) => {
+  invalidate(`sp-contacts:${fields.partner_slug}`);
+  const { data, error } = await supabase
+    .from('sp_contacts')
+    .insert([fields])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const updateSpContact = async (id, partnerSlug, fields) => {
+  invalidate(`sp-contacts:${partnerSlug}`);
+  const { data, error } = await supabase
+    .from('sp_contacts')
+    .update(fields)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteSpContact = async (id, partnerSlug) => {
+  invalidate(`sp-contacts:${partnerSlug}`);
+  const { error } = await supabase.from('sp_contacts').delete().eq('id', id);
+  if (error) throw error;
+};
+
+// ── sp_team_members ───────────────────────────────────────────
+export const listSpTeamMembers = async (partnerSlug) => {
+  return getOrFetch(`sp-team-members:${partnerSlug}`, async () => {
+    const { data, error } = await supabase
+      .from('sp_team_members')
+      .select('*')
+      .eq('partner_slug', partnerSlug)
+      .order('display_order', { ascending: true });
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const createSpTeamMember = async (fields) => {
+  invalidate(`sp-team-members:${fields.partner_slug}`);
+  const { data, error } = await supabase
+    .from('sp_team_members')
+    .insert([fields])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const updateSpTeamMember = async (id, partnerSlug, fields) => {
+  invalidate(`sp-team-members:${partnerSlug}`);
+  const { data, error } = await supabase
+    .from('sp_team_members')
+    .update(fields)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteSpTeamMember = async (id, partnerSlug) => {
+  invalidate(`sp-team-members:${partnerSlug}`);
+  const { error } = await supabase.from('sp_team_members').delete().eq('id', id);
+  if (error) throw error;
+};
+
+// ── sp_activities ─────────────────────────────────────────────
+export const listSpActivities = async (partnerSlug) => {
+  return getOrFetch(`sp-activities:${partnerSlug}`, async () => {
+    const { data, error } = await supabase
+      .from('sp_activities')
+      .select('*')
+      .eq('partner_slug', partnerSlug)
+      .order('activity_date', { ascending: true });
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const createSpActivity = async (fields) => {
+  invalidate(`sp-activities:${fields.partner_slug}`);
+  const { data, error } = await supabase
+    .from('sp_activities')
+    .insert([{ ...fields, updated_at: new Date().toISOString() }])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const updateSpActivity = async (id, partnerSlug, fields) => {
+  invalidate(`sp-activities:${partnerSlug}`);
+  const { data, error } = await supabase
+    .from('sp_activities')
+    .update({ ...fields, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteSpActivity = async (id, partnerSlug) => {
+  invalidate(`sp-activities:${partnerSlug}`);
+  const { error } = await supabase.from('sp_activities').delete().eq('id', id);
+  if (error) throw error;
+};
+
+// ── sp_stories ────────────────────────────────────────────────
+export const listSpStories = async (partnerSlug) => {
+  return getOrFetch(`sp-stories:${partnerSlug}`, async () => {
+    const { data, error } = await supabase
+      .from('sp_stories')
+      .select('*')
+      .eq('partner_slug', partnerSlug)
+      .order('story_date', { ascending: false });
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const createSpStory = async (fields) => {
+  invalidate(`sp-stories:${fields.partner_slug}`);
+  const { data, error } = await supabase
+    .from('sp_stories')
+    .insert([{ ...fields, updated_at: new Date().toISOString() }])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const updateSpStory = async (id, partnerSlug, fields) => {
+  invalidate(`sp-stories:${partnerSlug}`);
+  const { data, error } = await supabase
+    .from('sp_stories')
+    .update({ ...fields, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteSpStory = async (id, partnerSlug) => {
+  invalidate(`sp-stories:${partnerSlug}`);
+  const { error } = await supabase.from('sp_stories').delete().eq('id', id);
+  if (error) throw error;
+};
+
+// ── sp_assets ─────────────────────────────────────────────────
+export const listSpAssets = async (partnerSlug) => {
+  return getOrFetch(`sp-assets:${partnerSlug}`, async () => {
+    const { data, error } = await supabase
+      .from('sp_assets')
+      .select('*')
+      .eq('partner_slug', partnerSlug)
+      .order('display_order', { ascending: true });
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const createSpAsset = async (fields) => {
+  invalidate(`sp-assets:${fields.partner_slug}`);
+  const { data, error } = await supabase
+    .from('sp_assets')
+    .insert([{ ...fields, updated_at: new Date().toISOString() }])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const updateSpAsset = async (id, partnerSlug, fields) => {
+  invalidate(`sp-assets:${partnerSlug}`);
+  const { data, error } = await supabase
+    .from('sp_assets')
+    .update({ ...fields, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteSpAsset = async (id, partnerSlug) => {
+  invalidate(`sp-assets:${partnerSlug}`);
+  const { error } = await supabase.from('sp_assets').delete().eq('id', id);
+  if (error) throw error;
+};
+
+// ── sp_business_resources ─────────────────────────────────────
+export const listSpBusinessResources = async () => {
+  return getOrFetch('sp-business-resources', async () => {
+    const { data, error } = await supabase
+      .from('sp_business_resources')
+      .select('*')
+      .order('display_order', { ascending: true });
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const createSpBusinessResource = async (fields) => {
+  invalidate('sp-business-resources');
+  const { data, error } = await supabase
+    .from('sp_business_resources')
+    .insert([{ ...fields, updated_at: new Date().toISOString() }])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const updateSpBusinessResource = async (id, fields) => {
+  invalidate('sp-business-resources');
+  const { data, error } = await supabase
+    .from('sp_business_resources')
+    .update({ ...fields, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteSpBusinessResource = async (id) => {
+  invalidate('sp-business-resources');
+  const { error } = await supabase.from('sp_business_resources').delete().eq('id', id);
+  if (error) throw error;
+};
+
+// ── sp_social_kits ────────────────────────────────────────────
+export const listSpSocialKits = async (partnerSlug) => {
+  return getOrFetch(`sp-social-kits:${partnerSlug}`, async () => {
+    const { data, error } = await supabase
+      .from('sp_social_kits')
+      .select('*')
+      .eq('partner_slug', partnerSlug)
+      .order('display_order', { ascending: true });
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const createSpSocialKit = async (fields) => {
+  invalidate(`sp-social-kits:${fields.partner_slug}`);
+  const { data, error } = await supabase
+    .from('sp_social_kits')
+    .insert([{ ...fields, updated_at: new Date().toISOString() }])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const updateSpSocialKit = async (id, partnerSlug, fields) => {
+  invalidate(`sp-social-kits:${partnerSlug}`);
+  const { data, error } = await supabase
+    .from('sp_social_kits')
+    .update({ ...fields, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteSpSocialKit = async (id, partnerSlug) => {
+  invalidate(`sp-social-kits:${partnerSlug}`);
+  const { error } = await supabase.from('sp_social_kits').delete().eq('id', id);
+  if (error) throw error;
 };

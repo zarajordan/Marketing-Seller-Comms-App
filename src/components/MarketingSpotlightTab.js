@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
-import { saveDraft, updateDraft, listEvents } from '../lib/supabaseData';
+import { saveDraft, updateDraft, listEvents, listOnDemandRecordings } from '../lib/supabaseData';
 import {
   Grid,
   Column,
@@ -32,6 +32,7 @@ import {
   Edit,
   Download,
   DocumentAdd,
+  PlayFilledAlt,
 } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
 import RichTextEditor from './RichTextEditor';
@@ -131,6 +132,13 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
   const [newsLinkForm, setNewsLinkForm] = useState({ title: '', url: '', description: '' });
   const [podcastLinkForm, setPodcastLinkForm] = useState({ title: '', url: '', description: '' });
   
+  // On Demand recordings state
+  const [spotlightOnDemand, setSpotlightOnDemand] = useState([]);
+  const [onDemandImportModalOpen, setOnDemandImportModalOpen] = useState(false);
+  const [onDemandImportSearch, setOnDemandImportSearch] = useState('');
+  const [onDemandImportLoading, setOnDemandImportLoading] = useState(false);
+  const [allOnDemandRecordings, setAllOnDemandRecordings] = useState([]);
+
   // Custom sections state
   const [customSections, setCustomSections] = useState([]);
   
@@ -589,6 +597,16 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
     featured: false,
   });
 
+  // Fetch on demand recordings when import modal opens
+  useEffect(() => {
+    if (!onDemandImportModalOpen) return;
+    setOnDemandImportLoading(true);
+    listOnDemandRecordings()
+      .then((data) => setAllOnDemandRecordings(data || []))
+      .catch(() => setAllOnDemandRecordings([]))
+      .finally(() => setOnDemandImportLoading(false));
+  }, [onDemandImportModalOpen]);
+
   // Fetch active upcoming events when any import modal opens
   useEffect(() => {
     if (!importModalOpen && !customSectionImportModalOpen) return;
@@ -1017,6 +1035,7 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
     useCustomColors,
     customColors,
     customSections,
+    spotlightOnDemand,
     colorScheme,
     fontFamily,
   });
@@ -1149,6 +1168,7 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
         setCustomColors(draftData.customColors);
       }
       setCustomSections(draftData.customSections || []);
+      setSpotlightOnDemand(draftData.spotlightOnDemand || []);
       setCurrentDraftId(draftId || null); // Track the draft ID for updates
       toast.success('Draft loaded successfully!');
     }
@@ -1661,6 +1681,62 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
     </tr>
     ` : ''}
 
+    ${spotlightOnDemand.length > 0 ? `
+    <!-- On Demand Recordings Section -->
+    <tr>
+      <td style="padding: 15px 15px 10px 15px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${currentColors.sectionHeaderBg}" style="border-radius: 4px; border-left: 3px solid ${currentColors.onDemandBorder}; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
+          <tr>
+            <td style="padding: 10px; text-align: center;">
+              <h2 style="margin: 0; font-size: 14px; color: ${currentColors.sectionHeaderColor}; font-family: ${currentFont.family}, Arial, sans-serif; font-weight: 700; letter-spacing: 0.3px;">
+                ▶ On Demand
+              </h2>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 0 15px 15px 15px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" class="two-column-table">
+          ${(() => {
+            let rows = '';
+            for (let i = 0; i < spotlightOnDemand.length; i += 2) {
+              const r1 = spotlightOnDemand[i];
+              const r2 = spotlightOnDemand[i + 1];
+              const renderCard = (rec) => `
+                <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="border-left: 3px solid ${currentColors.onDemandBorder}; border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); height: 100%;" class="event-card">
+                  <tr>
+                    <td style="padding: 10px;" valign="top">
+                      <h4 style="margin: 0 0 6px 0; font-size: 13px; color: #161616; font-family: ${currentFont.family}, Arial, sans-serif; line-height: 1.3; font-weight: 700;">${rec.title}</h4>
+                      ${rec.presenter ? `<p style="margin: 0 0 3px 0; font-size: 10px; color: #525252;">🎤 ${rec.presenter}</p>` : ''}
+                      ${rec.duration ? `<p style="margin: 0 0 3px 0; font-size: 10px; color: #525252;">⏱ ${rec.duration}</p>` : ''}
+                      ${rec.description ? `<p style="margin: 4px 0 8px 0; font-size: 11px; color: #525252; line-height: 1.4;">${rec.description.length > 120 ? rec.description.substring(0, 120) + '…' : rec.description}</p>` : ''}
+                      <table cellpadding="0" cellspacing="0" border="0" style="margin-top: 8px;">
+                        <tr>
+                          <td bgcolor="${currentColors.onDemandBorder}" style="border-radius: 2px;">
+                            <a href="${rec.recording_url}" style="color: #ffffff; padding: 5px 10px; text-decoration: none; font-size: 10px; font-weight: 700; display: block;">▶ Watch Now</a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>`;
+              rows += `<tr>
+                <td width="48%" valign="top" style="padding-right: 8px; padding-bottom: 10px;" class="column-cell">${renderCard(r1)}</td>
+                ${r2
+                  ? `<td width="48%" valign="top" style="padding-left: 8px; padding-bottom: 10px;" class="column-cell">${renderCard(r2)}</td>`
+                  : '<td width="48%" class="column-cell"></td>'
+                }
+              </tr>`;
+            }
+            return rows;
+          })()}
+        </table>
+      </td>
+    </tr>
+    ` : ''}
+
     ${newsLinks.length > 0 ? `
     <!-- Thought Leadership & On Demand Assets Section -->
     <tr>
@@ -2068,6 +2144,36 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
       ${sectionRibbon('On-Demand Webinars', '&#127909;')}
       ${twoColumnEventGrid(onDemandEvents, currentColors.onDemandBorder, currentColors.onDemandBg)}` : '';
 
+    const onDemandRecordingsHTML = spotlightOnDemand.length > 0 ? (() => {
+      let rows = '';
+      for (let i = 0; i < spotlightOnDemand.length; i += 2) {
+        const a = spotlightOnDemand[i];
+        const b = spotlightOnDemand[i + 1];
+        const recCard = (rec) => `
+          <td style="padding:20px; background:#ffffff; border-radius:6px; border:1px solid #e5e7eb; border-left:4px solid ${currentColors.onDemandBorder}; vertical-align:top;">
+            <p style="margin:0 0 6px 0; font-size:14px; font-weight:700; color:#1f2328; font-family:Arial,sans-serif;">${rec.title}</p>
+            ${rec.presenter ? `<p style="margin:0 0 4px 0; font-size:12px; color:#57606a; font-family:Arial,sans-serif;">🎤 ${rec.presenter}</p>` : ''}
+            ${rec.duration ? `<p style="margin:0 0 4px 0; font-size:12px; color:#57606a; font-family:Arial,sans-serif;">⏱ ${rec.duration}</p>` : ''}
+            ${rec.description ? `<p style="margin:0 0 10px 0; font-size:12px; color:#57606a; font-family:Arial,sans-serif; line-height:1.5;">${rec.description.length > 120 ? rec.description.substring(0, 120) + '…' : rec.description}</p>` : ''}
+            <a href="${rec.recording_url}" style="display:inline-block; padding:6px 14px; background:${currentColors.onDemandBorder}; color:#ffffff; font-size:11px; font-weight:600; text-decoration:none; border-radius:3px; font-family:Arial,sans-serif;">▶ Watch Now</a>
+          </td>`;
+        rows += `
+          <tr>
+            ${recCard(a)}
+            <td width="12" style="font-size:0;">&nbsp;</td>
+            ${b ? recCard(b) : '<td>&nbsp;</td>'}
+          </tr>
+          <tr><td colspan="3" style="padding-top:12px; font-size:0;">&nbsp;</td></tr>`;
+      }
+      return `
+        ${sectionRibbon('On Demand', '&#9654;')}
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:16px; background:${currentColors.onDemandBg}; padding:16px; border-radius:4px;">
+          <tr><td>
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">${rows}</table>
+          </td></tr>
+        </table>`;
+    })() : '';
+
     const featuredEventsHTML = featuredEvents.length > 0 ? `
       ${sectionRibbon('&#11088; Featured Events', '&#127942;')}
       ${twoColumnEventGrid(featuredEvents, currentColors.featured, currentColors.summaryBg)}` : '';
@@ -2196,6 +2302,9 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
 
   <!-- ── ON-DEMAND EVENTS ──────────────────────────────────────────────── -->
   ${onDemandEventsHTML ? `<tr><td style="padding:0 32px 8px 32px; background:#ffffff;">${onDemandEventsHTML}</td></tr>` : ''}
+
+  <!-- ── ON DEMAND RECORDINGS ─────────────────────────────────────────── -->
+  ${onDemandRecordingsHTML ? `<tr><td style="padding:0 32px 8px 32px; background:#ffffff;">${onDemandRecordingsHTML}</td></tr>` : ''}
 
   <!-- ── CUSTOM SECTIONS ────────────────────────────────────────────────── -->
   ${customSectionsHTML ? `<tr><td style="padding:0 32px 8px 32px; background:#ffffff;">${customSectionsHTML}</td></tr>` : ''}
@@ -2930,6 +3039,70 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
             >
               Add Event
             </Button>
+          </Tile>
+        </Column>
+
+        {/* On Demand Recordings */}
+        <Column lg={16}>
+          <Tile style={{ marginBottom: '1rem', padding: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ margin: 0 }}>▶ On Demand ({spotlightOnDemand.length})</h3>
+              <Button
+                kind="secondary"
+                renderIcon={PlayFilledAlt}
+                size="sm"
+                onClick={() => {
+                  setOnDemandImportSearch('');
+                  setOnDemandImportModalOpen(true);
+                }}
+              >
+                Import from On Demand
+              </Button>
+            </div>
+
+            {spotlightOnDemand.length === 0 ? (
+              <div style={{ color: '#525252', textAlign: 'center', padding: '1rem 0' }}>
+                No recordings added yet. Import from the On Demand tab to include them in your comm.
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gap: '0.75rem' }}>
+                {spotlightOnDemand.map((rec) => (
+                  <div
+                    key={rec.id}
+                    style={{
+                      padding: '0.75rem',
+                      background: '#f4f4f4',
+                      borderRadius: '4px',
+                      borderLeft: `4px solid ${currentColors.onDemandBorder}`
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                      <div style={{ flex: 1 }}>
+                        <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '14px' }}>{rec.title}</h4>
+                        {rec.presenter && (
+                          <p style={{ margin: '0 0 0.15rem 0', fontSize: '12px', color: '#525252' }}>
+                            🎤 {rec.presenter}
+                          </p>
+                        )}
+                        {rec.duration && (
+                          <p style={{ margin: '0', fontSize: '12px', color: '#525252' }}>
+                            ⏱ {rec.duration}
+                          </p>
+                        )}
+                      </div>
+                      <Button
+                        kind="danger--ghost"
+                        size="sm"
+                        renderIcon={TrashCan}
+                        iconDescription="Remove"
+                        hasIconOnly
+                        onClick={() => setSpotlightOnDemand(spotlightOnDemand.filter(r => r.id !== rec.id))}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </Tile>
         </Column>
 
@@ -4045,6 +4218,58 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
                   <div style={{ fontSize: '12px', color: '#525252' }}>
                     {formatLibraryDateRange(e.startDate, e.endDate)}
                     {e.locationDetails ? ` · ${e.locationDetails}` : ''}
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+      </Modal>
+
+      {/* On Demand Import Modal */}
+      <Modal
+        open={onDemandImportModalOpen}
+        onRequestClose={() => setOnDemandImportModalOpen(false)}
+        modalHeading="Import from On Demand"
+        passiveModal
+        size="sm"
+      >
+        <div style={{ marginBottom: '1rem' }}>
+          <input
+            type="text"
+            placeholder="Search recordings..."
+            value={onDemandImportSearch}
+            onChange={(e) => setOnDemandImportSearch(e.target.value)}
+            style={{ width: '100%', padding: '0.5rem 0.75rem', fontSize: '14px', border: '1px solid #e0e0e0', borderRadius: '4px', outline: 'none', boxSizing: 'border-box' }}
+          />
+        </div>
+        {onDemandImportLoading ? (
+          <p style={{ color: '#525252', fontSize: '14px' }}>Loading recordings…</p>
+        ) : (() => {
+          const alreadyAdded = new Set(spotlightOnDemand.map(r => r.id));
+          const filtered = allOnDemandRecordings.filter((r) =>
+            !alreadyAdded.has(r.id) &&
+            (!onDemandImportSearch || r.title?.toLowerCase().includes(onDemandImportSearch.toLowerCase()) || r.presenter?.toLowerCase().includes(onDemandImportSearch.toLowerCase()))
+          );
+          if (filtered.length === 0) {
+            return <p style={{ color: '#525252', fontSize: '14px', textAlign: 'center', padding: '1rem 0' }}>No recordings found.</p>;
+          }
+          return (
+            <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
+              {filtered.map((rec) => (
+                <div
+                  key={rec.id}
+                  onClick={() => {
+                    setSpotlightOnDemand(prev => [...prev, rec]);
+                    setOnDemandImportModalOpen(false);
+                  }}
+                  style={{ padding: '0.75rem 1rem', marginBottom: '0.5rem', border: '1px solid #e0e0e0', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#fff' }}
+                  onMouseEnter={(ev) => ev.currentTarget.style.backgroundColor = '#f4f4f4'}
+                  onMouseLeave={(ev) => ev.currentTarget.style.backgroundColor = '#fff'}
+                >
+                  <div style={{ fontWeight: '600', fontSize: '14px', marginBottom: '2px' }}>{rec.title}</div>
+                  <div style={{ fontSize: '12px', color: '#525252' }}>
+                    {rec.presenter && `🎤 ${rec.presenter}`}{rec.duration ? `  ·  ⏱ ${rec.duration}` : ''}
                   </div>
                 </div>
               ))}

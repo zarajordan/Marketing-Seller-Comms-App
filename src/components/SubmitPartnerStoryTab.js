@@ -22,15 +22,11 @@ export default function SubmitPartnerStoryTab({ onAddStoryRequest }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (onAddStoryRequest) {
-      try {
-        await onAddStoryRequest({ ...form });
-        setSubmitted(true);
-      } catch (err) {
-        alert('Failed to submit request: ' + (err?.message || err));
-      }
-    } else {
+    try {
+      await onAddStoryRequest({ ...form });
       setSubmitted(true);
+    } catch (err) {
+      alert('Failed to submit request: ' + (err?.message || err));
     }
   };
   const handleClear = () => {

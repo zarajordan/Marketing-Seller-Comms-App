@@ -17,6 +17,8 @@ import {
   updateOnDemandRecording,
   deleteOnDemandRecording,
   uploadOnDemandThumbnail,
+  createOnDemandSubmission,
+  uploadOnDemandThumbnail as uploadSubmissionThumbnail,
 } from '../lib/supabaseData';
 
 const SEGMENTS = ['Technology', 'Consulting', 'Both'];
@@ -54,6 +56,14 @@ export default function OnDemandTab() {
   const [saving, setSaving]               = useState(false);
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
+
+  // Submit for review (non-admin)
+  const [submitModalOpen, setSubmitModalOpen]   = useState(false);
+  const [submitForm, setSubmitForm]             = useState(EMPTY_FORM);
+  const [submitThumbnailFile, setSubmitThumbnailFile] = useState(null);
+  const [submitThumbnailPreview, setSubmitThumbnailPreview] = useState(null);
+  const [submitting, setSubmitting]             = useState(false);
+  const [submitDone, setSubmitDone]             = useState(false);
 
   useEffect(() => {
     load();
@@ -142,6 +152,29 @@ export default function OnDemandTab() {
     }
   };
 
+  const handleSubmitForReview = async () => {
+    if (!submitForm.title.trim()) { toast.error('Title is required'); return; }
+    if (!submitForm.recording_url.trim()) { toast.error('Recording URL is required'); return; }
+    setSubmitting(true);
+    try {
+      let finalForm = { ...submitForm, submitted_by_name: currentUser?.name || '', submitted_by_email: currentUser?.email || '' };
+      if (submitThumbnailFile) {
+        const url = await uploadSubmissionThumbnail(submitThumbnailFile);
+        finalForm = { ...finalForm, thumbnail_url: url };
+      }
+      await createOnDemandSubmission(finalForm);
+      setSubmitModalOpen(false);
+      setSubmitForm(EMPTY_FORM);
+      setSubmitThumbnailFile(null);
+      setSubmitThumbnailPreview(null);
+      setSubmitDone(true);
+    } catch (err) {
+      toast.error(`Failed to submit: ${err.message}`);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const filtered = recordings.filter(r => {
     const matchSearch   = !search || r.title?.toLowerCase().includes(search.toLowerCase()) || r.presenter?.toLowerCase().includes(search.toLowerCase());
     const matchSegment  = filterSegment === 'All' || r.segment === filterSegment;
@@ -200,6 +233,9 @@ export default function OnDemandTab() {
               Add Recording
             </Button>
           )}
+          <Button kind="tertiary" renderIcon={Add} onClick={() => { setSubmitForm(EMPTY_FORM); setSubmitThumbnailFile(null); setSubmitThumbnailPreview(null); setSubmitDone(false); setSubmitModalOpen(true); }}>
+            Submit a Recording
+          </Button>
         </div>
 
         {/* Grid */}
@@ -210,7 +246,7 @@ export default function OnDemandTab() {
             <VideoFilled size={48} style={{ opacity: 0.3, marginBottom: '12px' }} />
             <p style={{ fontSize: '16px', fontWeight: 600 }}>No recordings found</p>
             <p style={{ fontSize: '14px' }}>
-              {isAdmin ? 'Add the first recording using the button above.' : 'Check back later for recordings.'}
+              {isAdmin ? 'Add the first recording using the button above.' : 'Check back later for recordings, or submit your own using the button above.'}
             </p>
           </div>
         ) : (
@@ -335,6 +371,123 @@ export default function OnDemandTab() {
       >
         <p>Are you sure you want to delete <strong>{deleteConfirm?.title}</strong>? This cannot be undone.</p>
       </Modal>
+
+      {/* Submit for Review Modal */}
+      <Modal
+        open={submitModalOpen}
+        modalHeading="Submit a Recording for Review"
+        primaryButtonText={submitting ? 'Submitting…' : 'Submit for Review'}
+        secondaryButtonText="Cancel"
+        onRequestSubmit={handleSubmitForReview}
+        onRequestClose={() => setSubmitModalOpen(false)}
+        onSecondarySubmit={() => setSubmitModalOpen(false)}
+        primaryButtonDisabled={submitting}
+        size="md"
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingTop: '8px' }}>
+          <p style={{ margin: 0, fontSize: '13px', color: '#525252', padding: '10px 12px', background: '#f4f4f4', borderRadius: '4px', borderLeft: '3px solid #0f62fe' }}>
+            Your submission will be reviewed by an admin before being published to the On Demand library.
+          </p>
+          <TextInput
+            id="sub-title"
+            labelText="Title *"
+            value={submitForm.title}
+            onChange={e => setSubmitForm({ ...submitForm, title: e.target.value })}
+          />
+          <TextArea
+            id="sub-description"
+            labelText="Description"
+            rows={3}
+            value={submitForm.description}
+            onChange={e => setSubmitForm({ ...submitForm, description: e.target.value })}
+          />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <TextInput
+              id="sub-presenter"
+              labelText="Presenter(s)"
+              value={submitForm.presenter}
+              onChange={e => setSubmitForm({ ...submitForm, presenter: e.target.value })}
+            />
+            <TextInput
+              id="sub-event-date"
+              labelText="Original Event Date"
+              type="date"
+              value={submitForm.event_date}
+              onChange={e => setSubmitForm({ ...submitForm, event_date: e.target.value })}
+            />
+          </div>
+          <TextInput
+            id="sub-duration"
+            labelText="Duration (e.g. 45 mins)"
+            value={submitForm.duration}
+            onChange={e => setSubmitForm({ ...submitForm, duration: e.target.value })}
+          />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+            <Select id="sub-segment" labelText="Segment" value={submitForm.segment} onChange={e => setSubmitForm({ ...submitForm, segment: e.target.value })}>
+              <SelectItem value="" text="— Select —" />
+              {SEGMENTS.map(s => <SelectItem key={s} value={s} text={s} />)}
+            </Select>
+            <Select id="sub-product" labelText="Product" value={submitForm.product} onChange={e => setSubmitForm({ ...submitForm, product: e.target.value })}>
+              <SelectItem value="" text="— Select —" />
+              {PRODUCTS.map(p => <SelectItem key={p} value={p} text={p} />)}
+            </Select>
+            <Select id="sub-industry" labelText="Industry" value={submitForm.industry} onChange={e => setSubmitForm({ ...submitForm, industry: e.target.value })}>
+              <SelectItem value="" text="— Select —" />
+              {INDUSTRIES.map(i => <SelectItem key={i} value={i} text={i} />)}
+            </Select>
+          </div>
+          <TextInput
+            id="sub-recording-url"
+            labelText="Recording URL *"
+            placeholder="https://ibm.webex.com/… or https://youtu.be/…"
+            value={submitForm.recording_url}
+            onChange={e => setSubmitForm({ ...submitForm, recording_url: e.target.value })}
+          />
+          <div>
+            <p style={{ fontSize: '12px', fontWeight: 600, color: '#161616', marginBottom: '6px' }}>Thumbnail Image (optional)</p>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                setSubmitThumbnailFile(file);
+                setSubmitThumbnailPreview(URL.createObjectURL(file));
+              }}
+              style={{ fontSize: '13px', color: '#161616' }}
+            />
+            {submitThumbnailPreview && (
+              <div style={{ marginTop: '10px', position: 'relative', display: 'inline-block' }}>
+                <img src={submitThumbnailPreview} alt="Thumbnail preview"
+                  style={{ height: '90px', borderRadius: '6px', border: '1px solid #e5e7eb', objectFit: 'cover' }} />
+                <button
+                  onClick={() => { setSubmitThumbnailFile(null); setSubmitThumbnailPreview(null); setSubmitForm({ ...submitForm, thumbnail_url: '' }); }}
+                  style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#da1e28', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >✕</button>
+              </div>
+            )}
+          </div>
+        </div>
+      </Modal>
+
+      {/* Submission success toast banner */}
+      {submitDone && (
+        <Modal
+          open={submitDone}
+          modalHeading="Recording Submitted!"
+          primaryButtonText="Done"
+          onRequestSubmit={() => setSubmitDone(false)}
+          onRequestClose={() => setSubmitDone(false)}
+          size="sm"
+        >
+          <div style={{ padding: '16px 0', textAlign: 'center' }}>
+            <div style={{ fontSize: '48px', marginBottom: '12px' }}>✅</div>
+            <p style={{ fontSize: '14px', color: '#525252' }}>
+              Your recording has been submitted for review. An admin will publish it to the On Demand library once approved.
+            </p>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
