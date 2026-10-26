@@ -47,12 +47,19 @@ const TABS = [
   { id: 'marketing-spotlight', label: 'Marketing Spotlight', description: 'Create marketing spotlight content' },
   { id: 'templates', label: 'Templates', description: 'View and use templates' },
   { id: 'event-library', label: 'Event Library', description: 'Browse event library' },
+  { id: 'on-demand', label: 'On Demand', description: 'Watch and share on-demand recordings' },
+  { id: 'internal-events', label: 'Internal Events', description: 'Browse and view internal events' },
   { id: 'manage-events', label: 'Manage Events', description: 'Create and manage events' },
+  { id: 'for-review', label: 'For Review', description: 'Review and approve submitted events & requests' },
+  { id: 'submit-event', label: 'Submit Event', description: 'Submit events for review' },
   { id: 'drafts', label: 'My Drafts', description: 'View and edit drafts' },
   { id: 'user-access', label: 'User Access', description: 'Manage user permissions' },
+  { id: 'analytics', label: 'Analytics', description: 'View usage analytics' },
   { id: 'client-stories', label: 'Client Stories', description: 'View IBM client stories dashboard' },
   { id: 'submit-partner-story', label: 'Submit Story Request', description: 'Submit a client/partner story request' },
   { id: 'book-filming', label: 'Book Filming', description: 'Book a filming session' },
+  { id: 'social-tiles', label: 'Social Tiles & Guidance', description: 'Browse social tiles and guidance' },
+  { id: 'csr', label: 'CSR & Volunteering', description: 'Browse CSR and volunteering initiatives' },
   { id: 'sales-people-finder', label: 'Sales People Finder', description: 'Search and find aligned sales team members' },
   { id: 'strategic-partnerships', label: 'Strategic Partnerships', description: 'View UKI strategic partnerships hub and resources' },
 ];
@@ -325,8 +332,8 @@ const UserAccessTab = () => {
               <span style={{ fontSize: '13px', color: '#525252' }}>
                 {role.id === 'admin-manager' && 'Full access to all tabs and user management'}
                 {role.id === 'marketer' && 'Tab access assigned individually by admin manager'}
-                {role.id === 'marketing' && 'Event Library, Submit Event and My Drafts access only'}
-                {role.id === 'seller' && 'Event Library access only'}
+                {role.id === 'marketing' && 'Event Library, Submit Event, My Drafts and standard resources access'}
+                {role.id === 'seller' && 'Event Library, Submit Event, and standard resources access'}
               </span>
             </div>
           ))}

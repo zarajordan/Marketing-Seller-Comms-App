@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { findUserByEmail, logActivity } from '../lib/supabaseData';
+import { findUserByEmail, logActivity, getDefaultPermissions } from '../lib/supabaseData';
 
 const UserContext = createContext();
 
@@ -84,14 +84,14 @@ export const UserProvider = ({ children }) => {
       return { authStage: 'seller', user };
     }
 
-    // Not in the DB — treat as regular IBM employee, Event Library only
+    // Not in the DB — treat as regular IBM employee (seller defaults)
     const guestUser = {
       id: null,
       name: email.split('@')[0],
       email,
       role: 'seller',
       active: true,
-      permissions: { 'event-library': true, 'on-demand': true, 'internal-events': true, 'client-stories': true, 'submit-partner-story': true, 'book-filming': true, 'social-tiles': true, 'csr': true, 'sales-people-finder': true, 'strategic-partnerships': true },
+      permissions: getDefaultPermissions('seller'),
     };
     setCurrentUser(guestUser);
     setIsAuthenticated(true);
