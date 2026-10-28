@@ -499,7 +499,8 @@ export default function StrategicPartnershipsTab({ currentUser }) {
   const [linkForm, setLinkForm] = useState({ label: '', url: '' });
   const [savingLink, setSavingLink] = useState(false);
 
-  const isAdmin = currentUser?.role === 'admin-manager';
+  const role = (currentUser?.role || '').toLowerCase();
+  const isAdmin = role === 'admin-manager' || role === 'marketer';
 
   const handleOpenEditLink = (partner) => {
     const defaultLink = PARTNER_LINKS[partner.slug]?.[0] || {
