@@ -803,7 +803,7 @@ export const uploadClientStoryFile = async (storyId, file) => {
 
 export const logActivity = async (eventType, payload = {}) => {
   try {
-    await supabase.from('activity_log').insert({
+    const { error } = await supabase.from('activity_log').insert({
       event_type: eventType,
       user_email: payload.userEmail || null,
       user_name: payload.userName || null,
@@ -811,8 +811,11 @@ export const logActivity = async (eventType, payload = {}) => {
       metadata: payload.metadata || null,
       created_at: new Date().toISOString(),
     });
-  } catch {
-    // non-critical — never let logging break the app
+    if (error) {
+      console.warn('Activity logging error:', error.message || error);
+    }
+  } catch (err) {
+    console.warn('Activity logging exception:', err);
   }
 };
 
@@ -832,7 +835,11 @@ const fetchActivityLog = (days) => {
       .from('activity_log')
       .select('event_type, user_email, user_name, user_role, metadata, created_at')
       .gte('created_at', since);
-    return (error ? [] : data) || [];
+    if (error) {
+      console.warn('Fetch activity log error:', error.message || error);
+      return [];
+    }
+    return data || [];
   });
 };
 
