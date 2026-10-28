@@ -23,7 +23,6 @@ import { toast } from 'react-toastify';
 import RichTextEditor from '../RichTextEditor';
 import {
   listSpContacts, createSpContact, updateSpContact, deleteSpContact,
-  listSpTeamMembers, createSpTeamMember, updateSpTeamMember, deleteSpTeamMember,
   listSpStories, createSpStory, updateSpStory, deleteSpStory,
   listSpAssets, createSpAsset, updateSpAsset, deleteSpAsset,
   listSpSocialKits, createSpSocialKit, updateSpSocialKit, deleteSpSocialKit,
@@ -204,105 +203,6 @@ function ContactsSection({ partnerSlug, isAdmin, searchTerm }) {
   );
 }
 
-// ══════════════════════════════════════════════════════════════
-// ── TEAM MEMBERS SECTION ──────────────────────────────────────
-// ══════════════════════════════════════════════════════════════
-function TeamMembersSection({ partnerSlug, isAdmin, searchTerm }) {
-  const [members, setMembers] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [form, setForm] = useState({ name: '', role: '', contact_link: '' });
-  const [saving, setSaving] = useState(false);
-
-  const load = useCallback(async () => {
-    const data = await listSpTeamMembers(partnerSlug);
-    setMembers(data);
-  }, [partnerSlug]);
-
-  useEffect(() => { load(); }, [load]);
-
-  const openAdd = () => { setEditing(null); setForm({ name: '', role: '', contact_link: '' }); setShowModal(true); };
-  const openEdit = (m) => { setEditing(m); setForm({ name: m.name || '', role: m.role || '', contact_link: m.contact_link || '' }); setShowModal(true); };
-
-  const handleSave = async () => {
-    if (!form.name.trim()) { toast.error('Name is required'); return; }
-    setSaving(true);
-    try {
-      const fields = { ...form, partner_slug: partnerSlug };
-      if (editing) {
-        await updateSpTeamMember(editing.id, partnerSlug, fields);
-        toast.success('Team member updated');
-      } else {
-        await createSpTeamMember(fields);
-        toast.success('Team member added');
-      }
-      setShowModal(false);
-      load();
-    } catch (err) {
-      toast.error('Save failed: ' + err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      await deleteSpTeamMember(deleteTarget.id, partnerSlug);
-      toast.success('Team member deleted');
-      setDeleteTarget(null);
-      load();
-    } catch (err) {
-      toast.error('Delete failed: ' + err.message);
-    }
-  };
-
-  const filtered = searchTerm
-    ? members.filter((m) => (m.name + ' ' + m.role).toLowerCase().includes(searchTerm.toLowerCase()))
-    : members;
-
-  return (
-    <div>
-      <SectionHeader title="IBM Team" isAdmin={isAdmin} onAdd={openAdd} addLabel="Add Member" />
-      {filtered.length === 0 ? (
-        <p style={{ color: '#525252', fontSize: '0.875rem' }}>No team members listed.</p>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
-          {filtered.map((m) => (
-            <div key={m.id} style={{ background: '#f4f4f4', borderRadius: 8, padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>{m.name}</p>
-                {m.role && <Tag type="gray" size="sm">{m.role}</Tag>}
-                {m.contact_link && (
-                  <a href={m.contact_link} target={m.contact_link.startsWith('mailto') ? '_self' : '_blank'} rel="noreferrer" style={{ fontSize: '0.75rem', color: '#0f62fe', display: 'block', marginTop: '0.25rem' }}>
-                    {m.contact_link.startsWith('mailto') ? 'Email' : 'LinkedIn'}
-                  </a>
-                )}
-              </div>
-              {isAdmin && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                  <Button kind="ghost" size="sm" renderIcon={Edit} iconDescription="Edit" hasIconOnly onClick={() => openEdit(m)} />
-                  <Button kind="danger--ghost" size="sm" renderIcon={TrashCan} iconDescription="Delete" hasIconOnly onClick={() => setDeleteTarget(m)} />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      <Modal open={showModal} modalHeading={editing ? 'Edit Team Member' : 'Add Team Member'} primaryButtonText={saving ? 'Saving…' : 'Save'} secondaryButtonText="Cancel" onRequestSubmit={handleSave} onRequestClose={() => setShowModal(false)} onSecondarySubmit={() => setShowModal(false)} size="sm">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingBottom: '1rem' }}>
-          <TextInput id="tm-name" labelText="Name *" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
-          <TextInput id="tm-role" labelText="Role (e.g. Partner Lead)" value={form.role} onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))} />
-          <TextInput id="tm-contact" labelText="Contact Link (email or LinkedIn URL)" value={form.contact_link} onChange={(e) => setForm((f) => ({ ...f, contact_link: e.target.value }))} />
-        </div>
-      </Modal>
-      <DeleteModal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={handleDelete} itemName={deleteTarget?.name} />
-    </div>
-  );
-}
-
-// ══════════════════════════════════════════════════════════════
 // ══════════════════════════════════════════════════════════════
 // ── STORIES SECTION ───────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════
@@ -903,11 +803,6 @@ export default function SpPartnerSection({ partner, isAdmin, searchTerm, onPartn
       {/* Contacts */}
       <div style={sectionDivider}>
         <ContactsSection partnerSlug={partner.slug} isAdmin={isAdmin} searchTerm={searchTerm} />
-      </div>
-
-      {/* Team Members */}
-      <div style={sectionDivider}>
-        <TeamMembersSection partnerSlug={partner.slug} isAdmin={isAdmin} searchTerm={searchTerm} />
       </div>
 
       {/* Stories */}
