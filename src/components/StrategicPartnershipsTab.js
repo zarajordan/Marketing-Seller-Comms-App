@@ -20,6 +20,7 @@ import {
   updateSpBusinessResource,
   deleteSpBusinessResource,
   uploadSpImage,
+  updateSpPartner,
 } from '../lib/supabaseData';
 
 // Reserved resource_type keys
@@ -362,12 +363,15 @@ const PARTNER_LINKS = {
   ]
 };
 
-function PartnerCard({ partner, isSelected, onClick, isAdmin }) {
+function PartnerCard({ partner, isSelected, onClick, isAdmin, onEditLink }) {
   const [hovered, setHovered] = useState(false);
   const blurb = PARTNER_BLURBS[partner.slug] || (partner.overview_html ? partner.overview_html.replace(/<[^>]*>/g, '').substring(0, 160) + '...' : 'IBM strategic partnerships details and resources.');
-  const links = PARTNER_LINKS[partner.slug] || [
-    { label: `Explore IBM Consulting for ${partner.display_name}`, url: `https://www.ibm.com/consulting/${partner.slug}` }
-  ];
+  const defaultLink = PARTNER_LINKS[partner.slug]?.[0] || {
+    label: `Explore IBM Consulting for ${partner.display_name}`,
+    url: `https://www.ibm.com/consulting/${partner.slug}`
+  };
+  const linkLabel = partner.custom_link_label || defaultLink.label;
+  const linkUrl = partner.custom_link_url || defaultLink.url;
 
   return (
     <div
@@ -421,30 +425,42 @@ function PartnerCard({ partner, isSelected, onClick, isAdmin }) {
         {blurb}
       </p>
 
-      {/* Links */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
-        {links.map((lnk, idx) => (
-          <a
-            key={idx}
-            href={lnk.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()} // Prevent card click trigger
-            style={{
-              color: '#0f62fe',
-              fontSize: '0.85rem',
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              fontWeight: 500
+      {/* Link */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', gap: '0.5rem' }}>
+        <a
+          href={linkUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()} // Prevent card click trigger
+          style={{
+            color: '#0f62fe',
+            fontSize: '0.85rem',
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.25rem',
+            fontWeight: 500,
+            flex: 1
+          }}
+          onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
+          onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
+        >
+          {linkLabel} <span style={{ fontSize: '0.9rem' }}>→</span>
+        </a>
+        {isAdmin && (
+          <Button
+            kind="ghost"
+            size="sm"
+            renderIcon={Edit}
+            iconDescription="Edit link wording & URL"
+            hasIconOnly
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditLink(partner);
             }}
-            onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
-            onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
-          >
-            {lnk.label} <span style={{ fontSize: '0.9rem' }}>→</span>
-          </a>
-        ))}
+            style={{ minHeight: '28px', width: '28px', padding: 0 }}
+          />
+        )}
       </div>
 
       {/* Ribbon / Bottom Expand Bar */}
@@ -479,8 +495,48 @@ export default function StrategicPartnershipsTab({ currentUser }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPartnerSlug, setSelectedPartnerSlug] = useState(null);
   const [loadedPartners, setLoadedPartners] = useState({});
+  const [editingLinkPartner, setEditingLinkPartner] = useState(null);
+  const [linkForm, setLinkForm] = useState({ label: '', url: '' });
+  const [savingLink, setSavingLink] = useState(false);
 
   const isAdmin = currentUser?.role === 'admin-manager';
+
+  const handleOpenEditLink = (partner) => {
+    const defaultLink = PARTNER_LINKS[partner.slug]?.[0] || {
+      label: `Explore IBM Consulting for ${partner.display_name}`,
+      url: `https://www.ibm.com/consulting/${partner.slug}`
+    };
+    setLinkForm({
+      label: partner.custom_link_label || defaultLink.label,
+      url: partner.custom_link_url || defaultLink.url,
+    });
+    setEditingLinkPartner(partner);
+  };
+
+  const handleSaveLink = async () => {
+    if (!linkForm.label.trim()) {
+      toast.error('Link text is required');
+      return;
+    }
+    if (!linkForm.url.trim()) {
+      toast.error('Link URL is required');
+      return;
+    }
+    setSavingLink(true);
+    try {
+      await updateSpPartner(editingLinkPartner.id, {
+        custom_link_label: linkForm.label.trim(),
+        custom_link_url: linkForm.url.trim(),
+      });
+      toast.success('Link updated successfully');
+      setEditingLinkPartner(null);
+      loadRoot();
+    } catch (err) {
+      toast.error('Failed to update link: ' + err.message);
+    } finally {
+      setSavingLink(false);
+    }
+  };
 
   const loadRoot = useCallback(async () => {
     try {
@@ -588,6 +644,7 @@ export default function StrategicPartnershipsTab({ currentUser }) {
               isSelected={selectedPartnerSlug === partner.slug}
               onClick={() => handlePartnerSelect(partner.slug)}
               isAdmin={isAdmin}
+              onEditLink={handleOpenEditLink}
             />
           ))}
         </div>
@@ -620,6 +677,35 @@ export default function StrategicPartnershipsTab({ currentUser }) {
         isAdmin={isAdmin}
         onReload={loadRoot}
       />
+
+      {/* Edit Partner Link Modal */}
+      <Modal
+        open={!!editingLinkPartner}
+        modalHeading={`Edit Link — ${editingLinkPartner?.display_name || ''}`}
+        primaryButtonText={savingLink ? 'Saving…' : 'Save'}
+        secondaryButtonText="Cancel"
+        onRequestSubmit={handleSaveLink}
+        onRequestClose={() => setEditingLinkPartner(null)}
+        onSecondarySubmit={() => setEditingLinkPartner(null)}
+        size="sm"
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingBottom: '1rem' }}>
+          <TextInput
+            id="edit-partner-link-label"
+            labelText="Link Wording *"
+            placeholder="e.g. Explore IBM Consulting for Microsoft"
+            value={linkForm.label}
+            onChange={(e) => setLinkForm((prev) => ({ ...prev, label: e.target.value }))}
+          />
+          <TextInput
+            id="edit-partner-link-url"
+            labelText="Link URL *"
+            placeholder="https://www.ibm.com/..."
+            value={linkForm.url}
+            onChange={(e) => setLinkForm((prev) => ({ ...prev, url: e.target.value }))}
+          />
+        </div>
+      </Modal>
     </div>
   );
 }

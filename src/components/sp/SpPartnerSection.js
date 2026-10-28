@@ -700,13 +700,18 @@ function LogoLockupSection({ partner, isAdmin, onPartnerUpdated }) {
 // ══════════════════════════════════════════════════════════════
 function PartnerOverview({ partner, isAdmin, onPartnerUpdated }) {
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ overview_html: '', logo_url: '' });
+  const [form, setForm] = useState({ overview_html: '', logo_url: '', custom_link_label: '', custom_link_url: '' });
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState('');
   const [saving, setSaving] = useState(false);
 
   const openEdit = () => {
-    setForm({ overview_html: partner.overview_html || '', logo_url: partner.logo_url || '' });
+    setForm({
+      overview_html: partner.overview_html || '',
+      logo_url: partner.logo_url || '',
+      custom_link_label: partner.custom_link_label || '',
+      custom_link_url: partner.custom_link_url || '',
+    });
     setLogoFile(null);
     setLogoPreview(partner.logo_url || '');
     setShowModal(true);
@@ -752,6 +757,20 @@ function PartnerOverview({ partner, isAdmin, onPartnerUpdated }) {
             {logoPreview && <img src={logoPreview} alt="Logo preview" style={{ height: 48, objectFit: 'contain', marginBottom: '0.5rem', display: 'block' }} />}
             <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files[0]; if (!f) return; setLogoFile(f); setLogoPreview(URL.createObjectURL(f)); }} />
           </div>
+          <TextInput
+            id="partner-custom-link-label"
+            labelText="Card Link Wording"
+            placeholder="e.g. Explore IBM Consulting for Microsoft"
+            value={form.custom_link_label}
+            onChange={(e) => setForm((f) => ({ ...f, custom_link_label: e.target.value }))}
+          />
+          <TextInput
+            id="partner-custom-link-url"
+            labelText="Card Link URL"
+            placeholder="https://www.ibm.com/..."
+            value={form.custom_link_url}
+            onChange={(e) => setForm((f) => ({ ...f, custom_link_url: e.target.value }))}
+          />
           <RichTextEditor label="Partner Overview" value={form.overview_html} onChange={(val) => setForm((f) => ({ ...f, overview_html: val }))} placeholder="Strategic focus, UKI priorities, value prop, key solutions…" minHeight="200px" />
         </div>
       </Modal>
