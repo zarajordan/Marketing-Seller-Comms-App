@@ -30,27 +30,83 @@ import {
   uploadSpImage,
 } from '../../lib/supabaseData';
 
-const CONTENT_TYPES = ['Case Study', 'Blog', 'Video', 'Podcast', 'Infographic', 'Webinar'];
-const ASSET_TYPES = ['PDF', 'Deck', 'Link', 'IBV', 'Case Study', 'Template', 'Other'];
+const RESOURCE_CATEGORIES = [
+  'Success Stories & Case Studies',
+  'Blogs',
+  'On-Demand, Demos & Videos',
+  'Useful Resources & Links',
+  'IBV Research',
+  'Enablement - IBM & Partner',
+  'Other',
+];
 
-const CONTENT_TYPE_COLORS = {
-  'Case Study': 'green',
-  'Blog': 'blue',
-  'Video': 'purple',
-  'Podcast': 'teal',
-  'Infographic': 'cyan',
-  'Webinar': 'magenta',
+const CATEGORY_COLORS = {
+  'Success Stories & Case Studies': 'green',
+  'Blogs': 'blue',
+  'On-Demand, Demos & Videos': 'purple',
+  'Useful Resources & Links': 'teal',
+  'IBV Research': 'cyan',
+  'Enablement - IBM & Partner': 'magenta',
+  'Other': 'gray',
 };
 
-const ASSET_TYPE_ICONS = {
-  'PDF': '📄',
-  'Deck': '📊',
-  'Link': '🔗',
-  'IBV': '📈',
-  'Case Study': '📋',
-  'Template': '📝',
+const CATEGORY_ICONS = {
+  'Success Stories & Case Studies': '📋',
+  'Blogs': '📰',
+  'On-Demand, Demos & Videos': '🎬',
+  'Useful Resources & Links': '🔗',
+  'IBV Research': '📈',
+  'Enablement - IBM & Partner': '🎓',
   'Other': '📁',
 };
+
+function normalizeStory(s) {
+  let category = 'Other';
+  const ct = s.content_type || '';
+  if (ct === 'Case Study' || ct === 'Success Stories & Case Studies') category = 'Success Stories & Case Studies';
+  else if (ct === 'Blog' || ct === 'Blogs') category = 'Blogs';
+  else if (ct === 'Video' || ct === 'Podcast' || ct === 'Webinar' || ct === 'On-Demand, Demos & Videos') category = 'On-Demand, Demos & Videos';
+  else if (ct === 'Infographic' || ct === 'Useful Resources & Links') category = 'Useful Resources & Links';
+  else if (ct === 'IBV' || ct === 'IBV Research') category = 'IBV Research';
+  else if (ct === 'Enablement - IBM & Partner') category = 'Enablement - IBM & Partner';
+  else if (RESOURCE_CATEGORIES.includes(ct)) category = ct;
+
+  return {
+    _rawType: 'story',
+    id: s.id,
+    title: s.title || '',
+    category,
+    description: s.description || '',
+    date: s.story_date || '',
+    url: s.external_url || '',
+    thumbnail_url: s.thumbnail_url || '',
+    raw: s,
+  };
+}
+
+function normalizeAsset(a) {
+  let category = 'Other';
+  const at = a.asset_type || '';
+  if (at === 'PDF' || at === 'Link' || at === 'Useful Resources & Links') category = 'Useful Resources & Links';
+  else if (at === 'Case Study' || at === 'Success Stories & Case Studies') category = 'Success Stories & Case Studies';
+  else if (at === 'IBV' || at === 'IBV Research') category = 'IBV Research';
+  else if (at === 'Deck' || at === 'Template' || at === 'Enablement - IBM & Partner') category = 'Enablement - IBM & Partner';
+  else if (at === 'Blog' || at === 'Blogs') category = 'Blogs';
+  else if (at === 'Video' || at === 'On-Demand, Demos & Videos') category = 'On-Demand, Demos & Videos';
+  else if (RESOURCE_CATEGORIES.includes(at)) category = at;
+
+  return {
+    _rawType: 'asset',
+    id: a.id,
+    title: a.title || '',
+    category,
+    description: a.description || '',
+    date: a.asset_date || '',
+    url: a.file_url || '',
+    thumbnail_url: '',
+    raw: a,
+  };
+}
 
 // ── Shared section header ─────────────────────────────────────
 function SectionHeader({ title, isAdmin, onAdd, addLabel = 'Add' }) {
@@ -204,32 +260,72 @@ function ContactsSection({ partnerSlug, isAdmin, searchTerm }) {
 }
 
 // ══════════════════════════════════════════════════════════════
-// ── STORIES SECTION ───────────────────────────────────────────
+// ── SUCCESS STORIES & RESOURCES SECTION ───────────────────────
 // ══════════════════════════════════════════════════════════════
-function StoriesSection({ partnerSlug, isAdmin, searchTerm }) {
-  const [stories, setStories] = useState([]);
-  const [filterType, setFilterType] = useState('All');
+function SuccessStoriesAndResourcesSection({ partnerSlug, isAdmin, searchTerm }) {
+  const [items, setItems] = useState([]);
+  const [filterCategory, setFilterCategory] = useState('All');
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [form, setForm] = useState({ title: '', content_type: 'Blog', thumbnail_url: '', description: '', story_date: '', external_url: '' });
-  const [thumbFile, setThumbFile] = useState(null);
+  const [form, setForm] = useState({
+    title: '',
+    category: 'Success Stories & Case Studies',
+    description: '',
+    date: '',
+    url: '',
+    thumbnail_url: '',
+  });
+  const [fileUpload, setFileUpload] = useState(null);
   const [thumbPreview, setThumbPreview] = useState('');
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
-    const data = await listSpStories(partnerSlug);
-    setStories(data);
+    try {
+      const [storiesData, assetsData] = await Promise.all([
+        listSpStories(partnerSlug),
+        listSpAssets(partnerSlug),
+      ]);
+      const normalizedStories = (storiesData || []).map(normalizeStory);
+      const normalizedAssets = (assetsData || []).map(normalizeAsset);
+      const combined = [...normalizedStories, ...normalizedAssets];
+      // Sort newest date first
+      combined.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      setItems(combined);
+    } catch (err) {
+      toast.error('Failed to load stories and resources');
+    }
   }, [partnerSlug]);
 
   useEffect(() => { load(); }, [load]);
 
-  const openAdd = () => { setEditing(null); setForm({ title: '', content_type: 'Blog', thumbnail_url: '', description: '', story_date: '', external_url: '' }); setThumbFile(null); setThumbPreview(''); setShowModal(true); };
-  const openEdit = (s) => {
-    setEditing(s);
-    setForm({ title: s.title || '', content_type: s.content_type || 'Blog', thumbnail_url: s.thumbnail_url || '', description: s.description || '', story_date: s.story_date || '', external_url: s.external_url || '' });
-    setThumbFile(null);
-    setThumbPreview(s.thumbnail_url || '');
+  const openAdd = () => {
+    setEditing(null);
+    setForm({
+      title: '',
+      category: 'Success Stories & Case Studies',
+      description: '',
+      date: new Date().toISOString().split('T')[0],
+      url: '',
+      thumbnail_url: '',
+    });
+    setFileUpload(null);
+    setThumbPreview('');
+    setShowModal(true);
+  };
+
+  const openEdit = (item) => {
+    setEditing(item);
+    setForm({
+      title: item.title || '',
+      category: item.category || 'Success Stories & Case Studies',
+      description: item.description || '',
+      date: item.date || '',
+      url: item.url || '',
+      thumbnail_url: item.thumbnail_url || '',
+    });
+    setFileUpload(null);
+    setThumbPreview(item.thumbnail_url || '');
     setShowModal(true);
   };
 
@@ -237,15 +333,84 @@ function StoriesSection({ partnerSlug, isAdmin, searchTerm }) {
     if (!form.title.trim()) { toast.error('Title is required'); return; }
     setSaving(true);
     try {
-      let thumbUrl = form.thumbnail_url;
-      if (thumbFile) thumbUrl = await uploadSpImage(thumbFile, 'sp-stories');
-      const fields = { ...form, thumbnail_url: thumbUrl, partner_slug: partnerSlug };
+      let fileUrl = form.url;
+      if (fileUpload) {
+        const bucket = (form.category === 'Blogs' || form.category === 'Success Stories & Case Studies' || form.category === 'On-Demand, Demos & Videos')
+          ? 'sp-stories'
+          : 'sp-assets';
+        fileUrl = await uploadSpImage(fileUpload, bucket);
+      }
+
       if (editing) {
-        await updateSpStory(editing.id, partnerSlug, fields);
-        toast.success('Story updated');
+        if (editing._rawType === 'story') {
+          let ct = 'Blog';
+          if (form.category === 'Success Stories & Case Studies') ct = 'Case Study';
+          else if (form.category === 'On-Demand, Demos & Videos') ct = 'Video';
+          else if (form.category === 'Useful Resources & Links') ct = 'Infographic';
+          const fields = {
+            title: form.title,
+            content_type: ct,
+            description: form.description,
+            story_date: form.date,
+            external_url: fileUrl,
+            thumbnail_url: (fileUpload && fileUpload.type?.startsWith('image/')) ? fileUrl : (form.thumbnail_url || ''),
+            partner_slug: partnerSlug,
+          };
+          await updateSpStory(editing.id, partnerSlug, fields);
+          toast.success('Updated successfully');
+        } else {
+          let at = 'PDF';
+          if (form.category === 'Useful Resources & Links') at = (fileUrl?.startsWith('http') && !fileUpload) ? 'Link' : 'PDF';
+          else if (form.category === 'Success Stories & Case Studies') at = 'Case Study';
+          else if (form.category === 'IBV Research') at = 'IBV';
+          else if (form.category === 'Enablement - IBM & Partner') at = 'Deck';
+          else if (form.category === 'Other') at = 'Other';
+          const fields = {
+            title: form.title,
+            asset_type: at,
+            description: form.description,
+            asset_date: form.date,
+            file_url: fileUrl,
+            partner_slug: partnerSlug,
+          };
+          await updateSpAsset(editing.id, partnerSlug, fields);
+          toast.success('Updated successfully');
+        }
       } else {
-        await createSpStory(fields);
-        toast.success('Story added');
+        // Create new item
+        if (form.category === 'Blogs' || form.category === 'On-Demand, Demos & Videos' || (form.category === 'Success Stories & Case Studies' && fileUpload?.type?.startsWith('image/'))) {
+          let ct = 'Blog';
+          if (form.category === 'Success Stories & Case Studies') ct = 'Case Study';
+          else if (form.category === 'On-Demand, Demos & Videos') ct = 'Video';
+          const fields = {
+            title: form.title,
+            content_type: ct,
+            description: form.description,
+            story_date: form.date,
+            external_url: fileUrl,
+            thumbnail_url: (fileUpload && fileUpload.type?.startsWith('image/')) ? fileUrl : '',
+            partner_slug: partnerSlug,
+          };
+          await createSpStory(fields);
+          toast.success('Added to Success Stories & Resources');
+        } else {
+          let at = 'PDF';
+          if (form.category === 'Useful Resources & Links') at = (fileUrl?.startsWith('http') && !fileUpload) ? 'Link' : 'PDF';
+          else if (form.category === 'Success Stories & Case Studies') at = 'Case Study';
+          else if (form.category === 'IBV Research') at = 'IBV';
+          else if (form.category === 'Enablement - IBM & Partner') at = 'Deck';
+          else if (form.category === 'Other') at = 'Other';
+          const fields = {
+            title: form.title,
+            asset_type: at,
+            description: form.description,
+            asset_date: form.date,
+            file_url: fileUrl,
+            partner_slug: partnerSlug,
+          };
+          await createSpAsset(fields);
+          toast.success('Added to Success Stories & Resources');
+        }
       }
       setShowModal(false);
       load();
@@ -258,8 +423,12 @@ function StoriesSection({ partnerSlug, isAdmin, searchTerm }) {
 
   const handleDelete = async () => {
     try {
-      await deleteSpStory(deleteTarget.id, partnerSlug);
-      toast.success('Story deleted');
+      if (deleteTarget._rawType === 'story') {
+        await deleteSpStory(deleteTarget.id, partnerSlug);
+      } else {
+        await deleteSpAsset(deleteTarget.id, partnerSlug);
+      }
+      toast.success('Item deleted');
       setDeleteTarget(null);
       load();
     } catch (err) {
@@ -267,57 +436,145 @@ function StoriesSection({ partnerSlug, isAdmin, searchTerm }) {
     }
   };
 
-  let filtered = stories;
-  if (searchTerm) filtered = filtered.filter((s) => (s.title + ' ' + s.description).toLowerCase().includes(searchTerm.toLowerCase()));
-  if (filterType !== 'All') filtered = filtered.filter((s) => s.content_type === filterType);
+  let filtered = items;
+  if (searchTerm) {
+    const q = searchTerm.toLowerCase();
+    filtered = filtered.filter((i) => (i.title + ' ' + i.description + ' ' + i.category).toLowerCase().includes(q));
+  }
+  if (filterCategory !== 'All') {
+    filtered = filtered.filter((i) => i.category === filterCategory);
+  }
+
+  const getActionLabel = (item) => {
+    if (item.category === 'On-Demand, Demos & Videos') return 'Watch / View';
+    if (item.category === 'Blogs') return 'Read Blog';
+    if (item.category === 'Success Stories & Case Studies') return 'Read Case Study';
+    if (item.url?.toLowerCase().endsWith('.pdf')) return 'Download PDF';
+    return 'Open Resource';
+  };
 
   return (
     <div>
-      <SectionHeader title="Success Stories & Content" isAdmin={isAdmin} onAdd={openAdd} addLabel="Add Story" />
-      {/* Filter bar */}
-      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-        {['All', ...CONTENT_TYPES].map((t) => (
+      <SectionHeader title="Success Stories & Resources" isAdmin={isAdmin} onAdd={openAdd} addLabel="Add Item" />
+
+      {/* Filter Category Tabs */}
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+        {['All', ...RESOURCE_CATEGORIES].map((cat) => (
           <button
-            key={t}
-            onClick={() => setFilterType(t)}
+            key={cat}
+            onClick={() => setFilterCategory(cat)}
             style={{
-              padding: '0.25rem 0.75rem',
+              padding: '0.35rem 0.85rem',
               borderRadius: 16,
               border: '1px solid',
-              borderColor: filterType === t ? '#0f62fe' : '#e0e0e0',
-              background: filterType === t ? '#0f62fe' : '#fff',
-              color: filterType === t ? '#fff' : '#393939',
+              borderColor: filterCategory === cat ? '#0f62fe' : '#e0e0e0',
+              background: filterCategory === cat ? '#0f62fe' : '#fff',
+              color: filterCategory === cat ? '#fff' : '#393939',
               cursor: 'pointer',
               fontSize: '0.8rem',
               fontWeight: 500,
+              transition: 'all 0.15s ease',
             }}
-          >{t}</button>
+          >
+            {cat}
+          </button>
         ))}
       </div>
+
       {filtered.length === 0 ? (
-        <p style={{ color: '#525252', fontSize: '0.875rem' }}>No stories found.</p>
+        <p style={{ color: '#525252', fontSize: '0.875rem' }}>No stories or resources found.</p>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
-          {filtered.map((s) => (
-            <div key={s.id} style={{ background: '#f4f4f4', borderRadius: 8, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              {s.thumbnail_url
-                ? <img src={s.thumbnail_url} alt={s.title} style={{ width: '100%', height: 140, objectFit: 'cover' }} />
-                : <div style={{ width: '100%', height: 140, background: '#e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>📰</div>
-              }
-              <div style={{ padding: '0.75rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Tag type={CONTENT_TYPE_COLORS[s.content_type] || 'gray'} size="sm">{s.content_type}</Tag>
-                  {s.story_date && <span style={{ fontSize: '0.75rem', color: '#525252' }}>{new Date(s.story_date).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}</span>}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+          {filtered.map((item) => (
+            <div
+              key={`${item._rawType}-${item.id}`}
+              style={{
+                background: '#f4f4f4',
+                borderRadius: 8,
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                border: '1px solid #e0e0e0',
+              }}
+            >
+              {item.thumbnail_url ? (
+                <img
+                  src={item.thumbnail_url}
+                  alt={item.title}
+                  style={{ width: '100%', height: 140, objectFit: 'cover' }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: '100%',
+                    height: 80,
+                    background: '#e8f0fe',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '2rem',
+                  }}
+                >
+                  {CATEGORY_ICONS[item.category] || '📁'}
                 </div>
-                <p style={{ fontWeight: 600, fontSize: '0.875rem', margin: '0 0 0.25rem', lineHeight: 1.4 }}>{s.title}</p>
-                {s.description && <p style={{ fontSize: '0.8rem', color: '#525252', margin: '0 0 0.5rem', lineHeight: 1.5, flex: 1 }}>{s.description}</p>}
-                <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto', flexWrap: 'wrap' }}>
-                  {s.external_url && <Button kind="ghost" size="sm" renderIcon={Launch} href={s.external_url} target="_blank" rel="noreferrer">Read More</Button>}
+              )}
+
+              <div style={{ padding: '0.875rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Tag type={CATEGORY_COLORS[item.category] || 'gray'} size="sm">
+                    {item.category}
+                  </Tag>
+                  {item.date && (
+                    <span style={{ fontSize: '0.75rem', color: '#525252' }}>
+                      {new Date(item.date).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
+                    </span>
+                  )}
+                </div>
+
+                <p style={{ fontWeight: 600, fontSize: '0.9rem', margin: '0 0 0.35rem', lineHeight: 1.4, color: '#161616' }}>
+                  {item.title}
+                </p>
+
+                {item.description && (
+                  <p style={{ fontSize: '0.8rem', color: '#525252', margin: '0 0 0.75rem', lineHeight: 1.5, flex: 1 }}>
+                    {item.description}
+                  </p>
+                )}
+
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.5rem', borderTop: '1px solid #e8e8e8' }}>
+                  {item.url ? (
+                    <Button
+                      kind="ghost"
+                      size="sm"
+                      renderIcon={item.url.toLowerCase().endsWith('.pdf') ? Download : Launch}
+                      href={item.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ paddingLeft: '0.5rem' }}
+                    >
+                      {getActionLabel(item)}
+                    </Button>
+                  ) : <span />}
+
                   {isAdmin && (
-                    <>
-                      <Button kind="ghost" size="sm" renderIcon={Edit} iconDescription="Edit" hasIconOnly onClick={() => openEdit(s)} />
-                      <Button kind="danger--ghost" size="sm" renderIcon={TrashCan} iconDescription="Delete" hasIconOnly onClick={() => setDeleteTarget(s)} />
-                    </>
+                    <div style={{ display: 'flex', gap: '0.25rem' }}>
+                      <Button
+                        kind="ghost"
+                        size="sm"
+                        renderIcon={Edit}
+                        iconDescription="Edit"
+                        hasIconOnly
+                        onClick={() => openEdit(item)}
+                      />
+                      <Button
+                        kind="danger--ghost"
+                        size="sm"
+                        renderIcon={TrashCan}
+                        iconDescription="Delete"
+                        hasIconOnly
+                        onClick={() => setDeleteTarget(item)}
+                      />
+                    </div>
                   )}
                 </div>
               </div>
@@ -326,150 +583,101 @@ function StoriesSection({ partnerSlug, isAdmin, searchTerm }) {
         </div>
       )}
 
-      <Modal open={showModal} modalHeading={editing ? 'Edit Story' : 'Add Story'} primaryButtonText={saving ? 'Saving…' : 'Save'} secondaryButtonText="Cancel" onRequestSubmit={handleSave} onRequestClose={() => setShowModal(false)} onSecondarySubmit={() => setShowModal(false)} size="md">
+      {/* Add / Edit Modal */}
+      <Modal
+        open={showModal}
+        modalHeading={editing ? 'Edit Item' : 'Add Item'}
+        primaryButtonText={saving ? 'Saving…' : 'Save'}
+        secondaryButtonText="Cancel"
+        onRequestSubmit={handleSave}
+        onRequestClose={() => setShowModal(false)}
+        onSecondarySubmit={() => setShowModal(false)}
+        size="md"
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingBottom: '1rem' }}>
-          <TextInput id="st-title" labelText="Title *" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} />
-          <Select id="st-type" labelText="Content Type" value={form.content_type} onChange={(e) => setForm((f) => ({ ...f, content_type: e.target.value }))}>
-            {CONTENT_TYPES.map((t) => <SelectItem key={t} value={t} text={t} />)}
+          <TextInput
+            id="ssr-title"
+            labelText="Title *"
+            placeholder="Enter title"
+            value={form.title}
+            onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+          />
+
+          <Select
+            id="ssr-category"
+            labelText="Category *"
+            value={form.category}
+            onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+          >
+            {RESOURCE_CATEGORIES.map((cat) => (
+              <SelectItem key={cat} value={cat} text={cat} />
+            ))}
           </Select>
-          <TextArea id="st-desc" labelText="Description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={3} />
-          <DatePicker datePickerType="single" value={form.story_date} onChange={([d]) => { if (d) setForm((f) => ({ ...f, story_date: d.toISOString().split('T')[0] })); }}>
-            <DatePickerInput id="st-date" labelText="Date" placeholder="YYYY-MM-DD" />
+
+          <TextArea
+            id="ssr-desc"
+            labelText="Description"
+            placeholder="Brief summary of this story, video, demo, or resource"
+            value={form.description}
+            onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+            rows={3}
+          />
+
+          <DatePicker
+            datePickerType="single"
+            value={form.date}
+            onChange={([d]) => {
+              if (d) setForm((f) => ({ ...f, date: d.toISOString().split('T')[0] }));
+            }}
+          >
+            <DatePickerInput id="ssr-date" labelText="Date" placeholder="YYYY-MM-DD" />
           </DatePicker>
-          <TextInput id="st-url" labelText="External URL" value={form.external_url} onChange={(e) => setForm((f) => ({ ...f, external_url: e.target.value }))} />
+
+          <TextInput
+            id="ssr-url"
+            labelText="URL / External Link"
+            placeholder="https://..."
+            value={form.url}
+            onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))}
+          />
+
           <div>
-            <p style={{ fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.5rem', color: '#525252' }}>Thumbnail Image</p>
-            {thumbPreview && <img src={thumbPreview} alt="Preview" style={{ width: '100%', maxHeight: 120, objectFit: 'cover', marginBottom: '0.5rem', borderRadius: 4 }} />}
-            <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files[0]; if (!f) return; setThumbFile(f); setThumbPreview(URL.createObjectURL(f)); }} />
+            <p style={{ fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.5rem', color: '#525252' }}>
+              Upload File or Thumbnail Image (Optional)
+            </p>
+            {thumbPreview && (
+              <img
+                src={thumbPreview}
+                alt="Preview"
+                style={{ width: '100%', maxHeight: 120, objectFit: 'cover', marginBottom: '0.5rem', borderRadius: 4 }}
+              />
+            )}
+            <input
+              type="file"
+              onChange={(e) => {
+                const f = e.target.files[0];
+                if (!f) return;
+                setFileUpload(f);
+                if (f.type?.startsWith('image/')) {
+                  setThumbPreview(URL.createObjectURL(f));
+                }
+              }}
+            />
+            {fileUpload && (
+              <p style={{ fontSize: '0.75rem', color: '#525252', marginTop: '0.25rem' }}>
+                Selected: {fileUpload.name}
+              </p>
+            )}
           </div>
         </div>
       </Modal>
-      <DeleteModal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={handleDelete} itemName={deleteTarget?.title} />
-    </div>
-  );
-}
 
-// ══════════════════════════════════════════════════════════════
-// ── ASSETS SECTION ────────────────────────────────────────────
-// ══════════════════════════════════════════════════════════════
-function AssetsSection({ partnerSlug, isAdmin, searchTerm }) {
-  const [assets, setAssets] = useState([]);
-  const [filterType, setFilterType] = useState('All');
-  const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [form, setForm] = useState({ title: '', asset_type: 'PDF', file_url: '', description: '', asset_date: '' });
-  const [assetFile, setAssetFile] = useState(null);
-  const [saving, setSaving] = useState(false);
-
-  const load = useCallback(async () => {
-    const data = await listSpAssets(partnerSlug);
-    setAssets(data);
-  }, [partnerSlug]);
-
-  useEffect(() => { load(); }, [load]);
-
-  const openAdd = () => { setEditing(null); setForm({ title: '', asset_type: 'PDF', file_url: '', description: '', asset_date: '' }); setAssetFile(null); setShowModal(true); };
-  const openEdit = (a) => { setEditing(a); setForm({ title: a.title || '', asset_type: a.asset_type || 'PDF', file_url: a.file_url || '', description: a.description || '', asset_date: a.asset_date || '' }); setAssetFile(null); setShowModal(true); };
-
-  const handleSave = async () => {
-    if (!form.title.trim()) { toast.error('Title is required'); return; }
-    setSaving(true);
-    try {
-      let fileUrl = form.file_url;
-      if (assetFile) fileUrl = await uploadSpImage(assetFile, 'sp-assets');
-      const fields = { ...form, file_url: fileUrl, partner_slug: partnerSlug };
-      if (editing) {
-        await updateSpAsset(editing.id, partnerSlug, fields);
-        toast.success('Asset updated');
-      } else {
-        await createSpAsset(fields);
-        toast.success('Asset added');
-      }
-      setShowModal(false);
-      load();
-    } catch (err) {
-      toast.error('Save failed: ' + err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      await deleteSpAsset(deleteTarget.id, partnerSlug);
-      toast.success('Asset deleted');
-      setDeleteTarget(null);
-      load();
-    } catch (err) {
-      toast.error('Delete failed: ' + err.message);
-    }
-  };
-
-  let filtered = assets;
-  if (searchTerm) filtered = filtered.filter((a) => (a.title + ' ' + a.description).toLowerCase().includes(searchTerm.toLowerCase()));
-  if (filterType !== 'All') filtered = filtered.filter((a) => a.asset_type === filterType);
-
-  return (
-    <div>
-      <SectionHeader title="Assets & Resources" isAdmin={isAdmin} onAdd={openAdd} addLabel="Add Asset" />
-      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-        {['All', ...ASSET_TYPES].map((t) => (
-          <button key={t} onClick={() => setFilterType(t)} style={{ padding: '0.25rem 0.75rem', borderRadius: 16, border: '1px solid', borderColor: filterType === t ? '#0f62fe' : '#e0e0e0', background: filterType === t ? '#0f62fe' : '#fff', color: filterType === t ? '#fff' : '#393939', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 500 }}>{t}</button>
-        ))}
-      </div>
-      {filtered.length === 0 ? (
-        <p style={{ color: '#525252', fontSize: '0.875rem' }}>No assets found.</p>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {filtered.map((a) => (
-            <div key={a.id} style={{ background: '#f4f4f4', borderRadius: 8, padding: '0.75rem 1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              <span style={{ fontSize: '1.5rem', flexShrink: 0 }}>{ASSET_TYPE_ICONS[a.asset_type] || '📁'}</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.2rem', flexWrap: 'wrap' }}>
-                  <p style={{ fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>{a.title}</p>
-                  <Tag type="gray" size="sm">{a.asset_type}</Tag>
-                  {a.asset_date && <span style={{ fontSize: '0.75rem', color: '#525252' }}>{new Date(a.asset_date).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}</span>}
-                </div>
-                {a.description && <p style={{ fontSize: '0.8rem', color: '#525252', margin: 0, lineHeight: 1.4 }}>{a.description}</p>}
-              </div>
-              <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', flexShrink: 0 }}>
-                {a.file_url && (
-                  <Button kind="ghost" size="sm" renderIcon={a.asset_type === 'Link' ? Launch : Download} href={a.file_url} target="_blank" rel="noreferrer">
-                    {a.asset_type === 'Link' ? 'Open' : 'Download'}
-                  </Button>
-                )}
-                {isAdmin && (
-                  <>
-                    <Button kind="ghost" size="sm" renderIcon={Edit} iconDescription="Edit" hasIconOnly onClick={() => openEdit(a)} />
-                    <Button kind="danger--ghost" size="sm" renderIcon={TrashCan} iconDescription="Delete" hasIconOnly onClick={() => setDeleteTarget(a)} />
-                  </>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <Modal open={showModal} modalHeading={editing ? 'Edit Asset' : 'Add Asset'} primaryButtonText={saving ? 'Saving…' : 'Save'} secondaryButtonText="Cancel" onRequestSubmit={handleSave} onRequestClose={() => setShowModal(false)} onSecondarySubmit={() => setShowModal(false)} size="md">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingBottom: '1rem' }}>
-          <TextInput id="as-title" labelText="Title *" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} />
-          <Select id="as-type" labelText="Asset Type" value={form.asset_type} onChange={(e) => setForm((f) => ({ ...f, asset_type: e.target.value }))}>
-            {ASSET_TYPES.map((t) => <SelectItem key={t} value={t} text={t} />)}
-          </Select>
-          <TextArea id="as-desc" labelText="Description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={2} />
-          <DatePicker datePickerType="single" value={form.asset_date} onChange={([d]) => { if (d) setForm((f) => ({ ...f, asset_date: d.toISOString().split('T')[0] })); }}>
-            <DatePickerInput id="as-date" labelText="Date" placeholder="YYYY-MM-DD" />
-          </DatePicker>
-          <TextInput id="as-url" labelText="External URL (if link/external resource)" value={form.file_url} onChange={(e) => setForm((f) => ({ ...f, file_url: e.target.value }))} />
-          <div>
-            <p style={{ fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.5rem', color: '#525252' }}>Upload File (overrides URL above)</p>
-            <input type="file" onChange={(e) => { const f = e.target.files[0]; if (!f) return; setAssetFile(f); }} />
-            {assetFile && <p style={{ fontSize: '0.75rem', color: '#525252', marginTop: '0.25rem' }}>Selected: {assetFile.name}</p>}
-          </div>
-        </div>
-      </Modal>
-      <DeleteModal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={handleDelete} itemName={deleteTarget?.title} />
+      <DeleteModal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        itemName={deleteTarget?.title}
+      />
     </div>
   );
 }
@@ -824,14 +1032,9 @@ export default function SpPartnerSection({ partner, isAdmin, searchTerm, onPartn
         <ContactsSection partnerSlug={partner.slug} isAdmin={isAdmin} searchTerm={searchTerm} />
       </div>
 
-      {/* Stories */}
+      {/* Success Stories & Resources */}
       <div style={sectionDivider}>
-        <StoriesSection partnerSlug={partner.slug} isAdmin={isAdmin} searchTerm={searchTerm} />
-      </div>
-
-      {/* Assets */}
-      <div style={sectionDivider}>
-        <AssetsSection partnerSlug={partner.slug} isAdmin={isAdmin} searchTerm={searchTerm} />
+        <SuccessStoriesAndResourcesSection partnerSlug={partner.slug} isAdmin={isAdmin} searchTerm={searchTerm} />
       </div>
 
       {/* Social Kits */}
