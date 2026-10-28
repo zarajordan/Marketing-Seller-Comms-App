@@ -11,6 +11,7 @@ import {
 } from '@carbon/react';
 import { Add, Edit, Download, Launch, Email, Phone, TrashCan } from '@carbon/icons-react';
 import { toast } from 'react-toastify';
+import { useUser } from '../contexts/UserContext';
 import SpAchievementsCarousel from './sp/SpAchievementsCarousel';
 import SpPartnerSection from './sp/SpPartnerSection';
 import {
@@ -488,7 +489,10 @@ function PartnerCard({ partner, isSelected, onClick, isAdmin, onEditLink }) {
 }
 
 // ── Main Tab Component ────────────────────────────────────────
-export default function StrategicPartnershipsTab({ currentUser }) {
+export default function StrategicPartnershipsTab({ currentUser: propUser }) {
+  const { currentUser: contextUser } = useUser();
+  const activeUser = contextUser || propUser;
+
   const [partners, setPartners] = useState([]);
   const [businessResources, setBusinessResources] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -499,8 +503,8 @@ export default function StrategicPartnershipsTab({ currentUser }) {
   const [linkForm, setLinkForm] = useState({ label: '', url: '' });
   const [savingLink, setSavingLink] = useState(false);
 
-  const role = (currentUser?.role || '').toLowerCase();
-  const isAdmin = role === 'admin-manager' || role === 'marketer';
+  const role = (activeUser?.role || '').toLowerCase();
+  const isAdmin = role === 'admin-manager' || role === 'marketer' || role === 'marketing';
 
   const handleOpenEditLink = (partner) => {
     const defaultLink = PARTNER_LINKS[partner.slug]?.[0] || {
@@ -605,7 +609,7 @@ export default function StrategicPartnershipsTab({ currentUser }) {
       <PageOwnerCallout resources={businessResources} isAdmin={isAdmin} onReload={loadRoot} />
 
       {/* Achievements carousel */}
-      <SpAchievementsCarousel isAdmin={isAdmin} currentUser={currentUser} partners={partners} />
+      <SpAchievementsCarousel isAdmin={isAdmin} currentUser={activeUser} partners={partners} />
 
       {/* Search bar */}
       <div style={{ marginBottom: '1.5rem' }}>
