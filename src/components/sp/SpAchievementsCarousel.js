@@ -21,6 +21,7 @@ import {
   updateSpAchievement,
   deleteSpAchievement,
   uploadSpImage,
+  SP_SERVICE_PREFIX,
 } from '../../lib/supabaseData';
 
 const EMPTY_FORM = {
@@ -46,12 +47,12 @@ const PARTNER_OPTIONS = [
   { slug: 'oracle', label: 'Oracle' },
 ];
 
-function getPartnerLabel(slug) {
-  return PARTNER_OPTIONS.find((p) => p.slug === slug)?.label || slug;
+function getPartnerLabel(slug, options = PARTNER_OPTIONS) {
+  return options.find((p) => p.slug === slug)?.label || slug;
 }
 
 // ── Admin Achievement Modal ───────────────────────────────────
-function AchievementModal({ open, onClose, onSaved, editingItem, partners }) {
+function AchievementModal({ open, onClose, onSaved, editingItem, partnerOptions }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [heroFile, setHeroFile] = useState(null);
   const [heroPreview, setHeroPreview] = useState('');
@@ -147,7 +148,7 @@ function AchievementModal({ open, onClose, onSaved, editingItem, partners }) {
           onChange={(e) => setForm((f) => ({ ...f, partner_slug: e.target.value }))}
         >
           <SelectItem value="" text="Select a partner…" />
-          {PARTNER_OPTIONS.map((p) => (
+          {partnerOptions.map((p) => (
             <SelectItem key={p.slug} value={p.slug} text={p.label} />
           ))}
         </Select>
@@ -211,7 +212,7 @@ function AchievementModal({ open, onClose, onSaved, editingItem, partners }) {
 }
 
 // ── Seller Submit Modal ───────────────────────────────────────
-function SubmitAchievementModal({ open, onClose, onSubmitted, currentUser }) {
+function SubmitAchievementModal({ open, onClose, onSubmitted, currentUser, partnerOptions }) {
   const [form, setForm] = useState({ title: '', partner_slug: '', achievement_date: '', short_overview: '' });
   const [heroFile, setHeroFile] = useState(null);
   const [heroPreview, setHeroPreview] = useState('');
@@ -272,7 +273,7 @@ function SubmitAchievementModal({ open, onClose, onSubmitted, currentUser }) {
         <TextInput id="sub-title" labelText="Achievement Title *" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} />
         <Select id="sub-partner" labelText="Partner *" value={form.partner_slug} onChange={(e) => setForm((f) => ({ ...f, partner_slug: e.target.value }))}>
           <SelectItem value="" text="Select a partner…" />
-          {PARTNER_OPTIONS.map((p) => <SelectItem key={p.slug} value={p.slug} text={p.label} />)}
+          {partnerOptions.map((p) => <SelectItem key={p.slug} value={p.slug} text={p.label} />)}
         </Select>
         <DatePicker datePickerType="single" value={form.achievement_date} onChange={([d]) => { if (d) setForm((f) => ({ ...f, achievement_date: d.toISOString().split('T')[0] })); }}>
           <DatePickerInput id="sub-date" labelText="Achievement Date" placeholder="YYYY-MM-DD" />
@@ -289,7 +290,7 @@ function SubmitAchievementModal({ open, onClose, onSubmitted, currentUser }) {
 }
 
 // ── Expanded Achievement View ─────────────────────────────────
-function AchievementExpandedModal({ open, onClose, achievement }) {
+function AchievementExpandedModal({ open, onClose, achievement, partnerOptions }) {
   if (!achievement) return null;
   return (
     <Modal open={open} modalHeading={achievement.title} passiveModal onRequestClose={onClose} size="lg">
@@ -298,7 +299,7 @@ function AchievementExpandedModal({ open, onClose, achievement }) {
           <img src={achievement.hero_image_url} alt={achievement.title} style={{ width: '100%', maxHeight: 320, objectFit: 'cover', borderRadius: 4, marginBottom: '1rem' }} />
         )}
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-          <Tag type="blue">{getPartnerLabel(achievement.partner_slug)}</Tag>
+          <Tag type="blue">{getPartnerLabel(achievement.partner_slug, partnerOptions)}</Tag>
           {achievement.achievement_date && <span style={{ fontSize: '0.8rem', color: '#525252' }}>{new Date(achievement.achievement_date).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}</span>}
           {achievement.is_featured && <Tag type="gold"><StarFilled size={12} style={{ marginRight: 4 }} />Featured</Tag>}
         </div>
@@ -319,7 +320,7 @@ function AchievementExpandedModal({ open, onClose, achievement }) {
 }
 
 // ── Main Carousel ─────────────────────────────────────────────
-export default function SpAchievementsCarousel({ isAdmin, currentUser, partners = [] }) {
+export default function SpAchievementsCarousel({ isAdmin, currentUser, partners = [], scope = 'strategic' }) {
   const [achievements, setAchievements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -330,16 +331,23 @@ export default function SpAchievementsCarousel({ isAdmin, currentUser, partners 
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const intervalRef = useRef(null);
 
+  // Strategic keeps its fixed partner list; Service Partners are admin-defined so use the live list.
+  const isService = scope === 'service';
+  const partnerOptions = isService
+    ? partners.map((p) => ({ slug: p.slug, label: p.display_name }))
+    : PARTNER_OPTIONS;
+
   const load = useCallback(async () => {
     try {
       const data = await listSpAchievements();
-      setAchievements(data);
+      // Both pages share sp_achievements; service rows carry the `svc-` partner slug prefix.
+      setAchievements(data.filter((a) => (a.partner_slug || '').startsWith(SP_SERVICE_PREFIX) === isService));
     } catch (err) {
       toast.error('Failed to load achievements');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isService]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -425,7 +433,7 @@ export default function SpAchievementsCarousel({ isAdmin, currentUser, partners 
             <div style={{ flex: 1, padding: '1.5rem 2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <div>
                 <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-                  <Tag type="blue">{getPartnerLabel(current?.partner_slug)}</Tag>
+                  <Tag type="blue">{getPartnerLabel(current?.partner_slug, partnerOptions)}</Tag>
                   {current?.achievement_date && (
                     <span style={{ fontSize: '0.8rem', color: '#525252', alignSelf: 'center' }}>
                       {new Date(current.achievement_date).toLocaleDateString('en-GB', { year: 'numeric', month: 'long' })}
@@ -475,18 +483,20 @@ export default function SpAchievementsCarousel({ isAdmin, currentUser, partners 
         onClose={() => setShowAdminModal(false)}
         onSaved={load}
         editingItem={editingItem}
-        partners={partners}
+        partnerOptions={partnerOptions}
       />
       <SubmitAchievementModal
         open={showSubmitModal}
         onClose={() => setShowSubmitModal(false)}
         onSubmitted={() => {}}
         currentUser={currentUser}
+        partnerOptions={partnerOptions}
       />
       <AchievementExpandedModal
         open={!!expandedItem}
         onClose={() => setExpandedItem(null)}
         achievement={expandedItem}
+        partnerOptions={partnerOptions}
       />
       <Modal
         open={!!deleteConfirm}

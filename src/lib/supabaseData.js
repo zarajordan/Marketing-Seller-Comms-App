@@ -21,6 +21,8 @@ export const TAB_PERMISSIONS = [
   'csr',
   'sales-people-finder',
   'strategic-partnerships',
+  'service-partners',
+  'marketing-store-room',
 ];
 
 export const ROLE_CONFIG = {
@@ -52,14 +54,14 @@ export const getDefaultPermissions = (role) => {
 
   if (role === 'marketing') {
     return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-      permissions[tabId] = tabId === 'event-library' || tabId === 'on-demand' || tabId === 'internal-events' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'analytics' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder' || tabId === 'strategic-partnerships';
+      permissions[tabId] = tabId === 'event-library' || tabId === 'on-demand' || tabId === 'internal-events' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'analytics' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder' || tabId === 'strategic-partnerships' || tabId === 'service-partners' || tabId === 'marketing-store-room';
       return permissions;
     }, {});
   }
 
   // seller — or any unrecognised/unauthorised role — gets Event Library + On Demand
   return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-    permissions[tabId] = tabId === 'event-library' || tabId === 'on-demand' || tabId === 'internal-events' || tabId === 'submit-event' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder' || tabId === 'strategic-partnerships';
+    permissions[tabId] = tabId === 'event-library' || tabId === 'on-demand' || tabId === 'internal-events' || tabId === 'submit-event' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder' || tabId === 'strategic-partnerships' || tabId === 'service-partners' || tabId === 'marketing-store-room';
     return permissions;
   }, {});
 };
@@ -1044,7 +1046,21 @@ export const deleteSpAchievement = async (id) => {
   if (error) throw error;
 };
 
+// Slug prefix that namespaces UKI Service Partners inside the shared sp_* tables
+export const SP_SERVICE_PREFIX = 'svc-';
+
 // ── sp_partners ───────────────────────────────────────────────
+export const createSpPartner = async (fields) => {
+  invalidate('sp-partners');
+  const { data, error } = await supabase
+    .from('sp_partners')
+    .insert([{ ...fields, updated_at: new Date().toISOString() }])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
 export const listSpPartners = async () => {
   return getOrFetch('sp-partners', async () => {
     const { data, error } = await supabase
@@ -1358,5 +1374,111 @@ export const updateSpSocialKit = async (id, partnerSlug, fields) => {
 export const deleteSpSocialKit = async (id, partnerSlug) => {
   invalidate(`sp-social-kits:${partnerSlug}`);
   const { error } = await supabase.from('sp_social_kits').delete().eq('id', id);
+  if (error) throw error;
+};
+
+// ============================================================
+// ── Marketing Store Room ─────────────────────────────────────
+// ============================================================
+export const STORE_ROOM_CATEGORIES = ['Merchandise', 'Lightbox', 'Banner', 'iPad', 'Other'];
+export const STORE_ROOM_ADMIN_ROLES = ['admin-manager', 'marketer', 'marketing'];
+
+const invalidateStoreRoom = () => {
+  invalidate('store-room-items');
+  invalidate('store-room-bookings');
+};
+
+export const listStoreRoomItems = async () => {
+  return getOrFetch('store-room-items', async () => {
+    const { data, error } = await supabase
+      .from('store_room_items')
+      .select('*')
+      .order('display_order', { ascending: true })
+      .order('name', { ascending: true });
+    if (error) throw error;
+    return data;
+  });
+};
+
+// Approved bookings (id, item_id, quantity, needed_from, needed_to) via a view that hides who booked,
+// so every user can check date availability without seeing other people's reservations.
+export const listStoreRoomBookings = async () => {
+  return getOrFetch('store-room-bookings', async () => {
+    const { data, error } = await supabase.from('store_room_bookings').select('*');
+    if (error) throw error;
+    return data || [];
+  });
+};
+
+export const createStoreRoomItem = async (fields) => {
+  invalidateStoreRoom();
+  const { data, error } = await supabase
+    .from('store_room_items')
+    .insert([{ ...fields, updated_at: new Date().toISOString() }])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const updateStoreRoomItem = async (id, fields) => {
+  invalidateStoreRoom();
+  const { data, error } = await supabase
+    .from('store_room_items')
+    .update({ ...fields, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteStoreRoomItem = async (id) => {
+  invalidateStoreRoom();
+  const { error } = await supabase.from('store_room_items').delete().eq('id', id);
+  if (error) throw error;
+};
+
+export const uploadStoreRoomImage = async (file) => {
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const fileName = `store-room/${Date.now()}-${safeName}`;
+  const { error } = await supabase.storage.from('event-documents').upload(fileName, file, { upsert: true });
+  if (error) throw error;
+  return supabase.storage.from('event-documents').getPublicUrl(fileName).data.publicUrl;
+};
+
+// Reservations — admins see all; sellers only see their own (enforced by RLS).
+export const listStoreRoomReservations = async () => {
+  const { data, error } = await supabase
+    .from('store_room_reservations')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data;
+};
+
+// One request per basket line so each item can be approved/returned on its own.
+export const createStoreRoomReservations = async (rows) => {
+  invalidateStoreRoom();
+  const { data, error } = await supabase.from('store_room_reservations').insert(rows).select();
+  if (error) throw error;
+  return data;
+};
+
+export const updateStoreRoomReservation = async (id, fields) => {
+  invalidateStoreRoom();
+  const { data, error } = await supabase
+    .from('store_room_reservations')
+    .update({ ...fields, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteStoreRoomReservation = async (id) => {
+  invalidateStoreRoom();
+  const { error } = await supabase.from('store_room_reservations').delete().eq('id', id);
   if (error) throw error;
 };

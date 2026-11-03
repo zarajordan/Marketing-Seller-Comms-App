@@ -22,15 +22,59 @@ import {
   deleteSpBusinessResource,
   uploadSpImage,
   updateSpPartner,
+  createSpPartner,
+  SP_SERVICE_PREFIX,
 } from '../lib/supabaseData';
 
 // Reserved resource_type keys
 const IBM_BLE_DOC_TYPE = 'ibm-business-led-events-doc';
 const PAGE_CONTACT_TYPE = 'sp-page-contact';
 
+// Per-page configuration. "strategic" is the original page; "service" is the
+// blank-canvas replica whose partners are stored with a `svc-` slug prefix.
+const VARIANTS = {
+  strategic: {
+    title: 'UKI Strategic Partnerships',
+    subtitle: 'Partner intelligence, resources, activities, and assets for the IBM UKI Strategic Partnerships team.',
+    loadingText: 'Loading Strategic Partnerships…',
+    countLabel: 'strategic partners',
+    pageContactType: PAGE_CONTACT_TYPE,
+    contactDefaults: {
+      name: 'Yasmin Hardaker',
+      role: 'UKI Strategic Partnerships Lead, IBM',
+      email: 'yasmin.hardaker@ibm.com',
+      phone: '+44 7700 000000',
+    },
+    doc: {
+      type: IBM_BLE_DOC_TYPE,
+      title: 'IBM Business Led Events',
+      subtitle: 'Guide to non-marketing led events',
+      emptyText: 'The IBM Business Led Events guide will appear here once uploaded.',
+      editable: false,
+    },
+  },
+  service: {
+    title: 'UKI Service Partners',
+    subtitle: 'Partner intelligence, resources, activities, and assets for the IBM UKI Service Partners team.',
+    loadingText: 'Loading Service Partners…',
+    countLabel: 'service partners',
+    pageContactType: 'svc-page-contact',
+    contactDefaults: { name: '', role: '', email: '', phone: '' },
+    doc: {
+      type: 'svc-featured-doc',
+      title: 'Featured Document',
+      subtitle: 'Add a description',
+      emptyText: 'The featured document will appear here once uploaded.',
+      editable: true,
+    },
+  },
+};
+
+const isServicePartner = (p) => (p.slug || '').startsWith(SP_SERVICE_PREFIX);
+
 // ── Page Owner Callout ────────────────────────────────────────
-function PageOwnerCallout({ resources, isAdmin, onReload }) {
-  const record = resources.find((r) => r.resource_type === PAGE_CONTACT_TYPE) || null;
+function PageOwnerCallout({ resources, isAdmin, onReload, config }) {
+  const record = resources.find((r) => r.resource_type === config.pageContactType) || null;
 
   // Storage mapping (all text-safe columns):
   //   title       → name
@@ -38,10 +82,10 @@ function PageOwnerCallout({ resources, isAdmin, onReload }) {
   //   file_url    → email
   const [storedRole = '', storedPhone = '', storedPhoto = ''] = (record?.description || '').split('||');
   const contact = {
-    name:  record?.title    || 'Yasmin Hardaker',
-    role:  storedRole       || 'UKI Strategic Partnerships Lead, IBM',
-    email: record?.file_url || 'yasmin.hardaker@ibm.com',
-    phone: storedPhone      || '+44 7700 000000',
+    name:  record?.title    || config.contactDefaults.name,
+    role:  storedRole       || config.contactDefaults.role,
+    email: record?.file_url || config.contactDefaults.email,
+    phone: storedPhone      || config.contactDefaults.phone,
     photo: storedPhoto      || '',
   };
 
@@ -75,7 +119,7 @@ function PageOwnerCallout({ resources, isAdmin, onReload }) {
         title: form.name,
         description: `${form.role}||${form.phone}||${photoUrl}`,
         file_url: form.email,
-        resource_type: PAGE_CONTACT_TYPE,
+        resource_type: config.pageContactType,
       };
       if (record) {
         await updateSpBusinessResource(record.id, fields);
@@ -102,12 +146,14 @@ function PageOwnerCallout({ resources, isAdmin, onReload }) {
           <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', flexShrink: 0 }}>👤</div>
         )}
         <div style={{ flex: 1 }}>
-          <p style={{ margin: '0 0 0.1rem', fontWeight: 700, fontSize: '1rem' }}>{contact.name}</p>
-          <p style={{ margin: '0 0 0.4rem', fontSize: '0.85rem', color: 'rgba(255,255,255,0.75)' }}>{contact.role}</p>
+          <p style={{ margin: '0 0 0.1rem', fontWeight: 700, fontSize: '1rem' }}>{contact.name || 'Page contact not set yet'}</p>
+          {contact.role && <p style={{ margin: '0 0 0.4rem', fontSize: '0.85rem', color: 'rgba(255,255,255,0.75)' }}>{contact.role}</p>}
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <a href={`mailto:${contact.email}`} style={{ color: '#78a9ff', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }}>
-              <Email size={14} /> {contact.email}
-            </a>
+            {contact.email && (
+              <a href={`mailto:${contact.email}`} style={{ color: '#78a9ff', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }}>
+                <Email size={14} /> {contact.email}
+              </a>
+            )}
             {contact.phone && (
               <a href={`tel:${contact.phone}`} style={{ color: '#78a9ff', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }}>
                 <Phone size={14} /> {contact.phone}
@@ -117,12 +163,14 @@ function PageOwnerCallout({ resources, isAdmin, onReload }) {
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <Tag type="blue" size="md">Page Contact</Tag>
-          <button
-            onClick={openEdit}
-            style={{ background: 'none', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 4, color: '#78a9ff', cursor: 'pointer', fontSize: '0.8rem', padding: '0.25rem 0.6rem' }}
-          >
-            ✏️ Edit
-          </button>
+          {isAdmin && (
+            <button
+              onClick={openEdit}
+              style={{ background: 'none', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 4, color: '#78a9ff', cursor: 'pointer', fontSize: '0.8rem', padding: '0.25rem 0.6rem' }}
+            >
+              ✏️ Edit
+            </button>
+          )}
         </div>
       </div>
 
@@ -170,13 +218,44 @@ function PageOwnerCallout({ resources, isAdmin, onReload }) {
 }
 
 // ── Business Resources Section ────────────────────────────────
-// ── IBM Business Led Events document widget ───────────────────
-function IbmBusinessLedEventsWidget({ resources, isAdmin, onReload }) {
-  const docRecord = resources.find((r) => r.resource_type === IBM_BLE_DOC_TYPE) || null;
+// ── Featured document widget (IBM Business Led Events / Service Partners doc) ──
+function IbmBusinessLedEventsWidget({ resources, isAdmin, onReload, config }) {
+  const docConfig = config.doc;
+  const docRecord = resources.find((r) => r.resource_type === docConfig.type) || null;
+  const docTitle = docRecord?.title || docConfig.title;
+  const docSubtitle = docRecord?.description || docConfig.subtitle;
 
   const [uploading, setUploading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  const [detailsForm, setDetailsForm] = useState({ title: '', description: '' });
+  const [savingDetails, setSavingDetails] = useState(false);
   const fileInputRef = React.useRef(null);
+
+  const openDetails = () => {
+    setDetailsForm({ title: docRecord?.title || '', description: docRecord?.description || '' });
+    setShowDetails(true);
+  };
+
+  const handleSaveDetails = async () => {
+    if (!detailsForm.title.trim()) { toast.error('Title is required'); return; }
+    setSavingDetails(true);
+    try {
+      const fields = { title: detailsForm.title.trim(), description: detailsForm.description.trim() };
+      if (docRecord) {
+        await updateSpBusinessResource(docRecord.id, fields);
+      } else {
+        await createSpBusinessResource({ ...fields, resource_type: docConfig.type });
+      }
+      toast.success('Details updated');
+      setShowDetails(false);
+      onReload();
+    } catch (err) {
+      toast.error('Save failed: ' + err.message);
+    } finally {
+      setSavingDetails(false);
+    }
+  };
 
   const handleDelete = async () => {
     try {
@@ -196,9 +275,9 @@ function IbmBusinessLedEventsWidget({ resources, isAdmin, onReload }) {
     try {
       const fileUrl = await uploadSpImage(file, 'sp-ble-doc');
       const fields = {
-        title: 'IBM Business Led Events',
-        resource_type: IBM_BLE_DOC_TYPE,
-        description: 'Guide to non-marketing led events',
+        title: docTitle,
+        resource_type: docConfig.type,
+        description: docSubtitle,
         file_url: fileUrl,
         resource_date: new Date().toISOString().split('T')[0],
       };
@@ -237,9 +316,9 @@ function IbmBusinessLedEventsWidget({ resources, isAdmin, onReload }) {
       <div style={{ background: '#13161f', color: '#fff', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', borderBottom: '3px solid #0f62fe' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div>
-            <p style={{ margin: 0, fontWeight: 700, fontSize: '1rem' }}>IBM Business Led Events</p>
+            <p style={{ margin: 0, fontWeight: 700, fontSize: '1rem' }}>{docTitle}</p>
             <p style={{ margin: 0, fontSize: '0.78rem', color: 'rgba(255,255,255,0.75)' }}>
-              Guide to non-marketing led events
+              {docSubtitle}
               {docRecord?.resource_date && ` · Last updated ${new Date(docRecord.resource_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`}
             </p>
           </div>
@@ -248,6 +327,11 @@ function IbmBusinessLedEventsWidget({ resources, isAdmin, onReload }) {
           {docRecord?.file_url && (
             <Button kind="tertiary" size="sm" renderIcon={Download} href={docRecord.file_url} target="_blank" rel="noreferrer">
               Open / Download
+            </Button>
+          )}
+          {isAdmin && docConfig.editable && (
+            <Button kind="ghost" size="sm" renderIcon={Edit} onClick={openDetails} style={{ color: '#78a9ff' }}>
+              Edit Details
             </Button>
           )}
           {isAdmin && (
@@ -288,7 +372,7 @@ function IbmBusinessLedEventsWidget({ resources, isAdmin, onReload }) {
         isPdf ? (
           <iframe
             src={docRecord.file_url}
-            title="IBM Business Led Events"
+            title={docTitle}
             style={{ width: '100%', height: 640, border: 'none', display: 'block', background: '#f4f4f4' }}
           />
         ) : (
@@ -305,7 +389,7 @@ function IbmBusinessLedEventsWidget({ resources, isAdmin, onReload }) {
         <div style={{ padding: '3rem 2rem', textAlign: 'center', background: '#f4f4f4' }}>
           <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>No document uploaded yet</p>
           <p style={{ fontSize: '0.875rem', color: '#525252', marginBottom: isAdmin ? '1.25rem' : 0 }}>
-            The IBM Business Led Events guide will appear here once uploaded.
+            {docConfig.emptyText}
           </p>
           {isAdmin && (
             <Button
@@ -320,6 +404,22 @@ function IbmBusinessLedEventsWidget({ resources, isAdmin, onReload }) {
           )}
         </div>
       )}
+
+      <Modal
+        open={showDetails}
+        modalHeading="Edit Document Details"
+        primaryButtonText={savingDetails ? 'Saving…' : 'Save'}
+        secondaryButtonText="Cancel"
+        onRequestSubmit={handleSaveDetails}
+        onRequestClose={() => setShowDetails(false)}
+        onSecondarySubmit={() => setShowDetails(false)}
+        size="sm"
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingBottom: '1rem' }}>
+          <TextInput id="doc-title" labelText="Title *" value={detailsForm.title} onChange={(e) => setDetailsForm((f) => ({ ...f, title: e.target.value }))} />
+          <TextInput id="doc-description" labelText="Description" value={detailsForm.description} onChange={(e) => setDetailsForm((f) => ({ ...f, description: e.target.value }))} />
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -364,13 +464,17 @@ const PARTNER_LINKS = {
   ]
 };
 
-function PartnerCard({ partner, isSelected, onClick, isAdmin, onEditLink }) {
+function PartnerCard({ partner, isSelected, onClick, isAdmin, onEditLink, blank, onRemove }) {
   const [hovered, setHovered] = useState(false);
-  const blurb = PARTNER_BLURBS[partner.slug] || (partner.overview_html ? partner.overview_html.replace(/<[^>]*>/g, '').substring(0, 160) + '...' : 'IBM strategic partnerships details and resources.');
-  const defaultLink = PARTNER_LINKS[partner.slug]?.[0] || {
+  const overviewText = partner.overview_html ? partner.overview_html.replace(/<[^>]*>/g, '').substring(0, 160) + '...' : '';
+  // Blank-canvas partners have no hard-coded blurb or link — everything comes from what the admin enters.
+  const blurb = blank
+    ? (overviewText || 'No description yet.')
+    : (PARTNER_BLURBS[partner.slug] || overviewText || 'IBM strategic partnerships details and resources.');
+  const defaultLink = blank ? { label: '', url: '' } : (PARTNER_LINKS[partner.slug]?.[0] || {
     label: `Explore IBM Consulting for ${partner.display_name}`,
     url: `https://www.ibm.com/consulting/${partner.slug}`
-  };
+  });
   const linkLabel = partner.custom_link_label || defaultLink.label;
   const linkUrl = partner.custom_link_url || defaultLink.url;
 
@@ -428,6 +532,7 @@ function PartnerCard({ partner, isSelected, onClick, isAdmin, onEditLink }) {
 
       {/* Link */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', gap: '0.5rem' }}>
+        {linkLabel && linkUrl ? (
         <a
           href={linkUrl}
           target="_blank"
@@ -448,6 +553,9 @@ function PartnerCard({ partner, isSelected, onClick, isAdmin, onEditLink }) {
         >
           {linkLabel} <span style={{ fontSize: '0.9rem' }}>→</span>
         </a>
+        ) : (
+          <span style={{ flex: 1, fontSize: '0.8rem', color: '#8d8d8d' }}>{isAdmin ? 'No link set' : ''}</span>
+        )}
         {isAdmin && (
           <Button
             kind="ghost"
@@ -458,6 +566,20 @@ function PartnerCard({ partner, isSelected, onClick, isAdmin, onEditLink }) {
             onClick={(e) => {
               e.stopPropagation();
               onEditLink(partner);
+            }}
+            style={{ minHeight: '28px', width: '28px', padding: 0 }}
+          />
+        )}
+        {isAdmin && onRemove && (
+          <Button
+            kind="ghost"
+            size="sm"
+            renderIcon={TrashCan}
+            iconDescription="Remove partner"
+            hasIconOnly
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove(partner);
             }}
             style={{ minHeight: '28px', width: '28px', padding: 0 }}
           />
@@ -489,9 +611,15 @@ function PartnerCard({ partner, isSelected, onClick, isAdmin, onEditLink }) {
 }
 
 // ── Main Tab Component ────────────────────────────────────────
-export default function StrategicPartnershipsTab({ currentUser: propUser }) {
+export default function StrategicPartnershipsTab({ currentUser: propUser, variant = 'strategic' }) {
   const { currentUser: contextUser } = useUser();
   const activeUser = contextUser || propUser;
+  const config = VARIANTS[variant] || VARIANTS.strategic;
+  const isService = variant === 'service';
+  const [showAddPartner, setShowAddPartner] = useState(false);
+  const [newPartnerName, setNewPartnerName] = useState('');
+  const [savingPartner, setSavingPartner] = useState(false);
+  const [partnerToRemove, setPartnerToRemove] = useState(null);
 
   const [partners, setPartners] = useState([]);
   const [businessResources, setBusinessResources] = useState([]);
@@ -506,11 +634,47 @@ export default function StrategicPartnershipsTab({ currentUser: propUser }) {
   const role = (activeUser?.role || '').toLowerCase();
   const isAdmin = role === 'admin-manager' || role === 'marketer' || role === 'marketing';
 
+  const handleAddPartner = async () => {
+    const name = newPartnerName.trim();
+    if (!name) { toast.error('Partner name is required'); return; }
+    setSavingPartner(true);
+    try {
+      const base = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'partner';
+      await createSpPartner({
+        slug: `${SP_SERVICE_PREFIX}${base}-${Date.now().toString(36)}`,
+        display_name: name,
+        logo_lockup_status: 'not-approved',
+        display_order: partners.reduce((max, p) => Math.max(max, p.display_order || 0), 0) + 1,
+        is_active: true,
+      });
+      toast.success('Partner added');
+      setShowAddPartner(false);
+      setNewPartnerName('');
+      loadRoot();
+    } catch (err) {
+      toast.error('Failed to add partner: ' + err.message);
+    } finally {
+      setSavingPartner(false);
+    }
+  };
+
+  const handleRemovePartner = async () => {
+    try {
+      await updateSpPartner(partnerToRemove.id, { is_active: false });
+      toast.success('Partner removed');
+      if (selectedPartnerSlug === partnerToRemove.slug) setSelectedPartnerSlug(null);
+      setPartnerToRemove(null);
+      loadRoot();
+    } catch (err) {
+      toast.error('Failed to remove partner: ' + err.message);
+    }
+  };
+
   const handleOpenEditLink = (partner) => {
-    const defaultLink = PARTNER_LINKS[partner.slug]?.[0] || {
+    const defaultLink = isService ? { label: '', url: '' } : (PARTNER_LINKS[partner.slug]?.[0] || {
       label: `Explore IBM Consulting for ${partner.display_name}`,
       url: `https://www.ibm.com/consulting/${partner.slug}`
-    };
+    });
     setLinkForm({
       label: partner.custom_link_label || defaultLink.label,
       url: partner.custom_link_url || defaultLink.url,
@@ -549,14 +713,15 @@ export default function StrategicPartnershipsTab({ currentUser: propUser }) {
         listSpPartners(),
         listSpBusinessResources(),
       ]);
-      setPartners(partnersData.filter((p) => p.is_active));
+      // Strategic and Service partners share the sp_* tables; the slug prefix keeps them apart.
+      setPartners(partnersData.filter((p) => p.is_active && isServicePartner(p) === isService));
       setBusinessResources(resourcesData);
     } catch (err) {
       toast.error('Failed to load partnerships data');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isService]);
 
   useEffect(() => { loadRoot(); }, [loadRoot]);
 
@@ -592,7 +757,7 @@ export default function StrategicPartnershipsTab({ currentUser: propUser }) {
   if (loading) {
     return (
       <div style={{ padding: '2rem', display: 'flex', justifyContent: 'center' }}>
-        <InlineLoading description="Loading Strategic Partnerships…" />
+        <InlineLoading description={config.loadingText} />
       </div>
     );
   }
@@ -601,15 +766,15 @@ export default function StrategicPartnershipsTab({ currentUser: propUser }) {
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: '1.5rem 1rem 3rem' }}>
       {/* Tab header */}
       <div style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 700, margin: '0 0 0.25rem' }}>UKI Strategic Partnerships</h1>
-        <p style={{ color: '#525252', fontSize: '0.9rem', margin: 0 }}>Partner intelligence, resources, activities, and assets for the IBM UKI Strategic Partnerships team.</p>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 700, margin: '0 0 0.25rem' }}>{config.title}</h1>
+        <p style={{ color: '#525252', fontSize: '0.9rem', margin: 0 }}>{config.subtitle}</p>
       </div>
 
       {/* Page owner callout */}
-      <PageOwnerCallout resources={businessResources} isAdmin={isAdmin} onReload={loadRoot} />
+      <PageOwnerCallout resources={businessResources} isAdmin={isAdmin} onReload={loadRoot} config={config} />
 
       {/* Achievements carousel */}
-      <SpAchievementsCarousel isAdmin={isAdmin} currentUser={activeUser} partners={partners} />
+      <SpAchievementsCarousel isAdmin={isAdmin} currentUser={activeUser} partners={partners} scope={variant} />
 
       {/* Search bar */}
       <div style={{ marginBottom: '1.5rem' }}>
@@ -633,9 +798,23 @@ export default function StrategicPartnershipsTab({ currentUser: propUser }) {
       <div style={{ marginBottom: '2rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: '#161616' }}>Partner Sections</h2>
-          <span style={{ fontSize: '0.8rem', color: '#525252' }}>{partners.length} strategic partners</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ fontSize: '0.8rem', color: '#525252' }}>{partners.length} {config.countLabel}</span>
+            {isService && isAdmin && (
+              <Button kind="primary" size="sm" renderIcon={Add} onClick={() => setShowAddPartner(true)}>Add Partner</Button>
+            )}
+          </div>
         </div>
-        
+
+        {isService && partners.length === 0 && (
+          <div style={{ padding: '3rem 2rem', textAlign: 'center', background: '#f4f4f4', borderRadius: 8, marginBottom: '2rem' }}>
+            <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>No service partners yet</p>
+            <p style={{ fontSize: '0.875rem', color: '#525252', margin: 0 }}>
+              {isAdmin ? 'Use “Add Partner” to create the first partner section.' : 'Partner sections will appear here once they have been added.'}
+            </p>
+          </div>
+        )}
+
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
@@ -650,6 +829,8 @@ export default function StrategicPartnershipsTab({ currentUser: propUser }) {
               onClick={() => handlePartnerSelect(partner.slug)}
               isAdmin={isAdmin}
               onEditLink={handleOpenEditLink}
+              blank={isService}
+              onRemove={isService ? setPartnerToRemove : undefined}
             />
           ))}
         </div>
@@ -676,12 +857,52 @@ export default function StrategicPartnershipsTab({ currentUser: propUser }) {
         </div>
       </Modal>
 
-      {/* IBM Business Led Events document widget */}
+      {/* Featured document widget */}
       <IbmBusinessLedEventsWidget
         resources={businessResources}
         isAdmin={isAdmin}
         onReload={loadRoot}
+        config={config}
       />
+
+      {/* Add Partner Modal (service partners only) */}
+      <Modal
+        open={showAddPartner}
+        modalHeading="Add Service Partner"
+        primaryButtonText={savingPartner ? 'Saving…' : 'Add'}
+        secondaryButtonText="Cancel"
+        onRequestSubmit={handleAddPartner}
+        onRequestClose={() => setShowAddPartner(false)}
+        onSecondarySubmit={() => setShowAddPartner(false)}
+        size="sm"
+      >
+        <div style={{ paddingBottom: '1rem' }}>
+          <TextInput
+            id="add-partner-name"
+            labelText="Partner Name *"
+            value={newPartnerName}
+            onChange={(e) => setNewPartnerName(e.target.value)}
+          />
+          <p style={{ fontSize: '0.8rem', color: '#525252', marginTop: '0.5rem' }}>
+            You can add the logo, overview, contacts, resources and social kits after creating the partner.
+          </p>
+        </div>
+      </Modal>
+
+      {/* Remove Partner Modal */}
+      <Modal
+        open={!!partnerToRemove}
+        danger
+        modalHeading="Remove Partner"
+        primaryButtonText="Remove"
+        secondaryButtonText="Cancel"
+        onRequestSubmit={handleRemovePartner}
+        onRequestClose={() => setPartnerToRemove(null)}
+        onSecondarySubmit={() => setPartnerToRemove(null)}
+        size="sm"
+      >
+        <p>Remove <strong>{partnerToRemove?.display_name}</strong> from this page?</p>
+      </Modal>
 
       {/* Edit Partner Link Modal */}
       <Modal
@@ -698,7 +919,7 @@ export default function StrategicPartnershipsTab({ currentUser: propUser }) {
           <TextInput
             id="edit-partner-link-label"
             labelText="Link Wording *"
-            placeholder="e.g. Explore IBM Consulting for Microsoft"
+            placeholder="e.g. Explore IBM Consulting"
             value={linkForm.label}
             onChange={(e) => setLinkForm((prev) => ({ ...prev, label: e.target.value }))}
           />

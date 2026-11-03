@@ -62,6 +62,8 @@ const TABS = [
   { id: 'csr', label: 'CSR & Volunteering', description: 'Browse CSR and volunteering initiatives' },
   { id: 'sales-people-finder', label: 'Sales People Finder', description: 'Search and find aligned sales team members' },
   { id: 'strategic-partnerships', label: 'Strategic Partnerships', description: 'View UKI strategic partnerships hub and resources' },
+  { id: 'service-partners', label: 'Service Partners', description: 'View UKI service partners hub and resources' },
+  { id: 'marketing-store-room', label: 'Marketing Store Room', description: 'Browse and reserve merchandise, lightboxes, banners and iPads' },
 ];
 
 const ROLES = Object.entries(ROLE_CONFIG).map(([id, cfg]) => ({ id, ...cfg }));

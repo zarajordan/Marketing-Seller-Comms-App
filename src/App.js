@@ -20,6 +20,7 @@ import {
   UserMultiple,
   VideoFilled,
   Events,
+  Store,
 } from '@carbon/icons-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -43,6 +44,8 @@ import BookFilmingTab from './components/BookFilmingTab';
 import OnDemandTab from './components/OnDemandTab';
 import InternalEventsTab from './components/InternalEventsTab';
 import StrategicPartnershipsTab from './components/StrategicPartnershipsTab';
+import ServicePartnersTab from './components/ServicePartnersTab';
+import MarketingStoreRoomTab from './components/MarketingStoreRoomTab';
 import ThemeSelector from './components/ThemeSelector';
 import LoginPage from './components/LoginPage';
 import SetNewPasswordPage from './components/SetNewPasswordPage';
@@ -90,6 +93,13 @@ const SIDEBAR_SECTIONS = [
     label: 'Partners',
     items: [
       { id: 'strategic-partnerships', label: 'UKI Strategic Partnerships', icon: Portfolio },
+      { id: 'service-partners',       label: 'UKI Service Partners',       icon: Portfolio },
+    ],
+  },
+  {
+    label: 'Resources',
+    items: [
+      { id: 'marketing-store-room', label: 'Marketing Store Room', icon: Store },
     ],
   },
   {
@@ -125,6 +135,8 @@ const TAB_COMPONENTS = {
   'submit-partner-story':     SubmitPartnerStoryTab,
   'book-filming':             BookFilmingTab,
   'strategic-partnerships': StrategicPartnershipsTab,
+  'service-partners':    ServicePartnersTab,
+  'marketing-store-room': MarketingStoreRoomTab,
   'social-tiles':        SocialTilesTab,
   'csr':                 CSRTab,
   'dashboard':           DashboardTab,
@@ -370,7 +382,7 @@ function MainAppContent({ onLogout }) {
       if (selectedTabId === 'templates')              props.onUseTemplate = handleLoadTemplate;
       if (selectedTabId === 'drafts')                 { props.onEditDraft = handleEditDraft; props.currentUser = currentUser; }
       if (selectedTabId === 'event-library')          { props.onGenerateComm = handleGenerateComm; props.currentUser = currentUser; }
-      if (selectedTabId === 'strategic-partnerships') props.currentUser = currentUser;
+      if (selectedTabId === 'strategic-partnerships' || selectedTabId === 'service-partners' || selectedTabId === 'marketing-store-room') props.currentUser = currentUser;
       if (selectedTabId === 'for-review')      { props.filmingBookings = filmingBookings; props.onUpdateBookingStatus = handleUpdateBookingStatus; props.onDeleteBooking = handleDeleteBooking; props.storyRequests = storyRequests; props.onDismissStoryRequest = handleDismissStoryRequest; props.onDemandSubmissions = onDemandSubmissions; props.onApproveOnDemand = async (sub) => { await createOnDemandRecording({ title: sub.title, description: sub.description, event_date: sub.event_date, recording_url: sub.recording_url, thumbnail_url: sub.thumbnail_url, duration: sub.duration, presenter: sub.presenter, segment: sub.segment, product: sub.product, industry: sub.industry }); await deleteOnDemandSubmission(sub.id); setOnDemandSubmissions(prev => prev.filter(s => s.id !== sub.id)); }; props.onRejectOnDemand = async (id) => { await deleteOnDemandSubmission(id); setOnDemandSubmissions(prev => prev.filter(s => s.id !== id)); }; }
       if (selectedTabId === 'submit-partner-story') { props.onAddStoryRequest = handleAddStoryRequest; }
       if (selectedTabId === 'book-filming') { props.bookings = filmingBookings; props.availableDays = filmingAvailableDays; props.onAddBooking = handleAddBooking; props.onUpdateBooking = handleUpdateBooking; props.onUpdateBookingStatus = handleUpdateBookingStatus; props.onDeleteBooking = handleDeleteBooking; props.onAddAvailableDay = handleAddAvailableDay; props.onRemoveAvailableDay = handleRemoveAvailableDay; }
