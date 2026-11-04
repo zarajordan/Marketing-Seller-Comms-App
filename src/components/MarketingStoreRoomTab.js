@@ -249,6 +249,17 @@ function ItemCard({ item, inBasket, isAdmin, onDetails, onToggleBasket, onEdit, 
   );
 }
 
+// ── Lightbox notice ───────────────────────────────────────────
+const LIGHTBOX_NOTICE = 'Each lightbox requires 2 x skins (one per side). Select the correct size, remember to request the lightbox frame separately, and ensure it will fit within your allocated event space.';
+
+function LightboxNotice({ style }) {
+  return (
+    <div role="note" style={{ background: '#fcf4d6', borderLeft: '4px solid #f1c21b', borderRadius: 6, padding: '0.75rem 1rem', fontSize: '0.9rem', lineHeight: 1.5, color: '#161616', ...style }}>
+      <strong>Lightboxes:</strong> {LIGHTBOX_NOTICE}
+    </div>
+  );
+}
+
 // ── Details modal ─────────────────────────────────────────────
 function DetailsModal({ item, onClose }) {
   if (!item) return null;
@@ -260,6 +271,7 @@ function DetailsModal({ item, onClose }) {
         <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', color: '#525252' }}>
           {item.category} · {available} of {item.quantity} available
         </p>
+        {item.category === 'Lightbox' && <LightboxNotice style={{ marginBottom: '1rem' }} />}
         {item.description && <p style={{ lineHeight: 1.6 }}>{item.description}</p>}
         {(item.storage_area || item.storage_code || item.storage_detail) && (
           <p style={{ marginTop: '1rem' }}>
@@ -372,6 +384,7 @@ function BasketView({ basket, setBasket, bookings, currentUser, isAdmin, onSubmi
       {/* Basket */}
       <div style={panel}>
         <h2 style={panelTitle}>Your request basket</h2>
+        {basket.some((l) => l.item.category === 'Lightbox') && <LightboxNotice style={{ margin: '0.5rem 0 1rem' }} />}
         {basket.map(({ item, qty }) => {
           const avail = lineAvail(item);
           const max = Math.max(1, avail ? avail.free : item.quantity - item.reserved);
@@ -745,8 +758,12 @@ export default function MarketingStoreRoomTab({ currentUser: propUser }) {
   }, [items, category, search]);
 
   const basketIds = new Set(basket.map((l) => l.item.id));
-  const toggleBasket = (item) =>
+  const toggleBasket = (item) => {
+    if (item.category === 'Lightbox' && !basketIds.has(item.id)) {
+      toast.warning(LIGHTBOX_NOTICE, { autoClose: 10000 });
+    }
     setBasket((b) => (b.some((l) => l.item.id === item.id) ? b.filter((l) => l.item.id !== item.id) : [...b, { item, qty: 1 }]));
+  };
 
   const myReservations = reservations.filter((r) => r.requester_email === currentUser?.email);
   // Admins see full reservations. Sellers only get anonymous approved bookings (item, quantity, dates).
