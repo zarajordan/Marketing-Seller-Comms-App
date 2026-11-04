@@ -1439,10 +1439,22 @@ export const deleteStoreRoomItem = async (id) => {
   if (error) throw error;
 };
 
-export const uploadStoreRoomImage = async (file) => {
+// iPhone / Mac photos are often HEIC, which only Safari can display. Convert to JPEG before upload.
+const isHeic = (file) => /\.hei[cf]$/i.test(file.name) || /image\/hei[cf]/i.test(file.type);
+
+export const toWebImage = async (file) => {
+  if (!isHeic(file)) return file;
+  const { default: heic2any } = await import('heic2any');
+  const out = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.85 });
+  const blob = Array.isArray(out) ? out[0] : out;
+  return new File([blob], file.name.replace(/\.hei[cf]$/i, '') + '.jpg', { type: 'image/jpeg' });
+};
+
+export const uploadStoreRoomImage = async (original) => {
+  const file = await toWebImage(original);
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
   const fileName = `store-room/${Date.now()}-${safeName}`;
-  const { error } = await supabase.storage.from('event-documents').upload(fileName, file, { upsert: true });
+  const { error } = await supabase.storage.from('event-documents').upload(fileName, file, { upsert: true, contentType: file.type || undefined });
   if (error) throw error;
   return supabase.storage.from('event-documents').getPublicUrl(fileName).data.publicUrl;
 };

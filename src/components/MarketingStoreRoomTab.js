@@ -20,6 +20,7 @@ import {
   updateStoreRoomItem,
   deleteStoreRoomItem,
   uploadStoreRoomImage,
+  toWebImage,
   listStoreRoomReservations,
   createStoreRoomReservations,
   updateStoreRoomReservation,
@@ -149,7 +150,7 @@ function ItemModal({ open, item, onClose, onSaved }) {
         <div>
           <p style={{ fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.5rem', color: '#525252' }}>Photo</p>
           {preview && <img src={preview} alt="Preview" style={{ width: '100%', maxHeight: 180, objectFit: 'cover', borderRadius: 4, marginBottom: '0.5rem' }} />}
-          <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files[0]; if (!f) return; setFile(f); setPreview(URL.createObjectURL(f)); }} />
+          <input type="file" accept="image/*" onChange={async (e) => { const f = e.target.files[0]; if (!f) return; try { const web = await toWebImage(f); setFile(web); setPreview(URL.createObjectURL(web)); } catch (err) { toast.error('Could not read that image: ' + err.message); } }} />
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
           <div style={{ flex: 2 }}><TextInput id="sr-area" labelText="Storage area" placeholder="e.g. Marketing Cupboard" value={form.storage_area} onChange={set('storage_area')} /></div>
