@@ -53,6 +53,7 @@ module.exports = (env, argv) => {
   plugins: [
     new HtmlWebpackPlugin({
       template: './public/index.html',
+      hash: true, // cache-bust: index.html references bundle.js?<hash> so browsers fetch each new build
     }),
     new CopyPlugin({
       patterns: [
