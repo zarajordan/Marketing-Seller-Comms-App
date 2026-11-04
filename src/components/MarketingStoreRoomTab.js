@@ -823,7 +823,7 @@ export default function MarketingStoreRoomTab({ currentUser: propUser }) {
         {navBtn('basket', 'Request basket', basket.length)}
         {navBtn('mine', 'My requests')}
         {isAdmin && navBtn('requests', 'Admin: requests', pendingCount)}
-        {navBtn('schedule', isAdmin ? 'Admin: what\'s out & when' : 'What\'s out & when')}
+        {isAdmin && navBtn('schedule', 'Admin: what\'s out & when')}
       </div>
 
       {view === 'find' && (
@@ -877,7 +877,7 @@ export default function MarketingStoreRoomTab({ currentUser: propUser }) {
       )}
       {view === 'mine' && <ReservationsView reservations={myReservations} items={items} bookings={bookings} admin={false} onChanged={load} />}
       {view === 'requests' && isAdmin && <ReservationsView reservations={reservations} items={items} bookings={bookings} admin onChanged={load} />}
-      {view === 'schedule' && (
+      {view === 'schedule' && isAdmin && (
         <StoreRoomSchedule items={items} reservations={scheduleRows} admin={isAdmin} currentUser={currentUser} onChanged={load} />
       )}
 
