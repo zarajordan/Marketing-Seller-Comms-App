@@ -550,23 +550,19 @@ const sectionHeading = { margin: '0 0 0.75rem', fontSize: '0.95rem', fontWeight:
 
 // ── Reservations list (My reservations / Admin requests) ──────
 function ReservationsView({ reservations, items, bookings, admin, onChanged }) {
-  // Admins open on "To action": requests with a pending line, or approved items past their return date.
-  const [statusFilter, setStatusFilter] = useState(admin ? 'Action' : 'All');
+  // Admins open on Pending so approved requests drop off (they live on the calendar).
+  const [statusFilter, setStatusFilter] = useState(admin ? 'Pending' : 'All');
   const [busyId, setBusyId] = useState(null);
   const [expandedKey, setExpandedKey] = useState(null);
   const itemsById = Object.fromEntries(items.map((i) => [i.id, i]));
 
   const today = todayNum();
   const isOverdue = (r) => r.status === 'Approved' && !!r.needed_to && dayNum(r.needed_to) < today;
-  const needsAction = (r) => r.status === 'Pending' || isOverdue(r);
   // One basket submission creates one row per item; show them together as a single request.
   const keyOf = (r) => `${r.requester_email}|${r.event_name}|${r.created_at}`;
-  const actionKeys = new Set(reservations.filter(needsAction).map(keyOf));
 
   const counts = reservations.reduce((acc, r) => ({ ...acc, [r.status]: (acc[r.status] || 0) + 1 }), {});
-  const rows = statusFilter === 'Action'
-    ? reservations.filter((r) => actionKeys.has(keyOf(r)))
-    : reservations.filter((r) => statusFilter === 'All' || r.status === statusFilter);
+  const rows = reservations.filter((r) => statusFilter === 'All' || r.status === statusFilter);
 
   const groupMap = new Map();
   rows.forEach((r) => {
@@ -609,11 +605,11 @@ function ReservationsView({ reservations, items, bookings, admin, onChanged }) {
   return (
     <div>
       <div style={{ background: '#fff', borderRadius: 12, padding: '1rem 1.25rem', marginBottom: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-        {[...(admin ? ['Action'] : []), 'All', 'Pending', 'Approved', 'Rejected', 'Returned'].map((s) => {
-          const n = s === 'Action' ? actionKeys.size : s === 'All' ? reservations.length : (counts[s] || 0);
+        {['All', 'Pending', 'Approved', 'Rejected'].map((s) => {
+          const n = s === 'All' ? reservations.length : (counts[s] || 0);
           return (
             <button key={s} type="button" style={pill(statusFilter === s)} onClick={() => setStatusFilter(s)}>
-              {s === 'Action' ? 'To action' : s} <span style={{ opacity: 0.7, fontWeight: 500 }}>({n})</span>
+              {s} <span style={{ opacity: 0.7, fontWeight: 500 }}>({n})</span>
             </button>
           );
         })}
@@ -621,7 +617,7 @@ function ReservationsView({ reservations, items, bookings, admin, onChanged }) {
 
       {groups.length === 0 ? (
         <div style={{ background: '#fff', borderRadius: 12, padding: '3rem', textAlign: 'center', color: '#525252' }}>
-          {statusFilter === 'Action' ? 'Nothing needs your attention. Approved bookings are on the “what\'s out & when” calendar.' : admin ? 'No requests.' : 'You have not requested anything yet.'}
+          {statusFilter === 'Pending' && admin ? 'No pending requests. Approved bookings are on the “what\'s out & when” calendar.' : admin ? 'No requests.' : 'You have not requested anything yet.'}
         </div>
       ) : groups.map(([key, lines]) => {
         const g = lines[0];
