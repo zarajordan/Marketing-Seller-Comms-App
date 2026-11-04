@@ -241,7 +241,7 @@ function ItemCard({ item, inBasket, isAdmin, onDetails, onToggleBasket, onEdit, 
           {inBasket ? (
             <button type="button" style={cardBtn('added')} onClick={() => onToggleBasket(item)} title="Click to remove from basket">Added ✓</button>
           ) : (
-            <button type="button" style={cardBtn('primary', unavailable)} disabled={unavailable} onClick={() => onToggleBasket(item)}>Reserve</button>
+            <button type="button" style={cardBtn('primary', unavailable)} disabled={unavailable} onClick={() => onToggleBasket(item)}>Request</button>
           )}
         </div>
       </div>
@@ -277,7 +277,7 @@ function DetailsModal({ item, onClose }) {
   );
 }
 
-// ── Reservation basket ────────────────────────────────────────
+// ── Request basket ────────────────────────────────────────
 const EVENT_TYPES = ['Marketing event', 'Business event'];
 const BAY_REQUIRED = ['Unsure', 'Yes', 'No'];
 const BAY_BOOKED = ['To be reviewed', 'Yes', 'No', 'Not needed'];
@@ -344,7 +344,6 @@ function BasketView({ basket, setBasket, bookings, currentUser, isAdmin, onSubmi
         internal_notes: isAdmin ? (d.internal_notes.trim() || null) : null,
         status: 'Pending',
       })));
-      toast.success('Reservation request sent');
       setBasket([]);
       setDetails({ ...EMPTY_DETAILS, requester_name: currentUser?.name || '' });
       onSubmitted();
@@ -358,7 +357,7 @@ function BasketView({ basket, setBasket, bookings, currentUser, isAdmin, onSubmi
   if (basket.length === 0) {
     return (
       <div style={{ ...panel, padding: '3rem', textAlign: 'center' }}>
-        <p style={{ fontWeight: 600, marginBottom: '1rem' }}>Your reservation basket is empty</p>
+        <p style={{ fontWeight: 600, marginBottom: '1rem' }}>Your request basket is empty</p>
         <Button kind="primary" size="sm" onClick={goFind}>Find an item</Button>
       </div>
     );
@@ -372,7 +371,7 @@ function BasketView({ basket, setBasket, bookings, currentUser, isAdmin, onSubmi
     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) minmax(0, 2.2fr)', gap: '1.5rem', alignItems: 'start' }}>
       {/* Basket */}
       <div style={panel}>
-        <h2 style={panelTitle}>Your reservation basket</h2>
+        <h2 style={panelTitle}>Your request basket</h2>
         {basket.map(({ item, qty }) => {
           const avail = lineAvail(item);
           const max = Math.max(1, avail ? avail.free : item.quantity - item.reserved);
@@ -469,7 +468,7 @@ function BasketView({ basket, setBasket, bookings, currentUser, isAdmin, onSubmi
               {clashes.map((c) => c.item.name).join(', ')} {clashes.length === 1 ? 'is' : 'are'} not available in full for these dates. Change the dates or lower the quantity.
             </p>
           )}
-          <Button kind="primary" onClick={handleSubmit} disabled={submitting || clashes.length > 0}>{submitting ? 'Sending…' : 'Send reservation request'}</Button>
+          <Button kind="primary" onClick={handleSubmit} disabled={submitting || clashes.length > 0}>{submitting ? 'Sending…' : 'Send request'}</Button>
         </div>
       </div>
     </div>
@@ -600,7 +599,7 @@ function ReservationsView({ reservations, items, bookings, admin, onChanged }) {
 
       {groups.length === 0 ? (
         <div style={{ background: '#fff', borderRadius: 12, padding: '3rem', textAlign: 'center', color: '#525252' }}>
-          {admin ? 'No reservation requests.' : 'You have not reserved anything yet.'}
+          {admin ? 'No requests.' : 'You have not requested anything yet.'}
         </div>
       ) : groups.map(([key, lines]) => {
         const g = lines[0];
@@ -708,6 +707,7 @@ export default function MarketingStoreRoomTab({ currentUser: propUser }) {
   const [editItem, setEditItem] = useState(null);
   const [showItemModal, setShowItemModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [showRequestSent, setShowRequestSent] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -792,19 +792,19 @@ export default function MarketingStoreRoomTab({ currentUser: propUser }) {
       <div style={{ background: 'linear-gradient(90deg, #000814 0%, #002d9c 60%, #0f62fe 100%)', color: '#fff', borderRadius: 12, padding: '1.5rem 1.75rem', marginBottom: '1rem' }}>
         <h1 style={{ fontSize: '1.75rem', fontWeight: 700, margin: '0 0 0.25rem' }}>Marketing Store Room</h1>
         <p style={{ margin: '0 0 1rem', opacity: 0.85, fontSize: '0.9rem' }}>
-          See what merchandise, lightboxes, banners and iPads are available, where to find them, and reserve for your event.
+          See what merchandise, lightboxes, banners and iPads are available, where to find them, and request what you need for your event.
         </p>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <Button kind="secondary" size="md" onClick={() => setView('find')}>Browse assets</Button>
-          <Button kind="tertiary" size="md" style={{ color: '#fff', borderColor: '#fff' }} onClick={() => setView('basket')}>Start a reservation</Button>
+          <Button kind="tertiary" size="md" style={{ color: '#fff', borderColor: '#fff' }} onClick={() => setView('basket')}>Start a request</Button>
         </div>
       </div>
 
       {/* Nav */}
       <div style={{ background: '#fff', borderRadius: 12, padding: '0.6rem 1rem', marginBottom: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
         {navBtn('find', 'Find an item')}
-        {navBtn('basket', 'Reservation basket', basket.length)}
-        {navBtn('mine', 'My reservations')}
+        {navBtn('basket', 'Request basket', basket.length)}
+        {navBtn('mine', 'My requests')}
         {isAdmin && navBtn('requests', 'Admin: requests', pendingCount)}
         {navBtn('schedule', isAdmin ? 'Admin: what\'s out & when' : 'What\'s out & when')}
       </div>
@@ -856,7 +856,7 @@ export default function MarketingStoreRoomTab({ currentUser: propUser }) {
       )}
 
       {view === 'basket' && (
-        <BasketView basket={basket} setBasket={setBasket} bookings={bookings} currentUser={currentUser} isAdmin={isAdmin} onSubmitted={() => { load(); setView('mine'); }} goFind={() => setView('find')} />
+        <BasketView basket={basket} setBasket={setBasket} bookings={bookings} currentUser={currentUser} isAdmin={isAdmin} onSubmitted={() => { load(); setView('mine'); setShowRequestSent(true); }} goFind={() => setView('find')} />
       )}
       {view === 'mine' && <ReservationsView reservations={myReservations} items={items} bookings={bookings} admin={false} onChanged={load} />}
       {view === 'requests' && isAdmin && <ReservationsView reservations={reservations} items={items} bookings={bookings} admin onChanged={load} />}
@@ -864,6 +864,21 @@ export default function MarketingStoreRoomTab({ currentUser: propUser }) {
         <StoreRoomSchedule items={items} reservations={scheduleRows} admin={isAdmin} currentUser={currentUser} onChanged={load} />
       )}
 
+      <Modal
+        open={showRequestSent}
+        passiveModal
+        modalHeading="Thanks for your request"
+        onRequestClose={() => setShowRequestSent(false)}
+        size="sm"
+      >
+        <p style={{ marginBottom: '1rem' }}>
+          <strong>Your booking is not confirmed yet.</strong> The Events Marketing team will review your request and follow up with you on Slack to confirm.
+        </p>
+        <p style={{ color: '#525252', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+          Please don't assume the items are reserved for you until you've heard back. You can track the status under My requests.
+        </p>
+        <Button kind="primary" onClick={() => setShowRequestSent(false)}>Got it</Button>
+      </Modal>
       <DetailsModal item={detailsItem} onClose={() => setDetailsItem(null)} />
       <ItemModal open={showItemModal} item={editItem} onClose={() => setShowItemModal(false)} onSaved={load} />
       <Modal
@@ -877,7 +892,7 @@ export default function MarketingStoreRoomTab({ currentUser: propUser }) {
         onSecondarySubmit={() => setDeleteTarget(null)}
         size="sm"
       >
-        <p>Delete <strong>{deleteTarget?.name}</strong>? Any reservations for it will also be removed. This cannot be undone.</p>
+        <p>Delete <strong>{deleteTarget?.name}</strong>? Any requests for it will also be removed. This cannot be undone.</p>
       </Modal>
     </div>
   );
