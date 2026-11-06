@@ -54,7 +54,7 @@ export const getDefaultPermissions = (role) => {
 
   if (role === 'marketing') {
     return TAB_PERMISSIONS.reduce((permissions, tabId) => {
-      permissions[tabId] = tabId === 'event-library' || tabId === 'on-demand' || tabId === 'internal-events' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'analytics' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder' || tabId === 'strategic-partnerships' || tabId === 'service-partners' || tabId === 'marketing-store-room';
+      permissions[tabId] = tabId === 'event-library' || tabId === 'on-demand' || tabId === 'internal-events' || tabId === 'manage-events' || tabId === 'submit-event' || tabId === 'drafts' || tabId === 'client-stories' || tabId === 'submit-partner-story' || tabId === 'book-filming' || tabId === 'analytics' || tabId === 'social-tiles' || tabId === 'csr' || tabId === 'sales-people-finder' || tabId === 'strategic-partnerships' || tabId === 'service-partners' || tabId === 'marketing-store-room';
       return permissions;
     }, {});
   }
@@ -1440,13 +1440,13 @@ export const deleteStoreRoomItem = async (id) => {
 };
 
 // iPhone / Mac photos are often HEIC, which only Safari can display. Convert to JPEG before upload.
+// (heic-to bundles a current libheif; the older heic2any fails on recent iPhone files.)
 const isHeic = (file) => /\.hei[cf]$/i.test(file.name) || /image\/hei[cf]/i.test(file.type);
 
 export const toWebImage = async (file) => {
   if (!isHeic(file)) return file;
-  const { default: heic2any } = await import('heic2any');
-  const out = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.85 });
-  const blob = Array.isArray(out) ? out[0] : out;
+  const { heicTo } = await import('heic-to');
+  const blob = await heicTo({ blob: file, type: 'image/jpeg', quality: 0.85 });
   return new File([blob], file.name.replace(/\.hei[cf]$/i, '') + '.jpg', { type: 'image/jpeg' });
 };
 

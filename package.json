@@ -20,7 +20,7 @@
     "@tiptap/starter-kit": "^3.22.4",
     "carbon-components": "^10.59.2",
     "carbon-components-react": "^7.60.5",
-    "heic2any": "^0.0.4",
+    "heic-to": "^1.6.7",
     "html2canvas": "^1.4.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",

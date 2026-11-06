@@ -37,6 +37,10 @@ import {
 import { toast } from 'react-toastify';
 import RichTextEditor from './RichTextEditor';
 
+const DEFAULT_CALENDAR_URL = 'https://ibm.seismic.com/apps/doccenter/861ea1fd-99e0-44d7-9135-85412e5c28d1/doc/%2Fdd3359e5f7-a856-a91b-7688-41024b2ac637%2FdfNTY4NmVhOWItY2RkNS04ZWY3LTZkNzItZTQwZjczMWUyMjk1,PT0=,Q3Jvc3MgQnJhbmQ=%2FdfNDRmODBlMzMtY2ViMC0zMDI1LTVhNDEtNzg2OTg4MWVmZDBl,Others%2FdfOTRiYmU4NTQtNWY4NC03Y2QyLWZjYWUtOGIxYmFmZjkyZThk,PT0=,RXZlbnQ=%2Flf4eacf404-6c5d-4bab-b9fb-210600acd4f8/grid/?anchorId=1457083b-03ad-43dc-b9e3-98419ca9ab2d';
+
+
+
 const InlineEditableIntroText = ({ value, onChange }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
   const [draft, setDraft] = React.useState(value);
@@ -104,6 +108,8 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
   // Custom banner headings
   const [bannerTitle, setBannerTitle] = useState('UKI Marketing Spotlight');
   const [bannerSubtitle, setBannerSubtitle] = useState("Don't miss what's coming up in");
+  const [calendarLinkText, setCalendarLinkText] = useState('View Full Calendar');
+  const [calendarLinkUrl, setCalendarLinkUrl] = useState(DEFAULT_CALENDAR_URL);
   const [heroImageUrl, setHeroImageUrl] = useState('https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&q=80');
   const [introText, setIntroText] = useState('Please see below for the latest update on all upcoming events you can use to drive client engagement, deepen relationships and open new opportunities.');
   
@@ -1031,6 +1037,8 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
     revTechEvents,
     bannerTitle,
     bannerSubtitle,
+    calendarLinkText,
+    calendarLinkUrl,
     introText,
     useCustomColors,
     customColors,
@@ -1160,6 +1168,8 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
       setRevTechLinks(draftData.revTechLinks || []);
       setBannerTitle(draftData.bannerTitle || 'UKI Marketing Spotlight');
       setBannerSubtitle(draftData.bannerSubtitle || "Don't miss what's coming up in");
+      setCalendarLinkText(draftData.calendarLinkText || 'View Full Calendar');
+      setCalendarLinkUrl(draftData.calendarLinkUrl || DEFAULT_CALENDAR_URL);
       if (draftData.introText) {
         setIntroText(draftData.introText);
       }
@@ -1440,9 +1450,9 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
                     <table cellpadding="0" cellspacing="0" border="0">
                       <tr>
                         <td bgcolor="${currentColors.ibmBorder}" style="border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                          <a href="https://ibm.seismic.com/apps/doccenter/861ea1fd-99e0-44d7-9135-85412e5c28d1/doc/%2Fdd3359e5f7-a856-a91b-7688-41024b2ac637%2FdfNTY4NmVhOWItY2RkNS04ZWY3LTZkNzItZTQwZjczMWUyMjk1,PT0=,Q3Jvc3MgQnJhbmQ=%2FdfNDRmODBlMzMtY2ViMC0zMDI1LTVhNDEtNzg2OTg4MWVmZDBl,Others%2FdfOTRiYmU4NTQtNWY4NC03Y2QyLWZjYWUtOGIxYmFmZjkyZThk,PT0=,RXZlbnQ=%2Flf4eacf404-6c5d-4bab-b9fb-210600acd4f8/grid/?anchorId=1457083b-03ad-43dc-b9e3-98419ca9ab2d"
+                          <a href="${calendarLinkUrl}"
                              style="color: #ffffff; padding: 7px 16px; text-decoration: none; font-size: 11px; font-weight: 600; display: block; letter-spacing: 0.3px;">
-                            View Full Calendar
+                            ${calendarLinkText}
                           </a>
                         </td>
                       </tr>
@@ -2503,6 +2513,20 @@ const MarketingSpotlightTab = forwardRef(({ currentUser, ...props }, ref) => {
                 value={bannerSubtitle}
                 onChange={(e) => setBannerSubtitle(e.target.value)}
                 placeholder="Don't miss what's coming up in"
+              />
+              <TextInput
+                id="calendarLinkText"
+                labelText="📝 Calendar Button Text"
+                value={calendarLinkText}
+                onChange={(e) => setCalendarLinkText(e.target.value)}
+                placeholder="View Full Calendar"
+              />
+              <TextInput
+                id="calendarLinkUrl"
+                labelText="🔗 Calendar Button Link"
+                value={calendarLinkUrl}
+                onChange={(e) => setCalendarLinkUrl(e.target.value)}
+                placeholder="https://..."
               />
             </div>
             {layoutStyle === 'modern' && (

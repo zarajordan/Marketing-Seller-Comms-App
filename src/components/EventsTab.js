@@ -671,6 +671,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
                             )}
                           </div>
                           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                            {event.category === 'partnerLed' && <Tag type="gray" size="sm">Partner-led</Tag>}
                             {event.eventType && <Tag type="gray" size="sm">{event.eventType}</Tag>}
                             {event.industry && event.industry !== 'Cross-Industry' && <Tag type="gray" size="sm">{event.industry}</Tag>}
                           </div>
@@ -733,9 +734,16 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
                         }}
                         onClick={() => { if (!event.inviteOnly) toggleSelectEvent(event.id); }}
                       >
+                        {/* Partner-led banner */}
+                        {event.category === 'partnerLed' && (
+                          <div style={{ margin: '-20px -20px 16px', padding: '6px 20px', background: '#9f1853', color: '#ffffff', fontSize: '12px', fontWeight: 600, letterSpacing: '0.32px', textTransform: 'uppercase' }}>
+                            Partner-led Event
+                          </div>
+                        )}
+
                         {/* Checkbox top-right — hidden for invite-only events */}
                         {!event.inviteOnly && (
-                          <div style={{ position: 'absolute', top: '16px', right: '16px' }} onClick={(e) => e.stopPropagation()}>
+                          <div style={{ position: 'absolute', top: event.category === 'partnerLed' ? '40px' : '16px', right: '16px' }} onClick={(e) => e.stopPropagation()}>
                             <Checkbox
                               id={`event-${event.id}`}
                               labelText=""
@@ -1073,6 +1081,7 @@ const EventsTab = ({ onGenerateComm, currentUser }) => {
                     {previewEvent.regions.map(r => <Tag key={r} type="teal" size="sm">{r}</Tag>)}
                   </div>
                 )}
+                {previewEvent.category === 'partnerLed' && <div><Tag type="magenta" size="sm">Partner-led</Tag></div>}
                 {previewEvent.inviteOnly && <div><Tag type="red" size="sm">🔒 Invite Only</Tag></div>}
               </div>
             </div>
